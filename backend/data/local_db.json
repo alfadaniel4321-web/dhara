@@ -1,0 +1,203 @@
+{
+  "users": [
+    {
+      "_id": "w5hberc",
+      "id": "pvzdwwe",
+      "name": "Madhavan Nair (Wayanad Organic Farm)",
+      "email": "farmer@dhara.com",
+      "password": "$2a$10$L/TuAh4DQPufWMTGmJ.m0Ob6OM4h4Zm8pi2fBXBjWViq1OHbv7RpO",
+      "role": "farmer",
+      "phone": "+91 94471 23456",
+      "rating": 4.8,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-26T06:32:19.114Z",
+      "updatedAt": "2026-05-26T06:32:19.114Z"
+    },
+    {
+      "_id": "xsuyur2",
+      "id": "ghe8mpx",
+      "name": "Devika Rajan (Kuttanad Backwater Crops)",
+      "email": "devika@dhara.com",
+      "password": "$2a$10$L/TuAh4DQPufWMTGmJ.m0Ob6OM4h4Zm8pi2fBXBjWViq1OHbv7RpO",
+      "role": "farmer",
+      "phone": "+91 94476 54321",
+      "rating": 4.9,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-26T06:32:19.115Z",
+      "updatedAt": "2026-05-26T06:32:19.115Z"
+    },
+    {
+      "_id": "5d9d0rj",
+      "id": "yuy44df",
+      "name": "Albin Joseph",
+      "email": "customer@dhara.com",
+      "password": "$2a$10$L/TuAh4DQPufWMTGmJ.m0Ob6OM4h4Zm8pi2fBXBjWViq1OHbv7RpO",
+      "role": "customer",
+      "phone": "+91 98451 12233",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-26T06:32:19.115Z",
+      "updatedAt": "2026-05-26T06:32:19.115Z"
+    },
+    {
+      "_id": "i7w4emp",
+      "id": "8103mm4",
+      "name": "alfa",
+      "email": "alfadaniel@gmail.com",
+      "password": "$2a$10$Iy6psWSjSaUQnebb2WFm5OHvRzzfN3nfQ4mj8Eivs/x9ETN9LH4Qm",
+      "role": "customer",
+      "phone": "1234567891",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-26T06:38:00.477Z",
+      "updatedAt": "2026-05-26T06:38:00.477Z"
+    }
+  ],
+  "products": [
+    {
+      "_id": "br0cfjr",
+      "id": "5c5tcdm",
+      "title": "Kuttanad Duck Eggs (Tharavu Mutta)",
+      "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&q=80&w=400",
+      "category": "Eggs",
+      "quantity": "12 Nos",
+      "harvestDate": "2026-05-26T06:32:19.116Z",
+      "availableTime": "07:00 AM - 11:00 AM",
+      "nutrition": "Energy: 185 kcal, Iron: 3.8mg",
+      "protein": "12.8g",
+      "freshnessScore": 96,
+      "farmerId": "ghe8mpx",
+      "createdAt": "2026-05-26T06:32:19.116Z",
+      "updatedAt": "2026-05-26T06:32:19.116Z"
+    },
+    {
+      "_id": "ixezpgy",
+      "id": "r01p6ya",
+      "title": "Fresh Farm Tapioca (Kappa)",
+      "image": "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&q=80&w=400",
+      "category": "Vegetables",
+      "quantity": "2 kg",
+      "harvestDate": "2026-05-26T06:32:19.117Z",
+      "availableTime": "07:00 AM - 01:00 PM",
+      "nutrition": "Energy: 160 kcal, Carbs: 38g",
+      "protein": "1.4g",
+      "freshnessScore": 95,
+      "farmerId": "pvzdwwe",
+      "createdAt": "2026-05-26T06:32:19.117Z",
+      "updatedAt": "2026-05-26T06:32:19.117Z"
+    },
+    {
+      "_id": "x10n9mm",
+      "id": "x10n9mm",
+      "title": "Fresh A2 Malabar Cow Milk",
+      "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=400",
+      "category": "Milk",
+      "quantity": "1 Litre",
+      "harvestDate": "2026-05-26T06:32:19.115Z",
+      "availableTime": "06:00 AM - 10:00 AM",
+      "nutrition": "Energy: 64 kcal, Calcium: 120mg",
+      "protein": "3.3g",
+      "freshnessScore": 98,
+      "farmerId": {
+        "_id": "pvzdwwe",
+        "name": "Madhavan Nair (Wayanad Organic Farm)",
+        "rating": 4.8,
+        "blocked": false
+      },
+      "createdAt": "2026-05-26T08:14:54.865Z",
+      "updatedAt": "2026-05-26T08:14:54.865Z",
+      "stock": null
+    },
+    {
+      "_id": "2i64vvv",
+      "id": "2i64vvv",
+      "title": "Organic Nendran Bananas",
+      "image": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&q=80&w=400",
+      "category": "Vegetables",
+      "quantity": "1 kg",
+      "harvestDate": "2026-05-26T06:32:19.116Z",
+      "availableTime": "08:00 AM - 02:00 PM",
+      "nutrition": "Energy: 89 kcal, Potassium: 358mg",
+      "protein": "1.1g",
+      "freshnessScore": 97,
+      "farmerId": {
+        "_id": "pvzdwwe",
+        "name": "Madhavan Nair (Wayanad Organic Farm)",
+        "rating": 4.8,
+        "blocked": false
+      },
+      "createdAt": "2026-05-26T08:16:37.400Z",
+      "updatedAt": "2026-05-26T08:16:37.400Z",
+      "stock": null
+    }
+  ],
+  "orders": [
+    {
+      "_id": "1k3hald",
+      "id": "qf3ixer",
+      "customerId": "8103mm4",
+      "products": [
+        {
+          "productId": "x10n9mm",
+          "title": "Fresh A2 Malabar Cow Milk",
+          "quantity": "1 Litre",
+          "price": 50,
+          "count": 1,
+          "farmerId": "pvzdwwe"
+        }
+      ],
+      "totalPrice": 0,
+      "deliveryTime": "Morning",
+      "paymentStatus": "Pending",
+      "orderStatus": "Pending",
+      "subscriptionType": "One-time",
+      "status": "active",
+      "createdAt": "2026-05-26T08:14:54.870Z",
+      "updatedAt": "2026-05-26T08:14:54.870Z"
+    },
+    {
+      "_id": "2joef8g",
+      "id": "mq7chj6",
+      "customerId": "8103mm4",
+      "products": [
+        {
+          "productId": "2i64vvv",
+          "title": "Organic Nendran Bananas",
+          "quantity": "1 kg",
+          "price": 50,
+          "count": 2,
+          "farmerId": "pvzdwwe"
+        }
+      ],
+      "totalPrice": 0,
+      "deliveryTime": "Morning",
+      "paymentStatus": "Pending",
+      "orderStatus": "Pending",
+      "subscriptionType": "One-time",
+      "status": "active",
+      "createdAt": "2026-05-26T08:16:37.404Z",
+      "updatedAt": "2026-05-26T08:16:37.404Z"
+    }
+  ],
+  "feedbacks": [],
+  "carts": [
+    {
+      "_id": "rly20kh",
+      "id": "7xazmoc",
+      "userId": "8103mm4",
+      "products": [
+        {
+          "productId": "5c5tcdm",
+          "count": 1
+        }
+      ],
+      "totalPrice": 0,
+      "createdAt": "2026-05-26T08:12:22.668Z",
+      "updatedAt": "2026-05-26T08:12:22.668Z"
+    }
+  ]
+}

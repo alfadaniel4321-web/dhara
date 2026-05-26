@@ -1,0 +1,6 @@
+{
+  "ignore": [
+    "data/*",
+    "data/local_db.json"
+  ]
+}
