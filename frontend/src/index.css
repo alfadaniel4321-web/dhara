@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-size: clamp(13px, 1.1vw, 17px);
+}
+
 @layer base {
   body {
     @apply bg-farmgreen-950 text-emerald-100 antialiased font-sans selection:bg-farmgreen-500 selection:text-white;
@@ -51,6 +55,26 @@
 
 .pulse-glow {
   animation: pulseGlow 2.5s infinite;
+}
+
+/* Auth floating particles animation */
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-30px) translateX(15px) scale(1.2);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px) scale(0.9);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(-45px) translateX(5px) scale(1.1);
+    opacity: 0.7;
+  }
 }
 
 /* Custom layout constraints */

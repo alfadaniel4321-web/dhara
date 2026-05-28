@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 // Layouts
 import MainLayout from '../layouts/MainLayout';
@@ -23,6 +23,14 @@ import OrderTracking from '../pages/OrderTracking';
 import Wishlist from '../pages/Wishlist';
 import Subscription from '../pages/Subscription';
 import UserProfile from '../pages/UserProfile';
+import NearbyFarms from '../pages/NearbyFarms';
+import Products from '../pages/Products';
+import HarvestCountdown from '../pages/HarvestCountdown';
+import DailyOrders from '../pages/DailyOrders';
+import Farmers from '../pages/Farmers';
+import MyOrders from '../pages/MyOrders';
+import Chat from '../pages/Chat';
+import Offers from '../pages/Offers';
 
 // Farmer Pages
 import FarmerDashboard from '../pages/FarmerDashboard';
@@ -34,39 +42,68 @@ import Feedback from '../pages/Feedback';
 // Admin Page
 import AdminDashboard from '../pages/AdminDashboard';
 
+function ProtectedRoute() {
+  const { user } = useSelector((state) => state.auth);
+  if (!user) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+
+function PublicOnlyRoute() {
+  const { user } = useSelector((state) => state.auth);
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <Outlet />;
+}
+
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Auth Pages — fullscreen, no layout chrome */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
       {/* Public Pages Layout */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+      <Route element={<PublicOnlyRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
       </Route>
 
-      {/* Customer Dashboard Layout */}
-      <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/order-success" element={<OrderSuccess />} />
-        <Route path="/track/:id" element={<OrderTracking />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/subscription" element={<Subscription />} />
-        <Route path="/profile" element={<UserProfile />} />
+      {/* Customer Dashboard Layout (post-login home & sub-pages) */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/nearby-farms" element={<NearbyFarms />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/harvest-countdown" element={<HarvestCountdown />} />
+          <Route path="/daily-orders" element={<DailyOrders />} />
+          <Route path="/subscriptions" element={<Subscription />} />
+          <Route path="/farmers" element={<Farmers />} />
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/offers" element={<Offers />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/track/:id" element={<OrderTracking />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/subscription" element={<Subscription />} />
+          <Route path="/profile" element={<UserProfile />} />
+        </Route>
       </Route>
 
       {/* Farmer Dashboard Layout */}
-      <Route element={<FarmerLayout />}>
-        <Route path="/farmer" element={<FarmerDashboard />} />
-        <Route path="/farmer/add" element={<AddProduct />} />
-        <Route path="/farmer/manage" element={<ManageProducts />} />
-        <Route path="/farmer/orders" element={<OrdersManagement />} />
-        <Route path="/farmer/feedback" element={<Feedback />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<FarmerLayout />}>
+          <Route path="/farmer" element={<FarmerDashboard />} />
+          <Route path="/farmer/add" element={<AddProduct />} />
+          <Route path="/farmer/manage" element={<ManageProducts />} />
+          <Route path="/farmer/orders" element={<OrdersManagement />} />
+          <Route path="/farmer/feedback" element={<Feedback />} />
+        </Route>
       </Route>
 
       {/* Redirect Fallback */}

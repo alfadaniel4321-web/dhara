@@ -55,25 +55,51 @@
       "negativeFeedbacksCount": 0,
       "createdAt": "2026-05-26T06:38:00.477Z",
       "updatedAt": "2026-05-26T06:38:00.477Z"
+    },
+    {
+      "_id": "m83qfqr",
+      "id": "pn9ho6k",
+      "name": "alfa",
+      "email": "alfa@gmail.com",
+      "password": "$2a$10$wOf.ibfFDW05nI.NeG.jpeW32xYHheYL.W3WrGTVKaTPnqxI/j852",
+      "role": "customer",
+      "phone": "1234567890",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-28T07:34:22.926Z",
+      "updatedAt": "2026-05-28T07:34:22.926Z"
+    },
+    {
+      "_id": "mwf211h",
+      "id": "bzmak9r",
+      "name": "alfa",
+      "email": "aaaaa2@gmail.com",
+      "password": "$2a$10$mSr2YWqMuztoz6E/pxOzve72C8whIC56IjecE3mOWgVX4R.LGA3n.",
+      "role": "farmer",
+      "phone": "1212345345",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-28T07:36:22.342Z",
+      "updatedAt": "2026-05-28T07:36:22.342Z"
+    },
+    {
+      "_id": "t3tirel",
+      "id": "c66tys6",
+      "name": "alfa",
+      "email": "alfa@gamil.com",
+      "password": "$2a$10$klxs1nSDkgg8.70TL5ykzehqGTg6w9RwUL9qGvy7XaYZ8L/oTt.qS",
+      "role": "customer",
+      "phone": "1234567891",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-28T11:11:25.962Z",
+      "updatedAt": "2026-05-28T11:11:25.962Z"
     }
   ],
   "products": [
-    {
-      "_id": "br0cfjr",
-      "id": "5c5tcdm",
-      "title": "Kuttanad Duck Eggs (Tharavu Mutta)",
-      "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&q=80&w=400",
-      "category": "Eggs",
-      "quantity": "12 Nos",
-      "harvestDate": "2026-05-26T06:32:19.116Z",
-      "availableTime": "07:00 AM - 11:00 AM",
-      "nutrition": "Energy: 185 kcal, Iron: 3.8mg",
-      "protein": "12.8g",
-      "freshnessScore": 96,
-      "farmerId": "ghe8mpx",
-      "createdAt": "2026-05-26T06:32:19.116Z",
-      "updatedAt": "2026-05-26T06:32:19.116Z"
-    },
     {
       "_id": "ixezpgy",
       "id": "r01p6ya",
@@ -81,7 +107,7 @@
       "image": "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&q=80&w=400",
       "category": "Vegetables",
       "quantity": "2 kg",
-      "harvestDate": "2026-05-26T06:32:19.117Z",
+      "harvestDate": "2026-05-28T06:32:19.117Z",
       "availableTime": "07:00 AM - 01:00 PM",
       "nutrition": "Energy: 160 kcal, Carbs: 38g",
       "protein": "1.4g",
@@ -97,7 +123,7 @@
       "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=400",
       "category": "Milk",
       "quantity": "1 Litre",
-      "harvestDate": "2026-05-26T06:32:19.115Z",
+      "harvestDate": "2026-05-28T06:32:19.115Z",
       "availableTime": "06:00 AM - 10:00 AM",
       "nutrition": "Energy: 64 kcal, Calcium: 120mg",
       "protein": "3.3g",
@@ -117,9 +143,9 @@
       "id": "2i64vvv",
       "title": "Organic Nendran Bananas",
       "image": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&q=80&w=400",
-      "category": "Vegetables",
+      "category": "Fruits",
       "quantity": "1 kg",
-      "harvestDate": "2026-05-26T06:32:19.116Z",
+      "harvestDate": "2026-05-28T06:32:19.116Z",
       "availableTime": "08:00 AM - 02:00 PM",
       "nutrition": "Energy: 89 kcal, Potassium: 358mg",
       "protein": "1.1g",
@@ -132,6 +158,28 @@
       },
       "createdAt": "2026-05-26T08:16:37.400Z",
       "updatedAt": "2026-05-26T08:16:37.400Z",
+      "stock": null
+    },
+    {
+      "_id": "br0cfjr",
+      "id": "br0cfjr",
+      "title": "Kuttanad Duck Eggs (Tharavu Mutta)",
+      "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&q=80&w=400",
+      "category": "Eggs",
+      "quantity": "12 Nos",
+      "harvestDate": "2026-05-28T06:32:19.116Z",
+      "availableTime": "07:00 AM - 11:00 AM",
+      "nutrition": "Energy: 185 kcal, Iron: 3.8mg",
+      "protein": "12.8g",
+      "freshnessScore": 96,
+      "farmerId": {
+        "_id": "ghe8mpx",
+        "name": "Devika Rajan (Kuttanad Backwater Crops)",
+        "rating": 4.9,
+        "blocked": false
+      },
+      "createdAt": "2026-05-28T15:44:52.575Z",
+      "updatedAt": "2026-05-28T15:44:52.575Z",
       "stock": null
     }
   ],
@@ -181,6 +229,29 @@
       "status": "active",
       "createdAt": "2026-05-26T08:16:37.404Z",
       "updatedAt": "2026-05-26T08:16:37.404Z"
+    },
+    {
+      "_id": "w4ohh55",
+      "id": "dep5xbb",
+      "customerId": "pn9ho6k",
+      "products": [
+        {
+          "productId": "br0cfjr",
+          "title": "Kuttanad Duck Eggs (Tharavu Mutta)",
+          "quantity": "12 Nos",
+          "price": 50,
+          "count": 1,
+          "farmerId": "ghe8mpx"
+        }
+      ],
+      "totalPrice": 0,
+      "deliveryTime": "Morning",
+      "paymentStatus": "Pending",
+      "orderStatus": "Pending",
+      "subscriptionType": "One-time",
+      "status": "active",
+      "createdAt": "2026-05-28T15:44:52.577Z",
+      "updatedAt": "2026-05-28T15:44:52.577Z"
     }
   ],
   "feedbacks": [],
@@ -198,6 +269,24 @@
       "totalPrice": 0,
       "createdAt": "2026-05-26T08:12:22.668Z",
       "updatedAt": "2026-05-26T08:12:22.668Z"
+    },
+    {
+      "_id": "tnherlt",
+      "id": "pcv5bo3",
+      "userId": "pn9ho6k",
+      "products": [],
+      "totalPrice": 0,
+      "createdAt": "2026-05-28T07:34:48.431Z",
+      "updatedAt": "2026-05-28T07:34:48.431Z"
+    },
+    {
+      "_id": "ueru4ua",
+      "id": "j0jkxdp",
+      "userId": "c66tys6",
+      "products": [],
+      "totalPrice": 0,
+      "createdAt": "2026-05-28T12:29:00.426Z",
+      "updatedAt": "2026-05-28T12:29:00.426Z"
     }
   ]
 }

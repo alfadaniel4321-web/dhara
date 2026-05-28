@@ -1,39 +1,131 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function HeroSection() {
   return (
-    <div className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-12 text-center flex-grow flex flex-col justify-center">
-      <div className="animate-fade-in space-y-6">
-        <div className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 rounded-full text-emerald-400 text-xs font-semibold uppercase tracking-widest">
-          <span>🌿 Kerala Hyperlocal Direct</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-        </div>
-
-        <h1 className="text-4xl md:text-7xl font-extrabold text-white leading-tight tracking-tight max-w-4xl mx-auto">
-          Fresh Direct From <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-yellow-300 bg-clip-text text-transparent">Kerala Farmers</span>
-        </h1>
-
-        <p className="text-base md:text-xl text-emerald-100/90 max-w-xl mx-auto font-light leading-relaxed">
-          No middlemen. Better quality. Better life. Purchase premium organic harvests directly from local farms.
+    <div style={{
+      position: 'relative',
+      zIndex: 10,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+    }}>
+      <div style={{
+        opacity: 1,
+        animation: 'fadeIn 1.2s ease-out forwards',
+      }}>
+        <p style={{
+          fontFamily: '"Courier New", monospace',
+          fontSize: 'clamp(0.65rem, 1vw, 0.8rem)',
+          letterSpacing: '0.35em',
+          textTransform: 'uppercase',
+          color: '#A3C87A',
+          marginBottom: '1.5rem',
+        }}>
+          Kerala's Premium Organic Marketplace
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-          <Link 
-            to="/dashboard" 
-            className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-farmgreen-950 font-extrabold px-8 py-4 rounded-xl transition-all shadow-xl shadow-emerald-500/10 active:scale-95 text-base flex items-center justify-center space-x-2"
+        <h1 style={{
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: 'clamp(3.5rem, 10vw, 9rem)',
+          fontWeight: 400,
+          lineHeight: 0.92,
+          color: '#F5F3E7',
+          letterSpacing: '-0.03em',
+          margin: '0 0 0.5rem 0',
+        }}>
+          DHARA
+        </h1>
+
+        <p style={{
+          fontFamily: '"Courier New", monospace',
+          fontSize: 'clamp(0.7rem, 1.1vw, 0.9rem)',
+          letterSpacing: '0.5em',
+          textTransform: 'uppercase',
+          color: '#D4A017',
+          marginBottom: '2.5rem',
+        }}>
+          Farm • Table • Trust
+        </p>
+
+        <p style={{
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontSize: 'clamp(0.85rem, 1.2vw, 1.1rem)',
+          fontWeight: 300,
+          color: 'rgba(245, 243, 231, 0.75)',
+          maxWidth: '520px',
+          lineHeight: 1.7,
+          margin: '0 auto 3rem',
+        }}>
+          From Kerala's oldest organic families to your table — harvest to home in under 24 hours.
+        </p>
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1rem',
+          flexWrap: 'wrap',
+        }}>
+          <Link
+            to="/dashboard"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: '#1B4332',
+              color: '#F5F3E7',
+              fontFamily: '"Courier New", monospace',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              padding: '0.9rem 2rem',
+              border: '1px solid rgba(245,243,231,0.15)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.borderColor = '#D4A017'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#1B4332'; e.currentTarget.style.borderColor = 'rgba(245,243,231,0.15)'; }}
           >
-            <span>Shop Fresh Products</span>
-            <ChevronRight className="w-5 h-5" />
+            Shop now
+            <ArrowRight size={14} />
           </Link>
 
-          <Link 
-            to="/signup?role=farmer" 
-            className="w-full sm:w-auto bg-farmgreen-950/60 hover:bg-farmgreen-900 border border-emerald-800 text-emerald-400 hover:text-emerald-300 font-extrabold px-8 py-4 rounded-xl transition-all active:scale-95 text-base text-center"
+          <Link
+            to="/signup?role=farmer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              fontFamily: '"Courier New", monospace',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: '#A3C87A',
+              textDecoration: 'none',
+              padding: '0.9rem 0',
+              borderBottom: '1px solid rgba(163, 200, 122, 0.3)',
+              cursor: 'pointer',
+              transition: 'color 0.3s ease, border-color 0.3s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = '#D4A017';
+              e.currentTarget.style.borderBottomColor = '#D4A017';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = '#A3C87A';
+              e.currentTarget.style.borderBottomColor = 'rgba(163, 200, 122, 0.3)';
+            }}
           >
-            Become a Farmer
+            Sign in farmer
           </Link>
         </div>
       </div>

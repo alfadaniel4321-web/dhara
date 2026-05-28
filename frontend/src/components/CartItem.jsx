@@ -10,7 +10,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
         <img 
           src={product.image || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80&w=400'} 
           alt={product.title} 
-          className="w-16 h-16 object-cover rounded-xl bg-emerald-900/30 shrink-0" 
+          className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-xl bg-emerald-900/30 shrink-0" 
         />
         <div className="min-w-0">
           <h4 className="text-sm font-bold text-white truncate">{product.title || 'Fresh Produce'}</h4>
@@ -19,9 +19,9 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto">
         {/* Quantity Controls */}
-        <div className="flex items-center space-x-2 bg-emerald-950/60 p-1 rounded-lg border border-emerald-800/40">
+          <div className="flex items-center space-x-2 bg-emerald-950/60 p-1 rounded-lg border border-emerald-800/40 shrink-0">
           <button 
             onClick={() => onUpdateQuantity(product._id || product.id, item.count - 1)}
             className="p-1 text-emerald-300 hover:text-white rounded-md hover:bg-emerald-900 transition-colors"

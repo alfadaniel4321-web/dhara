@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCartLocal } from '../redux/slices/cartSlice';
 import { api } from '../services/api';
-import { Calendar, Clock, DollarSign, MapPin, ChevronRight, Check } from 'lucide-react';
+import { Clock, DollarSign, MapPin, ChevronRight, Check, Pencil } from 'lucide-react';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -11,7 +11,10 @@ export default function Checkout() {
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  const [address, setAddress] = useState(user?.address || '');
+  const saved = localStorage.getItem('dhara_delivery_address') || user?.address || '';
+  const [savedAddress] = useState(saved);
+  const [editingAddress, setEditingAddress] = useState(!saved);
+  const [address, setAddress] = useState(saved);
   const [deliveryTime, setDeliveryTime] = useState('Morning');
   const [deliveryDate, setDeliveryDate] = useState(() => {
     const tomorrow = new Date();
@@ -66,7 +69,8 @@ export default function Checkout() {
         paymentStatus: 'Pending' // COD is pending until hand-over
       });
 
-      // Save order details to local storage for success page
+      // Save address for future orders and order details for success page
+      localStorage.setItem('dhara_delivery_address', address.trim());
       localStorage.setItem('last_order_details', JSON.stringify(orderObj));
       
       // Clear client cart
@@ -91,20 +95,46 @@ export default function Checkout() {
         <div className="lg:col-span-2 space-y-6">
           {/* Address */}
           <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center">
-              <MapPin className="w-5 h-5 mr-2 text-emerald-400" />
-              1. Delivery Address
-            </h3>
-            <div>
-              <textarea 
-                value={address}
-                onChange={e => setAddress(e.target.value)}
-                placeholder="Enter complete shipping address in Kerala"
-                rows="3"
-                className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
-                required
-              />
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-white flex items-center">
+                <MapPin className="w-5 h-5 mr-2 text-emerald-400" />
+                1. Delivery Address
+              </h3>
+              {!editingAddress && (
+                <button
+                  type="button"
+                  onClick={() => { setAddress(savedAddress); setEditingAddress(true); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-700 text-emerald-300 text-xs font-semibold hover:bg-emerald-800/40 hover:text-white transition-all"
+                >
+                  <Pencil size={14} /> Change
+                </button>
+              )}
             </div>
+            {editingAddress ? (
+              <div>
+                <textarea
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                  placeholder="Enter complete shipping address in Kerala"
+                  rows="3"
+                  className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
+                  required
+                />
+                {savedAddress && (
+                  <button
+                    type="button"
+                    onClick={() => { setAddress(savedAddress); setEditingAddress(false); }}
+                    className="mt-2 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="bg-emerald-950/40 border border-emerald-800/60 rounded-xl p-4">
+                <p className="text-sm text-white leading-relaxed">{savedAddress}</p>
+              </div>
+            )}
           </div>
 
           {/* Delivery timings */}

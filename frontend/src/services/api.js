@@ -90,7 +90,7 @@ const initLocalStorageMock = () => {
         _id: 'prod3',
         title: 'Organic Nendran Bananas',
         image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&q=80&w=400',
-        category: 'Vegetables',
+        category: 'Fruits',
         price: 80,
         quantity: '1 kg',
         stock: 200,

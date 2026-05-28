@@ -21,7 +21,7 @@ export default function FarmerLayout() {
       <Navbar />
       <div className="flex-grow flex flex-col md:flex-row">
         <Sidebar role="farmer" />
-        <main className="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <main className="flex-grow p-4 md:p-8 max-w-screen-2xl mx-auto w-full">
           <Outlet />
         </main>
       </div>

@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   const totalRevenue = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+    <div className="space-y-6 max-w-screen-2xl mx-auto pb-12">
       <div className="border-b border-emerald-900/60 pb-4">
         <h2 className="text-2xl font-bold text-white flex items-center">
           <ShieldCheck className="w-6 h-6 mr-2 text-emerald-400" />

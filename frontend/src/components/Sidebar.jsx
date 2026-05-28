@@ -1,100 +1,154 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../redux/slices/authSlice';
-import { clearCartLocal } from '../redux/slices/cartSlice';
-import { 
-  ShoppingBag, 
-  Calendar, 
-  ShoppingCart, 
-  Clock, 
-  Heart, 
-  User, 
-  LogOut, 
-  TrendingUp, 
-  PlusCircle, 
-  Sliders, 
-  ListOrdered, 
-  MessageSquare,
-  BarChart2
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  Home, MapPin, Grid, Clock, ShoppingBag, RefreshCw, Users, Package,
+  MessageCircle, Tag, Info
 } from 'lucide-react';
 
-export default function Sidebar({ role = 'customer' }) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+const NAV_ITEMS = [
+  { icon: Home, label: 'Home', route: '/dashboard' },
+  { icon: MapPin, label: 'Nearby Farms', route: '/nearby-farms' },
+  { icon: Grid, label: 'All Products', route: '/products' },
+  { icon: Clock, label: 'Harvest Countdown', route: '/harvest-countdown' },
+  { icon: ShoppingBag, label: 'Daily Orders', route: '/daily-orders' },
+  { icon: RefreshCw, label: 'Subscriptions', route: '/subscriptions' },
+  { icon: Users, label: 'Farmers', route: '/farmers' },
+  { icon: Package, label: 'My Orders', route: '/my-orders' },
+  { icon: MessageCircle, label: 'Chat with Farmer', route: '/chat' },
+  { icon: Tag, label: 'Offers & Deals', route: '/offers' },
+  { icon: Info, label: 'About Us', route: '/about' },
+];
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    dispatch(clearCartLocal());
-    navigate('/');
+export default function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (route) => {
+    if (route.includes('#')) return location.hash === '#' + route.split('#')[1];
+    if (route === '/dashboard') return location.pathname === '/dashboard' && !location.hash;
+    return location.pathname === route;
   };
 
-  const customerLinks = [
-    { to: '/dashboard', label: 'Marketplace', icon: ShoppingBag },
-    { to: '/subscription', label: 'Subscriptions', icon: Calendar },
-    { to: '/cart', label: 'My Cart', icon: ShoppingCart },
-    { to: '/wishlist', label: 'My Wishlist', icon: Heart },
-    { to: '/profile', label: 'Profile & Orders', icon: User },
-  ];
-
-  const farmerLinks = [
-    { to: '/farmer', label: 'Overview', icon: BarChart2 },
-    { to: '/farmer/add', label: 'Add Harvest', icon: PlusCircle },
-    { to: '/farmer/manage', label: 'Manage Stock', icon: Sliders },
-    { to: '/farmer/orders', label: 'Incoming Orders', icon: ListOrdered },
-    { to: '/farmer/feedback', label: 'Trust & Feedback', icon: MessageSquare },
-    { to: '/profile', label: 'Settings', icon: User },
-  ];
-
-  const links = role === 'farmer' ? farmerLinks : customerLinks;
-
   return (
-    <aside className="w-full md:w-64 bg-emerald-950/30 border-r border-emerald-900/60 p-4 flex flex-row md:flex-col md:justify-between justify-around shrink-0 flex-wrap gap-2 md:gap-0">
-      <div className="w-full space-y-2 flex flex-row md:flex-col items-center md:items-stretch overflow-x-auto md:overflow-visible py-1 md:py-0">
-        <div className="hidden md:block px-3 py-2 text-xs uppercase tracking-widest text-emerald-500 font-semibold mb-2">
-          {role === 'farmer' ? 'Farmer Hub' : 'Marketplace'}
+    <aside style={{
+      width: '220px',
+      height: '100vh',
+      position: 'sticky',
+      top: 0,
+      background: '#013220',
+      display: 'flex',
+      flexDirection: 'column',
+      overflowY: 'auto',
+      boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
+    }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .fd-sidebar { display: none !important; }
+        }
+      `}</style>
+
+      <div className="fd-sidebar" style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        padding: '1.25rem 0.75rem',
+        boxSizing: 'border-box',
+      }}>
+        <div style={{
+          fontSize: '0.6rem',
+          fontWeight: 700,
+          color: '#7BE495',
+          textTransform: 'uppercase',
+          letterSpacing: '0.15em',
+          padding: '0.5rem 0.75rem 0.75rem',
+          opacity: 0.8,
+        }}>
+          MARKETPLACE
         </div>
 
-        {links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.to === '/dashboard' || link.to === '/farmer'}
-              className={({ isActive }) => 
-                `flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all shrink-0 w-auto md:w-full ${
-                  isActive 
-                    ? 'bg-emerald-500 text-farmgreen-950 shadow-md shadow-emerald-500/10' 
-                    : 'text-emerald-200/80 hover:bg-emerald-900/40 hover:text-white'
-                }`
-              }
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline md:inline">{link.label}</span>
-            </NavLink>
-          );
-        })}
+        <nav style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '2px',
+          padding: '0 0.25rem',
+        }}>
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.route);
+            return (
+              <div
+                key={item.label}
+                onClick={() => {
+                  if (item.route.startsWith('/dashboard') && item.route.includes('#')) {
+                    const id = item.route.split('#')[1];
+                    const el = document.getElementById('dash-' + id);
+                    if (el) { el.scrollIntoView({ behavior: 'smooth' }); return; }
+                  }
+                  navigate(item.route);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.7rem 0.85rem',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  background: active ? '#19C37D' : 'transparent',
+                  color: active ? '#013220' : 'rgba(255,255,255,0.85)',
+                  fontWeight: active ? 700 : 500,
+                  fontSize: '0.82rem',
+                  letterSpacing: '0.01em',
+                }}
+                onMouseEnter={e => {
+                  if (!active) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                    e.currentTarget.style.color = '#fff';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!active) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+                  }
+                }}
+              >
+                <Icon size={18} strokeWidth={active ? 2.5 : 1.8} />
+                <span>{item.label}</span>
+              </div>
+            );
+          })}
+        </nav>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all shrink-0 w-auto md:w-full text-red-400 hover:bg-red-950/20"
-        >
-          <LogOut className="w-4 h-4 shrink-0" />
-          <span className="hidden sm:inline md:inline">Log Out</span>
-        </button>
-      </div>
-
-      {role === 'farmer' && user && (
-        <div className="hidden md:block border-t border-emerald-900/60 pt-4 mt-4 w-full">
-          <div className="bg-emerald-950/60 border border-emerald-900 p-4 rounded-2xl text-center">
-            <div className="text-emerald-400 font-bold text-lg leading-tight">{user.rating || 5.0}★</div>
-            <div className="text-[10px] uppercase text-emerald-300/60 font-bold tracking-wider mt-0.5">Farmer Rating</div>
-            <div className="text-xs text-red-400/80 mt-2 font-mono">{user.negativeFeedbacksCount || 0} / 3 Strikes</div>
+        <div style={{
+          margin: '0.5rem 0.25rem 0.25rem',
+          padding: '1rem 0.85rem',
+          background: '#EBF5EB',
+          borderRadius: '16px',
+          textAlign: 'left',
+        }}>
+          <div style={{ fontSize: '1.4rem', marginBottom: '0.35rem' }}>🌱</div>
+          <div style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: '0.95rem',
+            fontWeight: 700,
+            color: '#013220',
+            lineHeight: 1.25,
+          }}>
+            Eat Fresh<br />Live Healthy
+          </div>
+          <div style={{
+            fontSize: '0.6rem',
+            color: '#555',
+            marginTop: '0.4rem',
+            lineHeight: 1.4,
+            fontWeight: 500,
+          }}>
+            Support Farmers Support Life
           </div>
         </div>
-      )}
+      </div>
     </aside>
   );
 }
