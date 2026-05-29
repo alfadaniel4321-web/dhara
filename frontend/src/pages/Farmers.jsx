@@ -1,32 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users, Search, Star, Mail, UserPlus, ChevronRight, MapPin, Award
 } from "lucide-react";
-
-const FARMERS = [
-  { id: 1, name: "Madhavan Nair", age: 54, experience: "28 yrs", specialty: "Dairy & Eggs", rating: 4.9, reviews: 32, crops: ["Duck Eggs", "Milk", "Curd"], location: "Kuttanad", followed: false, image: null },
-  { id: 2, name: "Devika Rajan", age: 38, experience: "15 yrs", specialty: "Organic Vegetables", rating: 4.8, reviews: 28, crops: ["Tomato", "Spinach", "Chilli"], location: "Idukki", followed: true, image: null },
-  { id: 3, name: "Anil Kumar", age: 45, experience: "20 yrs", specialty: "Fruits & Spices", rating: 4.7, reviews: 21, crops: ["Banana", "Papaya", "Coconut"], location: "Palakkad", followed: false, image: null },
-  { id: 4, name: "Saraswati Menon", age: 42, experience: "18 yrs", specialty: "Fresh Milk & Curd", rating: 5.0, reviews: 45, crops: ["Milk", "Curd", "Buttermilk"], location: "Kozhikode", followed: true, image: null },
-  { id: 5, name: "Rajesh Pillai", age: 50, experience: "25 yrs", specialty: "Rice & Grains", rating: 4.6, reviews: 18, crops: ["Kuttanad Rice", "Wheat"], location: "Alappuzha", followed: false, image: null },
-  { id: 6, name: "Lekshmi Varma", age: 35, experience: "12 yrs", specialty: "Honey & Herbs", rating: 4.9, reviews: 37, crops: ["Raw Honey", "Herbal Tea", "Turmeric"], location: "Wayanad", followed: false, image: null },
-  { id: 7, name: "Suresh Chandran", age: 48, experience: "22 yrs", specialty: "Free Range Poultry", rating: 4.7, reviews: 24, crops: ["Country Chicken", "Eggs"], location: "Thrissur", followed: true, image: null },
-  { id: 8, name: "Geetha Nambiar", age: 40, experience: "16 yrs", specialty: "Organic Spices", rating: 4.8, reviews: 29, crops: ["Coconut Oil", "Pepper", "Cardamom"], location: "Munnar", followed: false, image: null },
-];
+import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Farmers() {
   const [search, setSearch] = useState("");
-  const [farmers, setFarmers] = useState(FARMERS);
+  const [farmers, setFarmers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadFarmers = async () => {
+    setLoading(true);
+    try {
+      const data = await api.auth.getFarmers();
+      setFarmers(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFarmers();
+  }, []);
 
   const filtered = farmers.filter(f =>
-    f.name.toLowerCase().includes(search.toLowerCase()) ||
-    f.specialty.toLowerCase().includes(search.toLowerCase()) ||
-    f.location.toLowerCase().includes(search.toLowerCase())
+    (f.name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (f.specialty || '').toLowerCase().includes(search.toLowerCase()) ||
+    (f.location || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleFollow = (id) => {
-    setFarmers(prev => prev.map(f => f.id === id ? { ...f, followed: !f.followed } : f));
+    setFarmers(prev => prev.map(f => (f.id === id || f._id === id) ? { ...f, followed: !f.followed } : f));
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -60,7 +70,7 @@ export default function Farmers() {
         display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "1.25rem",
       }}>
         {filtered.map(f => (
-          <div key={f.id} style={{
+          <div key={f.id || f._id} style={{
             background: "white", borderRadius: "16px", padding: "1.5rem",
             boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
           }}>
@@ -70,15 +80,15 @@ export default function Farmers() {
                 background: "linear-gradient(135deg,#EBF5EB,#D5ECD5)", display: "flex", alignItems: "center",
                 justifyContent: "center", fontSize: "1.5rem", fontWeight: 700, color: "#013220", flexShrink: 0,
               }}>
-                {f.name.split(" ").map(n => n[0]).join("")}
+                {(f.name || "F").split(" ").map(n => n[0]).join("")}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ fontWeight: 700, color: "#013220", fontSize: "1.05rem" }}>{f.name}</div>
-                    <div style={{ fontSize: "0.72rem", color: "#777" }}>{f.age} yrs · {f.experience} exp</div>
+                    <div style={{ fontSize: "0.72rem", color: "#777" }}>{f.email}</div>
                   </div>
-                  <button onClick={() => toggleFollow(f.id)} style={{
+                  <button onClick={() => toggleFollow(f.id || f._id)} style={{
                     display: "flex", alignItems: "center", gap: "4px",
                     background: f.followed ? "#EBF5EB" : "#013220",
                     color: f.followed ? "#013220" : "white",
@@ -91,27 +101,22 @@ export default function Farmers() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "6px" }}>
                   <Star size={12} fill="#D4A017" color="#D4A017" />
-                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#013220" }}>{f.rating}</span>
-                  <span style={{ fontSize: "0.7rem", color: "#777" }}>({f.reviews} reviews)</span>
+                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#013220" }}>{f.rating || "N/A"}</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px", fontSize: "0.75rem", color: "#6A994E" }}>
-                  <MapPin size={10} /> {f.location}
-                </div>
+                {f.location && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px", fontSize: "0.75rem", color: "#6A994E" }}>
+                    <MapPin size={10} /> {f.location}
+                  </div>
+                )}
               </div>
             </div>
 
             <div style={{ marginBottom: "1rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontSize: "0.75rem", fontWeight: 600, color: "#013220" }}>
-                <Award size={14} color="#6A994E" /> {f.specialty}
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                {f.crops.map((crop, i) => (
-                  <span key={i} style={{
-                    background: "#EBF5EB", padding: "0.2rem 0.6rem", borderRadius: "999px",
-                    fontSize: "0.68rem", color: "#013220", fontWeight: 500,
-                  }}>{crop}</span>
-                ))}
-              </div>
+              {f.specialty && (
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontSize: "0.75rem", fontWeight: 600, color: "#013220" }}>
+                  <Award size={14} color="#6A994E" /> {f.specialty}
+                </div>
+              )}
             </div>
 
             <div style={{ display: "flex", gap: "0.5rem" }}>

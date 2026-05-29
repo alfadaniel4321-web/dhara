@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { isDbConnected, readLocalDb, writeLocalDb } = require('../config/db');
 
 const CartSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  userId: { type: String, required: true },
   products: [{
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    productId: { type: String, required: true },
     count: { type: Number, default: 1 }
   }],
   totalPrice: { type: Number, default: 0 }
@@ -14,7 +14,7 @@ const RealCartModel = mongoose.model('Cart', CartSchema);
 
 const MockCart = {
   findOne: async (query) => {
-    if (isDbConnected()) return RealCartModel.findOne(query).populate('products.productId');
+    if (isDbConnected()) return RealCartModel.findOne(query);
     const db = readLocalDb();
     if (!db.carts) db.carts = [];
     

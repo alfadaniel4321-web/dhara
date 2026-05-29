@@ -3,8 +3,12 @@ const router = express.Router();
 const productController = require('../controllers/productController');
 const authMiddleware = require('../middleware/auth');
 
-router.post('/', authMiddleware, productController.createProduct);
-router.get('/', productController.getProducts);
 router.get('/nearby', productController.getNearbyProducts);
+router.get('/farmer/:farmerId', productController.getFarmerProducts);
+router.get('/:id', productController.getProduct);
+router.get('/', productController.getProducts);
+router.post('/', authMiddleware, productController.createProduct);
+router.put('/:id', authMiddleware, productController.updateProduct);
+router.delete('/:id', authMiddleware, productController.deleteProduct);
 
 module.exports = router;

@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { isDbConnected, readLocalDb, writeLocalDb } = require('../config/db');
 
 const PreOrderSchema = new mongoose.Schema({
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  customerId: { type: String, required: true },
+  productId: { type: String, required: true },
+  farmerId: { type: String, required: true },
   quantity: { type: Number, required: true, default: 1 },
   productTitle: { type: String, required: true },
   productName: { type: String, required: true },

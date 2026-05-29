@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { isDbConnected, readLocalDb, writeLocalDb } = require('../config/db');
 
 const FeedbackSchema = new mongoose.Schema({
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  customerId: { type: String, required: true },
+  farmerId: { type: String, required: true },
   rating: { type: Number, required: true },
   review: { type: String, required: true },
   negative: { type: Boolean, default: false }
@@ -29,7 +29,7 @@ const MockFeedback = {
 
   find: async (query = {}) => {
     if (isDbConnected()) {
-      return RealFeedbackModel.find(query).populate('customerId', 'name').populate('farmerId', 'name');
+      return RealFeedbackModel.find(query);
     }
     const db = readLocalDb();
     let filtered = [...db.feedbacks];

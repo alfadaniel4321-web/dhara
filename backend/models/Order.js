@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { isDbConnected, readLocalDb, writeLocalDb } = require('../config/db');
 
 const OrderSchema = new mongoose.Schema({
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  customerId: { type: String, required: true },
   products: [{
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    productId: { type: String },
     title: { type: String, required: true },
     quantity: { type: String, required: true },
     price: { type: Number, default: 0 },
@@ -40,7 +40,7 @@ const MockOrder = {
 
   find: async (query = {}) => {
     if (isDbConnected()) {
-      return RealOrderModel.find(query).populate('customerId', 'name email phone');
+      return RealOrderModel.find(query);
     }
     const db = readLocalDb();
     let filtered = [...db.orders];

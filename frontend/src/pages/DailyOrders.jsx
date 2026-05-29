@@ -1,30 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  ShoppingBag, Clock, RefreshCw, ChevronRight, Package, CheckCircle, Truck
+  ShoppingBag, Clock, RefreshCw, Package, CheckCircle, Truck
 } from "lucide-react";
-
-const TODAY_ORDERS = [
-  { id: "ORD-001", items: ["Kuttanad Duck Eggs", "Fresh Tapioca"], total: 117, status: "Out for Delivery", time: "07:30 AM", eta: "08:15 AM", deliveryBy: "Raju" },
-  { id: "ORD-002", items: ["Organic Tomato", "Farm Fresh Milk"], total: 90, status: "Preparing", time: "08:00 AM", eta: "09:00 AM", deliveryBy: "Suresh" },
-  { id: "ORD-003", items: ["Country Chicken", "Green Chilli"], total: 295, status: "Delivered", time: "06:45 AM", eta: "07:15 AM", deliveryBy: "Raju" },
-  { id: "ORD-004", items: ["Coconut Oil", "Raw Honey"], total: 530, status: "Confirmed", time: "09:30 AM", eta: "10:30 AM", deliveryBy: "Suresh" },
-];
+import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const STATUS_STYLES = {
   "Delivered": { bg: "#EBF5EB", color: "#2D6A4F", icon: CheckCircle },
-  "Out for Delivery": { bg: "#E8F4FD", color: "#1A73E8", icon: Truck },
-  "Preparing": { bg: "#FFF8E7", color: "#D4A017", icon: Package },
-  "Confirmed": { bg: "#F4F6F3", color: "#777", icon: Clock },
+  "In Transit": { bg: "#E8F4FD", color: "#1A73E8", icon: Truck },
+  "Processing": { bg: "#FFF8E7", color: "#D4A017", icon: Package },
+  "Pending": { bg: "#F4F6F3", color: "#777", icon: Clock },
 };
 
 export default function DailyOrders() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const filters = ["All", "Active", "Delivered"];
 
-  const filtered = filter === "All" ? TODAY_ORDERS : filter === "Active" ? TODAY_ORDERS.filter(o => o.status !== "Delivered") : TODAY_ORDERS.filter(o => o.status === "Delivered");
+  const loadOrders = async () => {
+    setLoading(true);
+    try {
+      const data = await api.orders.getOrders();
+      setOrders(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalAmount = TODAY_ORDERS.filter(o => o.status !== "Delivered").reduce((sum, o) => sum + o.total, 0);
-  const totalItems = TODAY_ORDERS.filter(o => o.status !== "Delivered").reduce((sum, o) => sum + o.items.length, 0);
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const filtered = filter === "All" ? orders : filter === "Active" ? orders.filter(o => o.orderStatus !== "Delivered") : orders.filter(o => o.orderStatus === "Delivered");
+
+  const totalAmount = orders.filter(o => o.orderStatus !== "Delivered").reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+  const totalItems = orders.filter(o => o.orderStatus !== "Delivered").reduce((sum, o) => sum + (o.products?.length || 0), 0);
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -41,7 +56,7 @@ export default function DailyOrders() {
         </div>
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
           {[
-            { label: "Pending Orders", value: TODAY_ORDERS.filter(o => o.status !== "Delivered").length },
+            { label: "Pending Orders", value: orders.filter(o => o.orderStatus !== "Delivered").length },
             { label: "Total Items", value: totalItems },
             { label: "Total Amount", value: `₹${totalAmount}` },
           ].map((s, i) => (
@@ -71,17 +86,18 @@ export default function DailyOrders() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {filtered.map(order => {
-          const statusInfo = STATUS_STYLES[order.status] || STATUS_STYLES["Confirmed"];
+          const status = order.orderStatus || "Pending";
+          const statusInfo = STATUS_STYLES[status] || STATUS_STYLES["Pending"];
           const StatusIcon = statusInfo.icon;
           return (
-            <div key={order.id} style={{
+            <div key={order.id || order._id} style={{
               background: "white", borderRadius: "16px", padding: "1.5rem",
               boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
                 <div>
-                  <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.9rem" }}>{order.id}</div>
-                  <div style={{ fontSize: "0.75rem", color: "#777" }}>{order.time} — ETA: {order.eta}</div>
+                  <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.9rem" }}>#{order.id || order._id}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#777" }}>{new Date(order.createdAt).toLocaleString()}</div>
                 </div>
                 <span style={{
                   display: "flex", alignItems: "center", gap: "4px",
@@ -90,24 +106,23 @@ export default function DailyOrders() {
                   fontSize: "0.65rem", fontWeight: 700, whiteSpace: "nowrap",
                 }}>
                   <StatusIcon size={12} />
-                  {order.status}
+                  {status}
                 </span>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.75rem" }}>
-                {order.items.map((item, i) => (
+                {(order.products || []).map((item, i) => (
                   <span key={i} style={{
                     background: "#F4F6F3", padding: "0.25rem 0.7rem", borderRadius: "999px",
                     fontSize: "0.72rem", color: "#555",
-                  }}>{item}</span>
+                  }}>{item.title || item.productId} x{item.count}</span>
                 ))}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F4F6F3", paddingTop: "0.75rem" }}>
                 <div>
-                  <span style={{ fontSize: "0.7rem", color: "#777" }}>Delivery by </span>
-                  <span style={{ fontWeight: 600, fontSize: "0.8rem", color: "#013220" }}>{order.deliveryBy}</span>
+                  <span style={{ fontSize: "0.7rem", color: "#777" }}>{order.deliveryTime || 'Morning'} delivery</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <span style={{ fontWeight: 800, color: "#013220", fontSize: "1.1rem" }}>₹{order.total}</span>
+                  <span style={{ fontWeight: 800, color: "#013220", fontSize: "1.1rem" }}>₹{order.totalPrice || 0}</span>
                   <button style={{
                     display: "flex", alignItems: "center", gap: "4px", background: "#EBF5EB", color: "#013220",
                     border: "none", borderRadius: "10px", padding: "0.5rem 1rem", cursor: "pointer",

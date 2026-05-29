@@ -109,6 +109,26 @@ exports.login = async (req, res) => {
   }
 };
 
+// Get all farmers
+exports.getFarmers = async (req, res) => {
+  try {
+    const farmers = await User.find({ role: 'farmer', blocked: false });
+    res.json(farmers.map(f => ({
+      id: f.id || f._id,
+      _id: f._id || f.id,
+      name: f.name,
+      email: f.email,
+      phone: f.phone,
+      rating: f.rating,
+      blocked: f.blocked,
+      negativeFeedbacksCount: f.negativeFeedbacksCount
+    })));
+  } catch (err) {
+    console.error('Get farmers error:', err);
+    res.status(500).json({ message: 'Server error fetching farmers' });
+  }
+};
+
 // Get User Profile
 exports.getMe = async (req, res) => {
   try {

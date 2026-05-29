@@ -130,19 +130,12 @@ export default function Dashboard() {
   }, []);
 
   const todayStr = new Date().toISOString().slice(0, 10);
-  const harvestProducts = products.length > 0 ? products : [
-    { id: 1, title: "Fresh A2 Malabar Cow Milk", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=800", price: 65, quantity: "1 Litre", category: "Milk", harvestDate: new Date().toISOString() },
-    { id: 2, title: "Kuttanad Duck Eggs", image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?q=80&w=800", price: 72, quantity: "12 Nos", category: "Eggs", harvestDate: new Date().toISOString() },
-    { id: 3, title: "Organic Nendran Bananas", image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b6f9?q=80&w=800", price: 30, quantity: "1 Dozen", category: "Fruits", harvestDate: new Date().toISOString() },
-    { id: 4, title: "Fresh Farm Tapioca", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800", price: 45, quantity: "2 Kg", category: "Vegetables", harvestDate: new Date().toISOString() },
-    { id: 5, title: "Organic Tomato", image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?q=80&w=800", price: 35, quantity: "1 Kg", category: "Vegetables", harvestDate: new Date().toISOString() },
-  ];
-  const todayHarvest = harvestProducts.filter(p => {
+  const todayHarvest = products.filter(p => {
     const harvestDay = p.harvestDate ? p.harvestDate.slice(0, 10) : '';
     return harvestDay === todayStr;
   });
 
-  const displayProducts = todayHarvest.length > 0 ? todayHarvest : harvestProducts;
+  const displayProducts = todayHarvest.length > 0 ? todayHarvest : products;
 
   const filteredProducts = displayProducts.filter(p =>
     !search || p.title.toLowerCase().includes(search.toLowerCase())

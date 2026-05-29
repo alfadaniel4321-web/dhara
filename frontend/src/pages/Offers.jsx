@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from "react";
 import {
-  Tag, Copy, Clock, Zap, ChevronRight, Gift, Sparkles, ShoppingBag
+  Tag, Clock, Zap, Gift, ShoppingBag, Sparkles
 } from "lucide-react";
-
-const COUPONS = [
-  { code: "HARVEST15", discount: "15% OFF", minOrder: "₹200", validTill: "Jun 15, 2026", used: false, desc: "Fresh Harvest Season Sale" },
-  { code: "FRESH10", discount: "10% OFF", minOrder: "₹100", validTill: "Jun 10, 2026", used: false, desc: "First Order Discount" },
-  { code: "ORGANIC20", discount: "20% OFF", minOrder: "₹500", validTill: "Jun 20, 2026", used: true, desc: "Organic Products Special" },
-  { code: "FARMFRESH", discount: "Free Delivery", minOrder: "₹150", validTill: "Jun 25, 2026", used: false, desc: "Free Delivery on All Orders" },
-  { code: "WELCOME50", discount: "₹50 OFF", minOrder: "₹300", validTill: "Jul 1, 2026", used: false, desc: "Welcome Offer for New Users" },
-  { code: "MONSOON25", discount: "25% OFF", minOrder: "₹750", validTill: "Jun 30, 2026", used: false, desc: "Monsoon Season Special" },
-];
-
-const DEALS = [
-  { title: "Buy 2 Get 1 Free", desc: "On all dairy products", validTill: "Jun 5, 2026", icon: Gift, color: "#013220" },
-  { title: "Free Delivery", desc: "On orders above ₹300", validTill: "Ongoing", icon: ShoppingBag, color: "#6A994E" },
-  { title: "Combo Offer", desc: "Eggs + Milk at ₹99 only", validTill: "Jun 10, 2026", icon: Sparkles, color: "#D4A017" },
-];
+import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Offers() {
+  const [products, setProducts] = useState([]);
   const [copied, setCopied] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState({ h: "00", m: "00", s: "00" });
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const data = await api.products.getProducts();
+        setProducts(data.filter(p => p.offerDetails) || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -44,13 +48,14 @@ export default function Offers() {
     });
   };
 
+  if (loading) return <LoadingSpinner />;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       <div style={{
         background: "linear-gradient(135deg,#013220,#14532d)",
         borderRadius: "20px", padding: "2rem 2.5rem", color: "white", position: "relative", overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", top: "-30px", right: "-20px", fontSize: "6rem", opacity: 0.08 }}>🎉</div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Tag size={28} color="#7BE495" />
           <div>
@@ -70,79 +75,92 @@ export default function Offers() {
         </div>
       </div>
 
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1rem",
-      }}>
-        {COUPONS.map((c, i) => (
-          <div key={i} style={{
-            background: c.used ? "#F9F9F9" : "white",
-            borderRadius: "16px", padding: "1.5rem",
-            boxShadow: c.used ? "none" : "0 4px 16px rgba(0,0,0,0.06)",
-            border: c.used ? "1px solid #E0EAE0" : "none", opacity: c.used ? 0.6 : 1,
+      {products.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "3rem 1rem", color: "#777" }}>
+          <Tag size={48} color="#ccc" style={{ marginBottom: "1rem" }} />
+          <div style={{ fontWeight: 700, color: "#013220", marginBottom: "4px" }}>No offers available</div>
+          <div style={{ fontSize: "0.85rem" }}>Farmers haven't listed any deals yet. Check back later!</div>
+        </div>
+      ) : (
+        <>
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1rem",
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
-              <div style={{
-                background: "#FFF8E7", border: "1px solid #F0D080", borderRadius: "10px",
-                padding: "0.5rem 0.8rem", fontWeight: 800, fontSize: "0.85rem", color: "#B8860B",
-                fontFamily: "monospace", letterSpacing: "0.05em",
-              }}>
-                {c.code}
-              </div>
-              {c.used && <span style={{
-                fontSize: "0.65rem", color: "#999", background: "#F4F6F3",
-                padding: "0.15rem 0.5rem", borderRadius: "999px",
-              }}>Used</span>}
-            </div>
-            <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#013220", marginBottom: "4px" }}>{c.discount}</div>
-            <div style={{ fontSize: "0.75rem", color: "#6A994E", fontWeight: 500, marginBottom: "6px" }}>{c.desc}</div>
-            <div style={{ fontSize: "0.68rem", color: "#999", marginBottom: "0.75rem" }}>
-              Min. order {c.minOrder} · Valid till {c.validTill}
-            </div>
-            <button onClick={() => handleCopy(c.code)} style={{
-              width: "100%", padding: "0.6rem", borderRadius: "10px", border: "none",
-              cursor: "pointer", fontWeight: 700, fontSize: "0.78rem", transition: "all 0.2s",
-              background: copied === c.code ? "#2D6A4F" : c.used ? "#ccc" : "#013220",
-              color: "white",
-            }}>
-              {copied === c.code ? "Copied!" : c.used ? "Unavailable" : "Copy Code"}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <h2 style={{ color: "#013220", fontSize: "1.1rem", marginBottom: "0.75rem", fontWeight: 700 }}>
-          <Gift size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} />
-          Seasonal Deals
-        </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
-          {DEALS.map((deal, i) => {
-            const Icon = deal.icon;
-            return (
-              <div key={i} style={{
-                background: "white", borderRadius: "16px", padding: "1.25rem",
+            {products.map((p, i) => (
+              <div key={p.id || p._id || i} style={{
+                background: "white", borderRadius: "16px", padding: "1.5rem",
                 boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-                display: "flex", alignItems: "center", gap: "1rem",
               }}>
-                <div style={{
-                  width: "52px", height: "52px", borderRadius: "14px",
-                  background: `${deal.color}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                }}>
-                  <Icon size={24} color={deal.color} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.9rem" }}>{deal.title}</div>
-                  <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}>{deal.desc}</div>
-                  <div style={{ fontSize: "0.65rem", color: "#6A994E", marginTop: "4px", fontWeight: 600 }}>
-                    {deal.validTill}
+                <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem" }}>
+                  <img src={p.image} alt={p.title} style={{
+                    width: "60px", height: "60px", borderRadius: "12px", objectFit: "cover",
+                    background: "#F4F6F3", flexShrink: 0,
+                  }} />
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.95rem" }}>{p.title}</div>
+                    <div style={{ fontSize: "0.75rem", color: "#6A994E", fontWeight: 500 }}>{p.category}</div>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#013220", marginTop: "2px" }}>₹{p.price}</div>
                   </div>
                 </div>
-                <ChevronRight size={18} color="#ccc" />
+                {p.offerDetails && (
+                  <div style={{
+                    background: "#FFF8E7", border: "1px solid #F0D080", borderRadius: "10px",
+                    padding: "0.5rem 0.8rem", marginBottom: "0.5rem",
+                    fontSize: "0.72rem", color: "#B8860B", fontWeight: 600,
+                  }}>
+                    <Tag size={12} style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                    {p.offerDetails}
+                  </div>
+                )}
+                <button onClick={() => handleCopy(p.title)} style={{
+                  width: "100%", padding: "0.6rem", borderRadius: "10px", border: "none",
+                  cursor: "pointer", fontWeight: 700, fontSize: "0.78rem", transition: "all 0.2s",
+                  background: copied === p.title ? "#2D6A4F" : "#013220",
+                  color: "white",
+                }}>
+                  {copied === p.title ? "Copied!" : "Grab Deal"}
+                </button>
               </div>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
+
+          <div>
+            <h2 style={{ color: "#013220", fontSize: "1.1rem", marginBottom: "0.75rem", fontWeight: 700 }}>
+              <Gift size={18} style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} />
+              Seasonal Deals
+            </h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
+              {products.slice(0, 3).map((p, i) => {
+                const icons = [Gift, ShoppingBag, Sparkles];
+                const colors = ["#013220", "#6A994E", "#D4A017"];
+                const Icon = icons[i % 3];
+                const color = colors[i % 3];
+                return (
+                  <div key={i} style={{
+                    background: "white", borderRadius: "16px", padding: "1.25rem",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+                    display: "flex", alignItems: "center", gap: "1rem",
+                  }}>
+                    <div style={{
+                      width: "52px", height: "52px", borderRadius: "14px",
+                      background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    }}>
+                      <Icon size={24} color={color} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.9rem" }}>{p.title}</div>
+                      <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}>{p.offerDetails}</div>
+                      <div style={{ fontSize: "0.65rem", color: "#6A994E", marginTop: "4px", fontWeight: 600 }}>
+                        ₹{p.price}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

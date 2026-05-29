@@ -9,7 +9,10 @@ const getAuthHeaders = () => {
 };
 
 const initLocalStorageMock = () => {
-  if (!localStorage.getItem('mock_initialized_v2')) {
+  // Clear any stale seed products from previous sessions
+  localStorage.removeItem('mock_products');
+
+  if (!localStorage.getItem('mock_initialized_v3')) {
     const mockUsers = [
       {
         id: 'farmer1',
@@ -52,82 +55,15 @@ const initLocalStorageMock = () => {
       }
     ];
 
-    const mockProducts = [
-      {
-        id: 'prod1',
-        _id: 'prod1',
-        title: 'Fresh A2 Malabar Cow Milk',
-        image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=400',
-        category: 'Milk',
-        price: 65,
-        quantity: '1 Litre',
-        stock: 120,
-        harvestDate: new Date().toISOString(),
-        availableTime: '06:00 AM - 10:00 AM',
-        nutrition: 'Energy: 64 kcal, Calcium: 120mg',
-        protein: '3.3g',
-        freshnessScore: 98,
-        farmerId: { id: 'farmer1', _id: 'farmer1', name: 'Madhavan Nair (Wayanad Organic Farm)', rating: 4.8, blocked: false }
-      },
-      {
-        id: 'prod2',
-        _id: 'prod2',
-        title: 'Kuttanad Duck Eggs (Tharavu Mutta)',
-        image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&q=80&w=400',
-        category: 'Eggs',
-        price: 120,
-        quantity: '12 Nos',
-        stock: 45,
-        harvestDate: new Date().toISOString(),
-        availableTime: '07:00 AM - 11:00 AM',
-        nutrition: 'Energy: 185 kcal, Iron: 3.8mg',
-        protein: '12.8g',
-        freshnessScore: 96,
-        farmerId: { id: 'farmer2', _id: 'farmer2', name: 'Devika Rajan (Kuttanad Backwater Crops)', rating: 4.9, blocked: false }
-      },
-      {
-        id: 'prod3',
-        _id: 'prod3',
-        title: 'Organic Nendran Bananas',
-        image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&q=80&w=400',
-        category: 'Fruits',
-        price: 80,
-        quantity: '1 kg',
-        stock: 200,
-        harvestDate: new Date().toISOString(),
-        availableTime: '08:00 AM - 02:00 PM',
-        nutrition: 'Energy: 89 kcal, Potassium: 358mg',
-        protein: '1.1g',
-        freshnessScore: 97,
-        farmerId: { id: 'farmer1', _id: 'farmer1', name: 'Madhavan Nair (Wayanad Organic Farm)', rating: 4.8, blocked: false }
-      },
-      {
-        id: 'prod4',
-        _id: 'prod4',
-        title: 'Fresh Farm Tapioca (Kappa)',
-        image: 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&q=80&w=400',
-        category: 'Vegetables',
-        price: 50,
-        quantity: '2 kg',
-        stock: 150,
-        harvestDate: new Date().toISOString(),
-        availableTime: '07:00 AM - 01:00 PM',
-        nutrition: 'Energy: 160 kcal, Carbs: 38g',
-        protein: '1.4g',
-        freshnessScore: 95,
-        farmerId: { id: 'farmer1', _id: 'farmer1', name: 'Madhavan Nair (Wayanad Organic Farm)', rating: 4.8, blocked: false }
-      }
-    ];
-
     localStorage.setItem('mock_users', JSON.stringify(mockUsers));
-    localStorage.setItem('mock_products', JSON.stringify(mockProducts));
+    localStorage.setItem('mock_products', JSON.stringify([]));
     localStorage.setItem('mock_carts', JSON.stringify({}));
     localStorage.setItem('mock_orders', JSON.stringify([]));
     localStorage.setItem('mock_feedback', JSON.stringify([]));
     localStorage.setItem('mock_wishlist', JSON.stringify({}));
     localStorage.setItem('mock_preorders', JSON.stringify([]));
     localStorage.setItem('mock_notifications', JSON.stringify([]));
-    localStorage.setItem('mock_initialized_v2', 'true');
+    localStorage.setItem('mock_initialized_v3', 'true');
   }
 };
 
@@ -232,6 +168,15 @@ export const api = {
     logout: () => {
       localStorage.removeItem('dhara_token');
       localStorage.removeItem('dhara_user');
+    },
+
+    getFarmers: async () => {
+      try {
+        return await request('/auth/farmers');
+      } catch (err) {
+        const users = fetchFromMock('mock_users');
+        return users.filter(u => u.role === 'farmer' && !u.blocked);
+      }
     }
   },
 
@@ -316,6 +261,45 @@ export const api = {
         const filtered = products.filter(p => p.id !== id && p._id !== id);
         saveToMock('mock_products', filtered);
         return { success: true };
+      }
+    },
+
+    getProduct: async (id) => {
+      try {
+        return await request(`/products/${id}`);
+      } catch (err) {
+        const products = fetchFromMock('mock_products');
+        return products.find(p => p.id === id || p._id === id) || null;
+      }
+    },
+
+    updateProduct: async (id, productData) => {
+      try {
+        return await request(`/products/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(productData)
+        });
+      } catch (err) {
+        const products = fetchFromMock('mock_products');
+        const idx = products.findIndex(p => p.id === id || p._id === id);
+        if (idx !== -1) {
+          Object.assign(products[idx], productData, { updatedAt: new Date().toISOString() });
+          saveToMock('mock_products', products);
+          return products[idx];
+        }
+        throw new Error('Product not found');
+      }
+    },
+
+    getFarmerProducts: async (farmerId) => {
+      try {
+        return await request(`/products/farmer/${farmerId}`);
+      } catch (err) {
+        const products = fetchFromMock('mock_products');
+        return products.filter(p => {
+          const fId = p.farmerId?._id || p.farmerId?.id || p.farmerId;
+          return fId === farmerId;
+        });
       }
     }
   },
@@ -551,6 +535,60 @@ export const api = {
           return orders[idx];
         }
         throw new Error('Order not found');
+      }
+    }
+  },
+
+  // Subscriptions
+  subscriptions: {
+    getSubscriptions: async () => {
+      try {
+        return await request('/subscriptions');
+      } catch (err) {
+        const orders = fetchFromMock('mock_orders');
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        return orders.filter(o => o.customerId === (user.id || user._id) && o.subscriptionType && o.subscriptionType !== 'One-time');
+      }
+    },
+
+    createSubscription: async (subData) => {
+      try {
+        return await request('/subscriptions', {
+          method: 'POST',
+          body: JSON.stringify(subData)
+        });
+      } catch (err) {
+        const orders = fetchFromMock('mock_orders');
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        const newSub = {
+          id: `sub_${Date.now()}`,
+          _id: `sub_${Date.now()}`,
+          customerId: user.id || user._id,
+          ...subData,
+          status: 'active',
+          createdAt: new Date().toISOString()
+        };
+        orders.push(newSub);
+        saveToMock('mock_orders', orders);
+        return newSub;
+      }
+    },
+
+    updateSubscriptionStatus: async (id, statusData) => {
+      try {
+        return await request(`/subscriptions/${id}/status`, {
+          method: 'PUT',
+          body: JSON.stringify(statusData)
+        });
+      } catch (err) {
+        const orders = fetchFromMock('mock_orders');
+        const idx = orders.findIndex(o => o.id === id || o._id === id);
+        if (idx !== -1) {
+          orders[idx] = { ...orders[idx], ...statusData, updatedAt: new Date().toISOString() };
+          saveToMock('mock_orders', orders);
+          return orders[idx];
+        }
+        throw new Error('Subscription not found');
       }
     }
   },

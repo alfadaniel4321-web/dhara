@@ -3,17 +3,19 @@ const { isDbConnected, readLocalDb, writeLocalDb } = require('../config/db');
 
 const ProductSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  image: { type: String, required: true },
+  image: { type: String, default: '' },
   category: { type: String, required: true },
   price: { type: Number, required: true, default: 0 },
-  quantity: { type: String, required: true },
-  stock: { type: Number, required: true, default: 0 },
-  harvestDate: { type: Date, required: true },
-  availableTime: { type: String, required: true },
-  nutrition: { type: String, required: true },
-  protein: { type: String, required: true },
-  freshnessScore: { type: Number, required: true },
-  farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  quantity: { type: String, default: '' },
+  stock: { type: Number, default: 0 },
+  harvestDate: { type: Date, default: Date.now },
+  availableTime: { type: String, default: '' },
+  nutrition: { type: String, default: '' },
+  protein: { type: String, default: '' },
+  freshnessScore: { type: Number, default: 0 },
+  description: { type: String, default: '' },
+  offerDetails: { type: String, default: '' },
+  farmerId: { type: String, required: true }
 }, { timestamps: true });
 
 const RealProductModel = mongoose.model('Product', ProductSchema);
@@ -21,7 +23,7 @@ const RealProductModel = mongoose.model('Product', ProductSchema);
 const MockProduct = {
   find: async (query = {}) => {
     if (isDbConnected()) {
-      return RealProductModel.find(query).populate('farmerId', 'name rating blocked');
+      return RealProductModel.find(query);
     }
     const db = readLocalDb();
     let filtered = [...db.products];
@@ -46,7 +48,7 @@ const MockProduct = {
 
   findById: async (id) => {
     if (isDbConnected()) {
-      return RealProductModel.findById(id).populate('farmerId', 'name rating blocked');
+      return RealProductModel.findById(id);
     }
     const db = readLocalDb();
     const product = db.products.find(p => p.id === id || p._id === id);
@@ -71,6 +73,17 @@ const MockProduct = {
     db.products.push(newProduct);
     writeLocalDb(db);
     return newProduct;
+  },
+
+  findByIdAndUpdate: async (id, updateData, options = {}) => {
+    if (isDbConnected()) return RealProductModel.findByIdAndUpdate(id, updateData, options);
+    const db = readLocalDb();
+    const index = db.products.findIndex(p => p.id === id || p._id === id);
+    if (index === -1) return null;
+    const setUpdates = updateData.$set || updateData;
+    db.products[index] = { ...db.products[index], ...setUpdates, updatedAt: new Date().toISOString() };
+    writeLocalDb(db);
+    return db.products[index];
   },
 
   deleteOne: async (query) => {

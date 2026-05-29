@@ -1,37 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RefreshCw, Calendar, Check, Clock, Plus, Minus } from "lucide-react";
-
-const PLANS = [
-  { id: 1, name: "Daily Essentials", price: 149, items: ["1L Fresh Milk", "6 Duck Eggs", "500ml Curd"], delivery: "Daily", color: "#013220" },
-  { id: 2, name: "Weekly Veggie Box", price: 299, items: ["Mixed Vegetables (3Kg)", "Fresh Herbs", "2Kg Rice"], delivery: "Mon-Wed-Fri", color: "#6A994E" },
-  { id: 3, name: "Premium Family", price: 599, items: ["2L Fresh Milk", "12 Duck Eggs", "1L Coconut Oil", "1Kg Honey"], delivery: "Daily", color: "#D4A017" },
-  { id: 4, name: "Fruit Lover", price: 199, items: ["Seasonal Fruits (2Kg)", "Coconut (3 Nos)", "Banana (1 Dozen)"], delivery: "Weekly", color: "#E74C3C" },
-];
-
-const ACTIVE_SUBS = [
-  { id: 1, name: "Daily Essentials", plan: "Milk, Eggs, Curd", status: "Active", nextDelivery: "Tomorrow 7:00 AM", deliveriesLeft: 28, type: "Daily" },
-  { id: 2, name: "Weekly Veggie Box", plan: "Vegetables, Herbs", status: "Active", nextDelivery: "Wed 7:30 AM", deliveriesLeft: 8, type: "Mon-Wed-Fri" },
-];
+import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default function Subscription() {
   const [activeTab, setActiveTab] = useState("plans");
-  const [subs, setSubs] = useState(ACTIVE_SUBS);
+  const [subs, setSubs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleStatus = (id) => {
-    setSubs(prev => prev.map(s => s.id === id ? { ...s, status: s.status === "Active" ? "Paused" : "Active" } : s));
+  const loadSubscriptions = async () => {
+    setLoading(true);
+    try {
+      const data = await api.subscriptions.getSubscriptions();
+      setSubs(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSubscriptions();
+  }, []);
+
+  const toggleStatus = async (id) => {
+    const sub = subs.find(s => s.id === id || s._id === id);
+    const newStatus = sub?.status === "active" ? "paused" : "active";
+    try {
+      await api.subscriptions.updateSubscriptionStatus(id, { status: newStatus });
+      loadSubscriptions();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const hasDeliveryOnDay = (day) => {
     return subs.some(s => {
-      if (s.status !== "Active") return false;
-      if (s.type === "Daily") return true;
-      if (s.type === "Mon-Wed-Fri" && ["Mon", "Wed", "Fri"].includes(day)) return true;
-      if (s.type === "Weekly" && day === "Mon") return true;
+      if (s.status !== "active") return false;
+      if (s.subscriptionType === "Daily") return true;
+      if (s.subscriptionType === "Mon-Wed-Fri" && ["Mon", "Wed", "Fri"].includes(day)) return true;
+      if (s.subscriptionType === "Weekly" && day === "Mon") return true;
       return false;
     });
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -67,40 +83,10 @@ export default function Subscription() {
       </div>
 
       {activeTab === "plans" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
-          {PLANS.map(plan => (
-            <div key={plan.id} style={{
-              background: "white", borderRadius: "16px", padding: "1.5rem",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.06)", display: "flex", flexDirection: "column",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "0.75rem" }}>
-                <div style={{
-                  width: "12px", height: "12px", borderRadius: "50%", background: plan.color, flexShrink: 0,
-                }} />
-                <span style={{ fontWeight: 700, color: "#013220", fontSize: "1rem" }}>{plan.name}</span>
-              </div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#013220", marginBottom: "0.75rem" }}>
-                ₹{plan.price}<span style={{ fontSize: "0.7rem", fontWeight: 400, color: "#777" }}>/month</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1rem", flex: 1 }}>
-                {plan.items.map((item, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.8rem", color: "#555" }}>
-                    <Check size={14} color="#6A994E" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-              <div style={{ fontSize: "0.7rem", color: "#6A994E", fontWeight: 600, marginBottom: "0.75rem" }}>
-                <Clock size={12} style={{ display: "inline", marginRight: "4px", verticalAlign: "middle" }} />
-                Delivery: {plan.delivery}
-              </div>
-              <button style={{
-                width: "100%", background: "#013220", color: "white", border: "none",
-                borderRadius: "10px", padding: "0.7rem", cursor: "pointer", fontWeight: 700, fontSize: "0.8rem",
-                transition: "all 0.2s",
-              }}>Subscribe Now</button>
-            </div>
-          ))}
+        <div style={{ textAlign: "center", padding: "3rem 1rem", color: "#777" }}>
+          <RefreshCw size={48} color="#ccc" style={{ marginBottom: "1rem" }} />
+          <div style={{ fontWeight: 700, color: "#013220", marginBottom: "4px" }}>Subscription Plans</div>
+          <div style={{ fontSize: "0.85rem" }}>Browse plans available from our farmers</div>
         </div>
       )}
 
@@ -115,33 +101,33 @@ export default function Subscription() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
               {subs.map(sub => (
-                <div key={sub.id} style={{
+                <div key={sub.id || sub._id} style={{
                   background: "white", borderRadius: "16px", padding: "1.5rem",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
                     <div>
-                      <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.95rem" }}>{sub.name}</div>
-                      <div style={{ fontSize: "0.78rem", color: "#777" }}>{sub.plan}</div>
+                      <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.95rem" }}>{sub.subscriptionType || 'Subscription'}</div>
+                      <div style={{ fontSize: "0.78rem", color: "#777" }}>₹{sub.totalPrice || 0}/mo</div>
                     </div>
                     <span style={{
-                      background: sub.status === "Active" ? "#EBF5EB" : "#F4F6F3",
-                      color: sub.status === "Active" ? "#2D6A4F" : "#999",
+                      background: sub.status === "active" ? "#EBF5EB" : "#F4F6F3",
+                      color: sub.status === "active" ? "#2D6A4F" : "#999",
                       padding: "0.25rem 0.7rem", borderRadius: "999px",
                       fontSize: "0.65rem", fontWeight: 700,
-                    }}>{sub.status}</span>
+                    }}>{sub.status === "active" ? "Active" : "Paused"}</span>
                   </div>
                   <div style={{ display: "flex", gap: "1rem", fontSize: "0.78rem", color: "#666", marginBottom: "0.75rem" }}>
-                    <div><Calendar size={12} style={{ display: "inline", marginRight: "4px", verticalAlign: "middle" }} /> Next: {sub.nextDelivery}</div>
-                    <div><Clock size={12} style={{ display: "inline", marginRight: "4px", verticalAlign: "middle" }} /> {sub.deliveriesLeft} deliveries left</div>
+                    <div><Calendar size={12} style={{ display: "inline", marginRight: "4px", verticalAlign: "middle" }} /> {sub.deliveryTime || 'Morning'}</div>
+                    <div><Clock size={12} style={{ display: "inline", marginRight: "4px", verticalAlign: "middle" }} /> {sub.subscriptionType}</div>
                   </div>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button onClick={() => toggleStatus(sub.id)} style={{
+                    <button onClick={() => toggleStatus(sub.id || sub._id)} style={{
                       flex: 1, padding: "0.6rem", borderRadius: "10px", border: "none", cursor: "pointer",
                       fontWeight: 700, fontSize: "0.75rem",
-                      background: sub.status === "Active" ? "#FFF8E7" : "#013220",
-                      color: sub.status === "Active" ? "#D4A017" : "white",
-                    }}>{sub.status === "Active" ? "Pause" : "Resume"}</button>
+                      background: sub.status === "active" ? "#FFF8E7" : "#013220",
+                      color: sub.status === "active" ? "#D4A017" : "white",
+                    }}>{sub.status === "active" ? "Pause" : "Resume"}</button>
                     <button style={{
                       flex: 1, padding: "0.6rem", borderRadius: "10px", border: "none", cursor: "pointer",
                       fontWeight: 700, fontSize: "0.75rem", background: "#EBF5EB", color: "#013220",

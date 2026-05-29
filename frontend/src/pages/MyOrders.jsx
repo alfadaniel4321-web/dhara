@@ -3,11 +3,12 @@ import {
   Package, Search, ChevronRight, Clock, CheckCircle, XCircle, RefreshCw, FileText, Truck
 } from "lucide-react";
 import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const STATUS_STYLES = {
   "Delivered": { bg: "#EBF5EB", color: "#2D6A4F", icon: CheckCircle },
-  "Out for Delivery": { bg: "#E8F4FD", color: "#1A73E8", icon: Truck },
-  "Preparing": { bg: "#FFF8E7", color: "#D4A017", icon: Clock },
+  "In Transit": { bg: "#E8F4FD", color: "#1A73E8", icon: Truck },
+  "Processing": { bg: "#FFF8E7", color: "#D4A017", icon: Clock },
   "Cancelled": { bg: "#FEE2E2", color: "#DC2626", icon: XCircle },
 };
 
@@ -17,21 +18,26 @@ export default function MyOrders() {
   const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const loadOrders = async () => {
+    setLoading(true);
     try {
       const data = await api.orders.getOrders();
-      const mapped = data.map(o => ({
+      const mapped = (data || []).map(o => ({
         id: o.id || o._id,
         date: new Date(o.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-        status: o.orderStatus === 'Pending' ? 'Preparing' : (o.orderStatus || 'Preparing'),
-        items: (o.products || []).map(p => p.title || 'Item'),
-        total: o.totalPrice,
-        payment: o.paymentStatus === 'Paid' ? 'Paid' : 'COD',
+        orderStatus: o.orderStatus === 'Pending' ? 'Preparing' : (o.orderStatus || 'Preparing'),
+        products: o.products || [],
+        totalPrice: o.totalPrice,
+        paymentStatus: o.paymentStatus === 'Paid' ? 'Paid' : 'COD',
+        createdAt: o.createdAt,
       }));
       setOrders(mapped);
     } catch (err) {
       console.error('Failed to load orders', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,16 +56,22 @@ export default function MyOrders() {
   };
 
   const filtered = orders.filter(o => {
-    const matchTab = tab === "All" || tab === "Active" ? (tab === "Active" ? o.status !== "Delivered" && o.status !== "Cancelled" : true) : o.status === tab;
-    const matchSearch = !search || o.id.toLowerCase().includes(search.toLowerCase()) || o.items.some(i => i.toLowerCase().includes(search.toLowerCase()));
+    const matchTab = tab === "All" ? true : tab === "Active" ? o.orderStatus !== "Delivered" && o.orderStatus !== "Cancelled" : o.orderStatus === tab;
+    const orderId = o.id || '';
+    const productNames = (o.products || []).map(p => p.title || '').join(' ');
+    const matchSearch = !search || orderId.toLowerCase().includes(search.toLowerCase()) || productNames.toLowerCase().includes(search.toLowerCase());
+    return matchTab && matchSearch;
+  });
     return matchTab && matchSearch;
   });
 
   const getStatusIcon = (status) => {
-    const s = STATUS_STYLES[status] || STATUS_STYLES["Preparing"];
+    const s = STATUS_STYLES[status] || STATUS_STYLES["Processing"];
     const Icon = s.icon;
     return <Icon size={12} />;
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", padding: "clamp(1rem, 3vw, 2.5rem)" }}>
@@ -102,7 +114,8 @@ export default function MyOrders() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {filtered.map(order => {
-          const statusInfo = STATUS_STYLES[order.status] || STATUS_STYLES["Preparing"];
+          const status = order.orderStatus || "Pending";
+          const statusInfo = STATUS_STYLES[status] || STATUS_STYLES["Processing"];
           return (
             <div key={order.id} style={{
               background: "white", borderRadius: "16px", padding: "clamp(1rem, 2vw, 1.5rem)",
@@ -110,7 +123,7 @@ export default function MyOrders() {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
                 <div>
-                  <span style={{ fontWeight: 700, color: "#013220", fontSize: "0.9rem" }}>{order.id}</span>
+                  <span style={{ fontWeight: 700, color: "#013220", fontSize: "0.9rem" }}>#{order.id}</span>
                   <span style={{ fontSize: "0.72rem", color: "#999", marginLeft: "8px" }}>{order.date}</span>
                 </div>
                 <span style={{
@@ -119,24 +132,24 @@ export default function MyOrders() {
                   padding: "0.25rem 0.7rem", borderRadius: "999px",
                   fontSize: "0.65rem", fontWeight: 700, whiteSpace: "nowrap",
                 }}>
-                  {getStatusIcon(order.status)} {order.status}
+                  {getStatusIcon(status)} {status}
                 </span>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginBottom: "0.75rem" }}>
-                {order.items.map((item, i) => (
+                {(order.products || []).map((item, i) => (
                   <span key={i} style={{
                     background: "#F4F6F3", padding: "0.2rem 0.6rem", borderRadius: "999px",
                     fontSize: "0.72rem", color: "#555",
-                  }}>{item}</span>
+                  }}>{item.title || item.productId} x{item.count}</span>
                 ))}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F4F6F3", paddingTop: "0.75rem" }}>
                 <div>
-                  <span style={{ fontWeight: 800, color: "#013220", fontSize: "1.1rem" }}>₹{order.total}</span>
-                  <span style={{ fontSize: "0.7rem", color: "#999", marginLeft: "6px" }}>· {order.payment}</span>
+                  <span style={{ fontWeight: 800, color: "#013220", fontSize: "1.1rem" }}>₹{order.totalPrice || 0}</span>
+                  <span style={{ fontSize: "0.7rem", color: "#999", marginLeft: "6px" }}>· {order.paymentStatus}</span>
                 </div>
                 <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                  {order.status !== "Cancelled" && (
+                  {status !== "Cancelled" && (
                     <button style={{
                       display: "flex", alignItems: "center", gap: "4px", background: "#EBF5EB", color: "#013220",
                       border: "none", borderRadius: "10px", padding: "0.45rem 0.9rem", cursor: "pointer",
@@ -145,7 +158,7 @@ export default function MyOrders() {
                       <RefreshCw size={12} /> Reorder
                     </button>
                   )}
-                  {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                  {status !== "Cancelled" && status !== "Delivered" && (
                     <button onClick={() => handleCancelOrder(order.id)} style={{
                       display: "flex", alignItems: "center", gap: "4px", background: "#FEE2E2", color: "#DC2626",
                       border: "none", borderRadius: "10px", padding: "0.45rem 0.9rem", cursor: "pointer",

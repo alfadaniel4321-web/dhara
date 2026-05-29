@@ -39,7 +39,7 @@ export default function ManageProducts() {
   const handleUpdateStock = async (id) => {
     setSuccess('');
     try {
-      await api.products.updateProductStock(id, Number(editStock));
+      await api.products.updateProduct(id, { stock: Number(editStock) });
       setSuccess('Stock count updated!');
       setEditingId(null);
       loadProducts();
