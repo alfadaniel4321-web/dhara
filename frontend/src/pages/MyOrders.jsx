@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Package, Search, ChevronRight, Clock, CheckCircle, XCircle, RefreshCw, FileText, Truck
 } from "lucide-react";
-
-const ORDERS = [];
+import { api } from "../services/api";
 
 const STATUS_STYLES = {
   "Delivered": { bg: "#EBF5EB", color: "#2D6A4F", icon: CheckCircle },
@@ -17,8 +16,40 @@ const TABS = ["All", "Active", "Delivered", "Cancelled"];
 export default function MyOrders() {
   const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
+  const [orders, setOrders] = useState([]);
 
-  const filtered = ORDERS.filter(o => {
+  const loadOrders = async () => {
+    try {
+      const data = await api.orders.getOrders();
+      const mapped = data.map(o => ({
+        id: o.id || o._id,
+        date: new Date(o.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+        status: o.orderStatus === 'Pending' ? 'Preparing' : (o.orderStatus || 'Preparing'),
+        items: (o.products || []).map(p => p.title || 'Item'),
+        total: o.totalPrice,
+        payment: o.paymentStatus === 'Paid' ? 'Paid' : 'COD',
+      }));
+      setOrders(mapped);
+    } catch (err) {
+      console.error('Failed to load orders', err);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    try {
+      await api.orders.updateOrderStatus(orderId, { orderStatus: 'Cancelled' });
+      await loadOrders();
+    } catch (err) {
+      alert(err.message || 'Failed to cancel order');
+    }
+  };
+
+  const filtered = orders.filter(o => {
     const matchTab = tab === "All" || tab === "Active" ? (tab === "Active" ? o.status !== "Delivered" && o.status !== "Cancelled" : true) : o.status === tab;
     const matchSearch = !search || o.id.toLowerCase().includes(search.toLowerCase()) || o.items.some(i => i.toLowerCase().includes(search.toLowerCase()));
     return matchTab && matchSearch;
@@ -112,6 +143,15 @@ export default function MyOrders() {
                       fontWeight: 600, fontSize: "0.7rem",
                     }}>
                       <RefreshCw size={12} /> Reorder
+                    </button>
+                  )}
+                  {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                    <button onClick={() => handleCancelOrder(order.id)} style={{
+                      display: "flex", alignItems: "center", gap: "4px", background: "#FEE2E2", color: "#DC2626",
+                      border: "none", borderRadius: "10px", padding: "0.45rem 0.9rem", cursor: "pointer",
+                      fontWeight: 600, fontSize: "0.7rem",
+                    }}>
+                      <XCircle size={12} /> Cancel
                     </button>
                   )}
                   <button style={{
