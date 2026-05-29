@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartSuccess } from "../redux/slices/cartSlice";
 import { api } from "../services/api";
@@ -61,7 +60,6 @@ function getDaysUntil(isoString) {
 }
 
 export default function HarvestCountdown() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
 
@@ -73,6 +71,7 @@ export default function HarvestCountdown() {
   const [preOrderedIds, setPreOrderedIds] = useState({});
   const [countdowns, setCountdowns] = useState({});
   const [globalCountdown, setGlobalCountdown] = useState({ h: "00", m: "00", s: "00" });
+  const [quantities, setQuantities] = useState({});
 
   // Global countdown to midnight
   useEffect(() => {
@@ -131,7 +130,7 @@ export default function HarvestCountdown() {
     setPreOrderSuccess(null);
   };
 
-  const handlePreOrder = useCallback(async (product, farmer) => {
+  const handlePreOrder = useCallback(async (product, farmer, quantity) => {
     const productId = product._id || product.id;
     const farmerId = farmer._id || farmer.id || farmer.farmerId?._id || farmer.farmerId?.id || farmer.farmerId;
     const key = `${productId}_${farmerId}`;
@@ -139,11 +138,12 @@ export default function HarvestCountdown() {
     if (preOrderedIds[key]) return;
 
     try {
-      const result = await api.preOrders.createPreOrder(productId, farmerId, 1);
+      const result = await api.preOrders.createPreOrder(productId, farmerId, quantity);
       setPreOrderedIds(prev => ({ ...prev, [key]: true }));
       setPreOrderSuccess({
         productTitle: product.title,
         farmerName: farmer.farmerId?.name || farmer.name || "Farmer",
+        quantity,
         confirmationTime: result.confirmationTime || new Date().toISOString(),
       });
     } catch (err) {
@@ -292,7 +292,7 @@ export default function HarvestCountdown() {
                 Successfully Pre-Ordered
               </div>
               <div style={{ fontSize: "0.82rem", color: "#047857", marginBottom: "6px" }}>
-                {preOrderSuccess.productTitle} from {preOrderSuccess.farmerName}
+                <strong>{preOrderSuccess.productTitle}</strong> from <strong>{preOrderSuccess.farmerName}</strong> &middot; Qty: {preOrderSuccess.quantity}
               </div>
               <div style={{
                 fontSize: "0.72rem", color: "#6B7280",
@@ -402,15 +402,6 @@ export default function HarvestCountdown() {
                     }}>
                       <div>
                         <div style={{ fontSize: "0.65rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>
-                          Quantity Available
-                        </div>
-                        <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "4px" }}>
-                          <Package size={13} color="#6A994E" />
-                          {item.stock || 50} {selectedProduct.quantity}
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "0.65rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>
                           Expected Harvest
                         </div>
                         <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "4px" }}>
@@ -435,6 +426,74 @@ export default function HarvestCountdown() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Quantity Selector */}
+                    {!isPreOrdered && (
+                      <div style={{ marginTop: "1rem", padding: "0 1.5rem 0" }}>
+                        <div style={{ fontSize: "0.72rem", color: "#666", marginBottom: "6px", fontWeight: 600 }}>
+                          Select Quantity *
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <button
+                            onClick={() => {
+                              const key = `${productId}_${farmerId}`;
+                              const current = quantities[key] || 1;
+                              if (current > 1) setQuantities(prev => ({ ...prev, [key]: current - 1 }));
+                            }}
+                            style={{
+                              width: 32, height: 32, borderRadius: "8px", border: "1.5px solid #D1D5DB",
+                              background: "white", cursor: "pointer", display: "flex",
+                              alignItems: "center", justifyContent: "center", fontSize: "1.1rem",
+                              fontWeight: 700, color: "#374151", transition: "all 0.15s",
+                            }}
+                            onMouseEnter={e => { e.target.style.borderColor = "#2D6A4F"; e.target.style.color = "#2D6A4F"; }}
+                            onMouseLeave={e => { e.target.style.borderColor = "#D1D5DB"; e.target.style.color = "#374151"; }}
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            max="99"
+                            value={quantities[`${productId}_${farmerId}`] || 1}
+                            onChange={e => {
+                              const key = `${productId}_${farmerId}`;
+                              const val = parseInt(e.target.value, 10);
+                              if (!isNaN(val) && val >= 1 && val <= 99) {
+                                setQuantities(prev => ({ ...prev, [key]: val }));
+                              }
+                            }}
+                            style={{
+                              width: 56, height: 32, borderRadius: "8px", border: "1.5px solid #D1D5DB",
+                              textAlign: "center", fontWeight: 700, fontSize: "0.85rem",
+                              color: "#013220", outline: "none", transition: "border-color 0.15s",
+                            }}
+                            onFocus={e => { e.target.style.borderColor = "#2D6A4F"; }}
+                            onBlur={e => { e.target.style.borderColor = "#D1D5DB"; }}
+                          />
+                          <button
+                            onClick={() => {
+                              const key = `${productId}_${farmerId}`;
+                              const current = quantities[key] || 1;
+                              if (current < 99) setQuantities(prev => ({ ...prev, [key]: current + 1 }));
+                            }}
+                            style={{
+                              width: 32, height: 32, borderRadius: "8px", border: "1.5px solid #D1D5DB",
+                              background: "white", cursor: "pointer", display: "flex",
+                              alignItems: "center", justifyContent: "center", fontSize: "1.1rem",
+                              fontWeight: 700, color: "#374151", transition: "all 0.15s",
+                            }}
+                            onMouseEnter={e => { e.target.style.borderColor = "#2D6A4F"; e.target.style.color = "#2D6A4F"; }}
+                            onMouseLeave={e => { e.target.style.borderColor = "#D1D5DB"; e.target.style.color = "#374151"; }}
+                          >
+                            +
+                          </button>
+                          <span style={{ fontSize: "0.72rem", color: "#999", marginLeft: "4px" }}>
+                            {selectedProduct.quantity}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Pre-Order Button */}
@@ -443,7 +502,10 @@ export default function HarvestCountdown() {
                     display: "flex", justifyContent: "flex-end",
                   }}>
                     <button
-                      onClick={() => handlePreOrder(selectedProduct, item)}
+                      onClick={() => {
+                        const qty = quantities[`${productId}_${farmerId}`] || 1;
+                        handlePreOrder(selectedProduct, item, qty);
+                      }}
                       disabled={isPreOrdered}
                       style={{
                         display: "flex", alignItems: "center", gap: "6px",
@@ -477,7 +539,7 @@ export default function HarvestCountdown() {
                         </>
                       ) : (
                         <>
-                          <Sprout size={16} /> Pre-Order from {farmerName.split(" ")[0]}
+                          <Sprout size={16} /> Confirm Pre-Order
                           <ChevronRight size={14} />
                         </>
                       )}
@@ -715,31 +777,6 @@ export default function HarvestCountdown() {
         </div>
       )}
 
-      {/* Info Banner */}
-      <div style={{
-        background: "linear-gradient(135deg, #FFF8E7, #FEF3C7)",
-        border: "1px solid #F0D080", borderRadius: "16px",
-        padding: "1.25rem 1.5rem", display: "flex", alignItems: "flex-start",
-        gap: "1rem", flexWrap: "wrap",
-      }}>
-        <Sprout size={20} color="#D4A017" style={{ flexShrink: 0, marginTop: "2px" }} />
-        <div style={{ flex: 1, minWidth: "200px" }}>
-          <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem", marginBottom: "4px" }}>
-            Pre-order Available &middot; 10% Off
-          </div>
-          <div style={{ fontSize: "0.78rem", color: "#666" }}>
-            Reserve your harvest before it's ready. Pre-order now and get 10% off on first delivery.
-          </div>
-        </div>
-        <button
-          onClick={() => navigate("/products")}
-          style={{
-            background: "#013220", color: "white", border: "none",
-            borderRadius: "10px", padding: "0.5rem 1rem", fontWeight: 700,
-            fontSize: "0.75rem", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
-          }}
-        >Browse All Products</button>
-      </div>
     </div>
   );
 }
