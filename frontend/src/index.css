@@ -3,13 +3,17 @@
 @tailwind utilities;
 
 html {
-  font-size: clamp(13px, 1.1vw, 17px);
+  font-size: 16px;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 @layer base {
   body {
     @apply bg-farmgreen-950 text-emerald-100 antialiased font-sans selection:bg-farmgreen-500 selection:text-white;
     background-color: #042f1a;
+    overflow-x: hidden;
+    width: 100%;
   }
 }
 
@@ -80,6 +84,8 @@ html {
 /* Custom layout constraints */
 #root {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }

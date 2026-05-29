@@ -9,8 +9,7 @@ import { clearCartLocal } from '../redux/slices/cartSlice';
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
   { label: 'Marketplace', to: '/dashboard' },
-  { label: 'Farmers', to: '/about' },
-  { label: 'Philosophy', to: '/about' },
+  { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
 ];
 

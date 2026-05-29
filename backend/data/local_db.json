@@ -97,6 +97,20 @@
       "negativeFeedbacksCount": 0,
       "createdAt": "2026-05-28T11:11:25.962Z",
       "updatedAt": "2026-05-28T11:11:25.962Z"
+    },
+    {
+      "_id": "0larpim",
+      "id": "88zbbsx",
+      "name": "nithi.s",
+      "email": "nithi1@gmail.com",
+      "password": "$2a$10$eN7Ul8Gp7v7V7ezLYArkcODHRucSk0z7eoY/lQSN5YLBYYEGTv.pm",
+      "role": "customer",
+      "phone": "1234567894",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-29T08:00:33.382Z",
+      "updatedAt": "2026-05-29T08:00:33.382Z"
     }
   ],
   "products": [
@@ -289,6 +303,15 @@
       "totalPrice": 0,
       "createdAt": "2026-05-28T12:29:00.426Z",
       "updatedAt": "2026-05-28T12:29:00.426Z"
+    },
+    {
+      "_id": "hd1xyfb",
+      "id": "tc5xlil",
+      "userId": "88zbbsx",
+      "products": [],
+      "totalPrice": 0,
+      "createdAt": "2026-05-29T08:13:02.566Z",
+      "updatedAt": "2026-05-29T08:13:02.566Z"
     }
   ]
 }

@@ -950,7 +950,6 @@ export default function LandingPage() {
   return (
     <div style={{ position: 'relative', width: '100%', overflowX: 'hidden', background: '#F5F3E7' }}>
       <style>{`
-        @keyframes scrollPulse { 0%,100%{transform:scaleY(0.3);opacity:0.4}50%{transform:scaleY(1);opacity:1} }
         @keyframes introNameReveal { 0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)} }
         @keyframes introTaglineReveal { 0%{opacity:0;letter-spacing:0.5em}100%{opacity:1;letter-spacing:0.25em} }
         @keyframes introPanelUp { 0%{transform:translateY(0)}100%{transform:translateY(-100%)} }
@@ -1020,10 +1019,6 @@ export default function LandingPage() {
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(8,14,10,0.88) 0%, rgba(8,14,10,0.50) 50%, rgba(8,14,10,0.20) 100%)' }} />
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <HeroSection />
-          </div>
-          <div style={{ position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '1px', height: '40px', background: 'rgba(245,243,231,0.6)', animation: 'scrollPulse 2.2s ease-in-out infinite', transformOrigin: 'top' }} />
-            <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.5rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(245,243,231,0.4)' }}>SCROLL</span>
           </div>
         </section>
 
