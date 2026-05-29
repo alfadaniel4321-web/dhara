@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
+import { ChevronLeft } from 'lucide-react';
 import { setAuthStart, setAuthSuccess, setAuthFailure } from '../redux/slices/authSlice';
 import { api } from '../services/api';
 
@@ -229,6 +230,17 @@ export default function Signup() {
 
       {/* ─── RIGHT: Signup Card Panel ─── */}
       <div className="relative w-full lg:w-[45%] min-h-screen flex items-center justify-center p-6 lg:p-16">
+        {/* Back button */}
+        <Link
+          to="/"
+          className="absolute top-6 left-6 z-20 flex items-center gap-1.5 no-underline transition-all"
+          style={{ color: "rgba(106,153,78,0.5)", fontSize: "0.75rem", fontWeight: 600 }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#6A994E")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(106,153,78,0.5)")}
+        >
+          <ChevronLeft size={16} />
+          Back
+        </Link>
         <motion.div
           variants={containerVariants}
           initial="hidden"

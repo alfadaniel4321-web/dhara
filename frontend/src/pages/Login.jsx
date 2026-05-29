@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { setAuthStart, setAuthSuccess, setAuthFailure } from "../redux/slices/authSlice";
 import { api } from "../services/api";
-import { Leaf, User, Shield, Sprout } from "lucide-react";
+import { Leaf, User, Shield, Sprout, ChevronLeft } from "lucide-react";
 
 const roles = [
   { id: "farmer", label: "Farmer", icon: Sprout, desc: "Sell your farm produce" },
@@ -84,6 +84,18 @@ export default function Login() {
           backgroundSize: "48px 48px",
         }}
       />
+
+      {/* Back button */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 z-20 flex items-center gap-1.5 no-underline transition-all"
+        style={{ color: "rgba(149,213,178,0.5)", fontSize: "0.75rem", fontWeight: 600 }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#95D5B2")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(149,213,178,0.5)")}
+      >
+        <ChevronLeft size={16} />
+        Back
+      </Link>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}

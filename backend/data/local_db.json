@@ -152,6 +152,23 @@
       "description": "",
       "createdAt": "2026-05-29T08:14:51.603Z",
       "updatedAt": "2026-05-29T08:14:51.603Z"
+    },
+    {
+      "_id": "61dhl7i",
+      "id": "0jw20sb",
+      "name": "Avani",
+      "email": "avani@gmail.com",
+      "password": "$2a$10$57kz9GmoIEef8dcJe8/S.u3E7A1kwVsfxUxi1AfQg2N9cbLR07QH6",
+      "role": "customer",
+      "phone": "1234565432",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "village": "",
+      "district": "",
+      "description": "",
+      "createdAt": "2026-05-29T08:48:40.661Z",
+      "updatedAt": "2026-05-29T08:48:40.661Z"
     }
   ],
   "products": [
