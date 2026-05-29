@@ -97,6 +97,20 @@
       "negativeFeedbacksCount": 0,
       "createdAt": "2026-05-28T11:11:25.962Z",
       "updatedAt": "2026-05-28T11:11:25.962Z"
+    },
+    {
+      "_id": "59ia1td",
+      "id": "7299sr9",
+      "name": "binu",
+      "email": "binu@gmail.com",
+      "password": "$2a$10$jjh6sgktmUBOd8sdIIwaBuR33tXG9icMV5ApMk1/Tyh6aoFKmler2",
+      "role": "customer",
+      "phone": "1234567890",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "createdAt": "2026-05-29T09:11:50.384Z",
+      "updatedAt": "2026-05-29T09:11:50.384Z"
     }
   ],
   "products": [

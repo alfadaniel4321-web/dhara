@@ -9,10 +9,11 @@ const STATS = [
 ];
 
 const TEAM = [
-  { name: "Arun Nair", role: "Founder & CEO", initial: "AN" },
-  { name: "Priya Menon", role: "Head of Operations", initial: "PM" },
-  { name: "Sachin Raj", role: "Technology Lead", initial: "SR" },
-  { name: "Lakshmi Varma", role: "Community Manager", initial: "LV" },
+  { name: "Alfa Danial", role: "Team Member", initial: "AD" },
+  { name: "Adwaitha Krishna A S", role: "Team Member", initial: "AK" },
+  { name: "Archana D", role: "Team Member", initial: "AD" },
+  { name: "Gouri Nanda B P", role: "Team Member", initial: "GN" },
+  { name: "Niveditha R S", role: "Team Member", initial: "NR" },
 ];
 
 export default function About() {

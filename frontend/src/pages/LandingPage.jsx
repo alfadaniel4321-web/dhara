@@ -783,7 +783,7 @@ function BrandStorySection() {
                       lineHeight: 1,
                     }}
                   >
-                    7
+                    7undo
                   </span>
                   <span
                     style={{
