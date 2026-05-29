@@ -5,9 +5,12 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['farmer', 'customer'], default: 'customer' },
+  role: { type: String, enum: ['farmer', 'customer', 'admin'], default: 'customer' },
   phone: { type: String, required: true },
   address: { type: String, default: '' },
+  village: { type: String, default: '' },
+  district: { type: String, default: '' },
+  description: { type: String, default: '' },
   rating: { type: Number, default: 5.0 },
   blocked: { type: Boolean, default: false },
   negativeFeedbacksCount: { type: Number, default: 0 }
@@ -15,7 +18,6 @@ const UserSchema = new mongoose.Schema({
 
 const RealUserModel = mongoose.model('User', UserSchema);
 
-// Fallback Mock User Model
 const MockUser = {
   findOne: async (query) => {
     if (isDbConnected()) return RealUserModel.findOne(query);
@@ -56,6 +58,9 @@ const MockUser = {
       _id: Math.random().toString(36).substring(2, 9),
       id: Math.random().toString(36).substring(2, 9),
       ...userData,
+      village: userData.village || '',
+      district: userData.district || '',
+      description: userData.description || '',
       rating: userData.rating !== undefined ? userData.rating : 5.0,
       blocked: userData.blocked !== undefined ? userData.blocked : false,
       negativeFeedbacksCount: userData.negativeFeedbacksCount || 0,
@@ -73,14 +78,12 @@ const MockUser = {
     const index = db.users.findIndex(u => u.id === id || u._id === id);
     if (index === -1) return null;
     
-    // Check if $inc operator is used
     if (updateData.$inc) {
       for (const field of Object.keys(updateData.$inc)) {
         db.users[index][field] = (db.users[index][field] || 0) + updateData.$inc[field];
       }
     }
     
-    // Check if standard updates are present
     const cleanUpdate = { ...updateData };
     delete cleanUpdate.$inc;
     delete cleanUpdate.$set;

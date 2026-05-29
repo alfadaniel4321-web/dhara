@@ -3,89 +3,75 @@
 @tailwind utilities;
 
 html {
-  font-size: 16px;
+  font-size: clamp(14px, 1.1vw, 17px);
   overflow-x: hidden;
   width: 100%;
 }
 
 @layer base {
   body {
-    @apply bg-farmgreen-950 text-emerald-100 antialiased font-sans selection:bg-farmgreen-500 selection:text-white;
+    @apply bg-farmgreen-950 text-emerald-100 antialiased;
+    font-family: 'DM Sans', 'Noto Sans Malayalam', system-ui, sans-serif;
     background-color: #042f1a;
     overflow-x: hidden;
     width: 100%;
   }
 }
 
-/* Custom Scrollbar for a premium look */
+input, textarea, select, button {
+  font-family: inherit;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #021a0e;
 }
 ::-webkit-scrollbar-thumb {
-  background: #15803d;
-  border-radius: 4px;
+  background: #2D6A4F;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #22c55e;
+  background: #95D5B2;
 }
 
-/* Glassmorphism utility */
-.glassmorphism {
-  background: rgba(4, 47, 26, 0.45);
+.glass {
+  background: rgba(4, 47, 26, 0.5);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(149, 213, 178, 0.08);
 }
 
-.glassmorphism-light {
-  background: rgba(255, 255, 255, 0.07);
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Custom keyframes & animation helpers */
 @keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(34, 197, 94, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
-  }
+  0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
 }
 
 .pulse-glow {
   animation: pulseGlow 2.5s infinite;
 }
 
-/* Auth floating particles animation */
-@keyframes floatParticle {
-  0%, 100% {
-    transform: translateY(0) translateX(0) scale(1);
-    opacity: 0.3;
-  }
-  25% {
-    transform: translateY(-30px) translateX(15px) scale(1.2);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-10px) translateX(-10px) scale(0.9);
-    opacity: 0.4;
-  }
-  75% {
-    transform: translateY(-45px) translateX(5px) scale(1.1);
-    opacity: 0.7;
-  }
-}
-
-/* Custom layout constraints */
 #root {
   min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #95D5B2;
+  outline-offset: 2px;
 }

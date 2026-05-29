@@ -8,6 +8,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        forest: '#2D6A4F',
+        lime: '#95D5B2',
+        ivory: '#FFFDF5',
+        earth: '#8D6E63',
+        gold: '#C8A951',
         farmgreen: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -19,7 +24,7 @@ export default {
           700: '#15803d',
           800: '#166534',
           900: '#14532d',
-          950: '#042f1a', // Extra deep forest green
+          950: '#042f1a',
         },
         accentgold: {
           50: '#fdfbeb',
@@ -33,6 +38,11 @@ export default {
           800: '#76450f',
           950: '#271103',
         }
+      },
+      fontFamily: {
+        sans: ['DM Sans', 'Noto Sans Malayalam', 'system-ui', 'sans-serif'],
+        serif: ['Playfair Display', 'Georgia', 'serif'],
+        malayalam: ['Noto Sans Malayalam', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
