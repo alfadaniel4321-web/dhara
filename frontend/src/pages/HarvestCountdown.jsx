@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Clock, Calendar, Sprout, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCartSuccess } from "../redux/slices/cartSlice";
+import { Clock, Calendar, Sprout, CheckCircle } from "lucide-react";
 
 const CROPS = [
-  { id: 1, name: "Kuttanad Rice", icon: "🌾", progress: 85, readyIn: "3 days", status: "Harvesting", expectedDate: "May 31, 2026", farm: "Madhavan Nair", color: "#D4A017" },
-  { id: 2, name: "Organic Tomato", icon: "🍅", progress: 60, readyIn: "12 days", status: "Growing", expectedDate: "Jun 9, 2026", farm: "Devika Rajan", color: "#E74C3C" },
-  { id: 3, name: "Fresh Papaya", icon: "🥭", progress: 40, readyIn: "18 days", status: "Growing", expectedDate: "Jun 15, 2026", farm: "Anil Kumar", color: "#F39C12" },
-  { id: 4, name: "Banana", icon: "🍌", progress: 90, readyIn: "2 days", status: "Harvesting", expectedDate: "May 30, 2026", farm: "Saraswati Menon", color: "#F1C40F" },
-  { id: 5, name: "Green Chilli", icon: "🌶️", progress: 25, readyIn: "22 days", status: "Planting", expectedDate: "Jun 19, 2026", farm: "Lekshmi Varma", color: "#2ECC71" },
-  { id: 6, name: "Coconut", icon: "🥥", progress: 75, readyIn: "7 days", status: "Growing", expectedDate: "Jun 4, 2026", farm: "Rajesh Pillai", color: "#8B4513" },
+  { id: 1, name: "Kuttanad Rice", icon: "🌾", progress: 85, readyIn: "3 days", status: "Harvesting", expectedDate: "May 31, 2026", farm: "Madhavan Nair", color: "#D4A017", price: 85, quantity: "5 Kg" },
+  { id: 2, name: "Organic Tomato", icon: "🍅", progress: 60, readyIn: "12 days", status: "Growing", expectedDate: "Jun 9, 2026", farm: "Devika Rajan", color: "#E74C3C", price: 35, quantity: "1 Kg" },
+  { id: 3, name: "Fresh Papaya", icon: "🥭", progress: 40, readyIn: "18 days", status: "Growing", expectedDate: "Jun 15, 2026", farm: "Anil Kumar", color: "#F39C12", price: 40, quantity: "1 Kg" },
+  { id: 4, name: "Banana", icon: "🍌", progress: 90, readyIn: "2 days", status: "Harvesting", expectedDate: "May 30, 2026", farm: "Saraswati Menon", color: "#F1C40F", price: 30, quantity: "1 Dozen" },
+  { id: 5, name: "Green Chilli", icon: "🌶️", progress: 25, readyIn: "22 days", status: "Planting", expectedDate: "Jun 19, 2026", farm: "Lekshmi Varma", color: "#2ECC71", price: 60, quantity: "250 g" },
+  { id: 6, name: "Coconut", icon: "🥥", progress: 75, readyIn: "7 days", status: "Growing", expectedDate: "Jun 4, 2026", farm: "Rajesh Pillai", color: "#8B4513", price: 25, quantity: "3 Nos" },
 ];
 
 const STATUS_COLORS = {
@@ -17,7 +20,11 @@ const STATUS_COLORS = {
 };
 
 export default function HarvestCountdown() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [countdown, setCountdown] = useState({ h: "00", m: "00", s: "00" });
+  const [preOrdered, setPreOrdered] = useState({});
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -33,6 +40,24 @@ export default function HarvestCountdown() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const handlePreOrder = (crop) => {
+    if (preOrdered[crop.id]) return;
+    setPreOrdered(prev => ({ ...prev, [crop.id]: true }));
+    dispatch(setCartSuccess({
+      products: [{
+        id: crop.id,
+        title: crop.name,
+        image: null,
+        price: crop.price,
+        quantity: crop.quantity,
+        count: 1,
+      }],
+      totalPrice: crop.price,
+    }));
+    setMessage(`${crop.name} added to pre-order successfully!`);
+    setTimeout(() => setMessage(""), 3000);
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -98,26 +123,46 @@ export default function HarvestCountdown() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.85rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#6A994E", fontWeight: 600 }}>
                 <Clock size={14} />
                 {crop.readyIn}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#777", fontSize: "0.75rem" }}>
-                <Calendar size={12} />
-                {crop.expectedDate}
-              </div>
+              <button
+                onClick={() => handlePreOrder(crop)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "4px",
+                  background: preOrdered[crop.id] ? "#EBF5EB" : "#013220",
+                  color: preOrdered[crop.id] ? "#013220" : "white",
+                  border: "none", borderRadius: "10px",
+                  padding: "0.4rem 0.8rem", cursor: preOrdered[crop.id] ? "default" : "pointer",
+                  fontWeight: 700, fontSize: "0.72rem", whiteSpace: "nowrap",
+                }}
+              >
+                {preOrdered[crop.id] ? <><CheckCircle size={12} /> Pre-Ordered</> : "Pre-Order"}
+              </button>
             </div>
           </div>
         ))}
       </div>
 
+      {message && (
+        <div style={{
+          background: "#EBF5EB", border: "1px solid #2D6A4F", borderRadius: "16px",
+          padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: "0.75rem",
+        }}>
+          <CheckCircle size={20} color="#2D6A4F" />
+          <span style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem" }}>{message}</span>
+        </div>
+      )}
+
       <div style={{
         background: "#FFF8E7", border: "1px solid #F0D080", borderRadius: "16px",
         padding: "1.25rem 1.5rem", display: "flex", alignItems: "flex-start", gap: "1rem",
+        flexWrap: "wrap",
       }}>
         <Sprout size={20} color="#D4A017" style={{ flexShrink: 0, marginTop: "2px" }} />
-        <div>
+        <div style={{ flex: 1, minWidth: "200px" }}>
           <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem", marginBottom: "4px" }}>
             Pre-order Available
           </div>
@@ -125,11 +170,14 @@ export default function HarvestCountdown() {
             Reserve your harvest before it's ready. Pre-order now and get 10% off on first delivery.
           </div>
         </div>
-        <button style={{
-          marginLeft: "auto", background: "#013220", color: "white", border: "none",
-          borderRadius: "10px", padding: "0.5rem 1rem", fontWeight: 700, fontSize: "0.75rem",
-          cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
-        }}>Pre-Order</button>
+        <button
+          onClick={() => navigate("/products")}
+          style={{
+            background: "#013220", color: "white", border: "none",
+            borderRadius: "10px", padding: "0.5rem 1rem", fontWeight: 700, fontSize: "0.75rem",
+            cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+          }}
+        >Browse Products</button>
       </div>
     </div>
   );

@@ -1,20 +1,18 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Home, MapPin, Grid, Clock, ShoppingBag, RefreshCw, Users, Package,
-  MessageCircle, Tag, Info
+  Home, Grid, Clock, ShoppingBag, RefreshCw, Users, Package,
+  Tag, Info
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', route: '/dashboard' },
-  { icon: MapPin, label: 'Nearby Farms', route: '/nearby-farms' },
   { icon: Grid, label: 'All Products', route: '/products' },
   { icon: Clock, label: 'Harvest Countdown', route: '/harvest-countdown' },
   { icon: ShoppingBag, label: 'Daily Orders', route: '/daily-orders' },
   { icon: RefreshCw, label: 'Subscriptions', route: '/subscriptions' },
   { icon: Users, label: 'Farmers', route: '/farmers' },
   { icon: Package, label: 'My Orders', route: '/my-orders' },
-  { icon: MessageCircle, label: 'Chat with Farmer', route: '/chat' },
   { icon: Tag, label: 'Offers & Deals', route: '/offers' },
   { icon: Info, label: 'About Us', route: '/about' },
 ];

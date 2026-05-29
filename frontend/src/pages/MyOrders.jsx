@@ -3,14 +3,7 @@ import {
   Package, Search, ChevronRight, Clock, CheckCircle, XCircle, RefreshCw, FileText, Truck
 } from "lucide-react";
 
-const ORDERS = [
-  { id: "ORD-001", date: "May 28, 2026", items: ["Kuttanad Duck Eggs", "Fresh Tapioca"], total: 117, status: "Out for Delivery", eta: "08:15 AM", payment: "COD" },
-  { id: "ORD-002", date: "May 28, 2026", items: ["Organic Tomato", "Farm Fresh Milk"], total: 90, status: "Preparing", eta: "09:00 AM", payment: "COD" },
-  { id: "ORD-003", date: "May 27, 2026", items: ["Country Chicken", "Green Chilli"], total: 295, status: "Delivered", eta: "07:15 AM", payment: "Online" },
-  { id: "ORD-004", date: "May 26, 2026", items: ["Coconut Oil", "Raw Honey"], total: 530, status: "Delivered", eta: "10:30 AM", payment: "COD" },
-  { id: "ORD-005", date: "May 25, 2026", items: ["Organic Banana"], total: 30, status: "Cancelled", eta: null, payment: "COD" },
-  { id: "ORD-006", date: "May 24, 2026", items: ["Fresh Tapioca", "Coconut"], total: 70, status: "Delivered", eta: "08:00 AM", payment: "Online" },
-];
+const ORDERS = [];
 
 const STATUS_STYLES = {
   "Delivered": { bg: "#EBF5EB", color: "#2D6A4F", icon: CheckCircle },
@@ -61,7 +54,7 @@ export default function MyOrders() {
           <Search size={16} color="#6A994E" style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)" }} />
           <input type="text" placeholder="Search by order ID or items..." value={search} onChange={e => setSearch(e.target.value)} style={{
             width: "100%", background: "#F4F6F3", border: "1px solid #E0EAE0", borderRadius: "999px",
-            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", boxSizing: "border-box",
+            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", boxSizing: "border-box", color: "#000",
           }} />
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>

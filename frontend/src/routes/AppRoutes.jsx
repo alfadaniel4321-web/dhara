@@ -23,13 +23,11 @@ import OrderTracking from '../pages/OrderTracking';
 import Wishlist from '../pages/Wishlist';
 import Subscription from '../pages/Subscription';
 import UserProfile from '../pages/UserProfile';
-import NearbyFarms from '../pages/NearbyFarms';
 import Products from '../pages/Products';
 import HarvestCountdown from '../pages/HarvestCountdown';
 import DailyOrders from '../pages/DailyOrders';
 import Farmers from '../pages/Farmers';
 import MyOrders from '../pages/MyOrders';
-import Chat from '../pages/Chat';
 import Offers from '../pages/Offers';
 
 // Farmer Pages
@@ -81,14 +79,12 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/nearby-farms" element={<NearbyFarms />} />
           <Route path="/products" element={<Products />} />
           <Route path="/harvest-countdown" element={<HarvestCountdown />} />
           <Route path="/daily-orders" element={<DailyOrders />} />
           <Route path="/subscriptions" element={<Subscription />} />
           <Route path="/farmers" element={<Farmers />} />
           <Route path="/my-orders" element={<MyOrders />} />
-          <Route path="/chat" element={<Chat />} />
           <Route path="/offers" element={<Offers />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
