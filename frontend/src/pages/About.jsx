@@ -1,5 +1,6 @@
 import React from "react";
-import { Info, Leaf, Users, ShieldCheck, Award, Heart, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Info, Leaf, Users, ShieldCheck, Award, Heart, ChevronRight, ArrowLeft } from "lucide-react";
 
 const STATS = [
   { value: "980+", label: "Verified Farmers", icon: Users },
@@ -17,8 +18,37 @@ const TEAM = [
 ];
 
 export default function About() {
+  const navigate = useNavigate();
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+      <button
+        onClick={handleBack}
+        aria-label="Go back"
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          color: "#6A994E",
+          fontSize: "0.85rem",
+          fontWeight: 600,
+          padding: "4px 0",
+          width: "fit-content",
+        }}
+      >
+        <ArrowLeft size={18} />
+        Back
+      </button>
       <div style={{
         background: "linear-gradient(135deg,#013220,#14532d)",
         borderRadius: "20px", padding: "2rem 2.5rem", color: "white",
@@ -100,27 +130,6 @@ export default function About() {
             </div>
           ))}
         </div>
-      </div>
-
-      <div style={{
-        background: "#FFF8E7", border: "1px solid #F0D080", borderRadius: "16px",
-        padding: "1.25rem 1.5rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap",
-      }}>
-        <div style={{ flex: 1, minWidth: "200px" }}>
-          <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.95rem", marginBottom: "4px" }}>
-            Want to partner with us?
-          </div>
-          <div style={{ fontSize: "0.8rem", color: "#666" }}>
-            Join 980+ farmers already on Dhara. Sell directly to customers in your area.
-          </div>
-        </div>
-        <button style={{
-          background: "#013220", color: "white", border: "none", borderRadius: "10px",
-          padding: "0.7rem 1.3rem", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: "6px", whiteSpace: "nowrap",
-        }}>
-          Become a Partner <ChevronRight size={16} />
-        </button>
       </div>
     </div>
   );

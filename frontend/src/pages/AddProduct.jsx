@@ -1,215 +1,406 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { api } from '../services/api';
-import { ChevronLeft, Check } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ChevronLeft, Check, Image, Clock, IndianRupee, Package, Truck, AlertCircle, Upload, Camera } from "lucide-react";
+import { api } from "../services/api";
+import { getProductImage } from "../data/productImages";
+import { getNutrition } from "../data/nutritionDB";
+import SpeechReader from "../components/SpeechReader";
+import { t, getLanguage } from "../data/i18n";
 
 export default function AddProduct() {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Vegetables');
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState('1 kg');
-  const [stock, setStock] = useState('');
-  const [availTime, setAvailTime] = useState('06:00 AM - 12:00 PM');
-  const [nutrition, setNutrition] = useState('Energy: 80 kcal, Fiber: 2g');
-  const [protein, setProtein] = useState('1.5g');
-  const [freshnessScore, setFreshnessScore] = useState(98);
-  const [image, setImage] = useState('https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80&w=400');
-  
-  const [success, setSuccess] = useState('');
+  const lang = getLanguage();
+
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [harvestDate, setHarvestDate] = useState(new Date().toISOString().split("T")[0]);
+  const [available, setAvailable] = useState(true);
+  const [delivery, setDelivery] = useState("pickup");
   const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [previewImg, setPreviewImg] = useState(null);
+  const [uploadedImg, setUploadedImg] = useState(null);
+  const [nutrition, setNutritionInfo] = useState(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setUploadedImg(ev.target?.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  useEffect(() => {
+    if (name.trim()) {
+      const img = getProductImage(name);
+      setPreviewImg(img);
+      const nut = getNutrition(name);
+      setNutritionInfo(nut);
+    } else {
+      setPreviewImg(null);
+      setUploadedImg(null);
+      setNutritionInfo(null);
+    }
+  }, [name]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !price || !stock) {
-      alert('Please fill out Title, Price, and Stock.');
+    if (!name || !price || !quantity) {
+      alert("Please fill name, price, and quantity");
       return;
     }
-
     setSubmitting(true);
-    setSuccess('');
     try {
+      const nut = getNutrition(name);
       await api.products.createProduct({
-        title,
-        category,
+        title: name,
+        image: uploadedImg || previewImg || getProductImage(name),
+        category: "Vegetables",
         price: Number(price),
-        quantity,
-        stock: Number(stock),
-        harvestDate: new Date().toISOString(),
-        availableTime: availTime,
-        nutrition,
-        protein,
-        freshnessScore: Number(freshnessScore),
-        image
+        quantity: quantity,
+        stock: 100,
+        harvestDate: new Date(harvestDate).toISOString(),
+        availableTime: "06:00 AM - 12:00 PM",
+        nutrition: nut ? nut.items.join(", ") : "Fresh farm produce",
+        protein: nut ? nut.protein : "Fresh",
+        freshnessScore: 98,
       });
-      setSuccess('🌿 Harvest record added successfully and listed on the marketplace!');
-      // Reset inputs
-      setTitle('');
-      setPrice('');
-      setStock('');
+      setSuccess("Product added successfully!");
+      setName("");
+      setPrice("");
+      setQuantity("");
+      setHarvestDate(new Date().toISOString().split("T")[0]);
+      setPreviewImg(null);
+      setUploadedImg(null);
+      setNutritionInfo(null);
     } catch (err) {
-      alert(err.message || 'Failed to list product');
+      alert(err.message || "Failed to add product");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      <Link 
-        to="/farmer" 
-        className="flex items-center space-x-2 text-xs text-emerald-400 hover:text-white transition-colors"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        <span>Back to Farmer Hub</span>
-      </Link>
-
-      <div className="border-b border-emerald-900/60 pb-4">
-        <h2 className="text-2xl font-bold text-white">Record Daily Harvest</h2>
-        <p className="text-sm text-emerald-300/70">List your fresh farm products for customer order routing.</p>
+    <div className="max-w-lg mx-auto pb-12">
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          to="/farmer"
+          className="flex items-center gap-2 text-xs no-underline"
+          style={{ color: "rgba(255,255,255,0.85)" }}
+        >
+          <ChevronLeft size={16} />
+          {t("dashboard.home", lang)}
+        </Link>
+        <SpeechReader
+          text={`Add product. Product name: ${name || "not entered"}. Price: ${price || "not set"}. Quantity: ${quantity || "not set"}.`}
+          lang={lang === "ml" ? "ml-IN" : lang === "hi" ? "hi-IN" : "en-IN"}
+        />
       </div>
 
-      {success && (
-        <div className="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 p-4 rounded-xl text-xs flex items-center space-x-2">
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{success}</span>
-        </div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-3xl p-6"
+        style={{
+          background: "linear-gradient(135deg, rgba(45,106,79,0.2) 0%, rgba(4,47,26,0.6) 100%)",
+          border: "1px solid rgba(149,213,178,0.12)",
+        }}
+      >
+        <h1 className="text-xl font-bold text-white mb-1">{t("product.add", lang)}</h1>
+        <p className="text-xs mb-6" style={{ color: "rgba(149,213,178,0.5)" }}>
+          Fill in the details below
+        </p>
 
-      <form onSubmit={handleSubmit} className="glassmorphism p-6 rounded-3xl border border-emerald-800 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="flex items-center gap-2 mb-4 px-4 py-3 rounded-xl text-xs font-medium"
+            style={{
+              background: "rgba(34,197,94,0.1)",
+              border: "1px solid rgba(34,197,94,0.2)",
+              color: "#22c55e",
+            }}
+          >
+            <Check size={14} />
+            {success}
+          </motion.div>
+        )}
+
+        {/* Image preview */}
+        {(previewImg || uploadedImg) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-5 rounded-2xl overflow-hidden"
+            style={{
+              border: "1px solid rgba(149,213,178,0.15)",
+            }}
+          >
+            <div className="relative">
+              <img
+                src={uploadedImg || previewImg}
+                alt={name}
+                className="w-full h-48 object-cover"
+              />
+              {uploadedImg && (
+                <div
+                  className="absolute top-2 left-2 px-2 py-1 rounded-full text-[9px] font-bold"
+                  style={{ background: "rgba(0,0,0,0.6)", color: "#95D5B2" }}
+                >
+                  Your Photo
+                </div>
+              )}
+              <div
+                className="absolute top-2 right-2 px-3 py-1 rounded-full text-[10px] font-bold"
+                style={{
+                  background: "rgba(34,197,94,0.9)",
+                  color: "#fff",
+                }}
+              >
+                {t("product.available", lang)}
+              </div>
+            </div>
+            {nutrition && (
+              <div className="p-3" style={{ background: "rgba(0,0,0,0.2)" }}>
+                <p className="text-xs font-bold mb-2" style={{ color: "#95D5B2" }}>
+                  {nutrition.label}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {nutrition.items.slice(0, 4).map((item, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-1 rounded-lg text-[10px] font-medium"
+                      style={{
+                        background: "rgba(149,213,178,0.1)",
+                        color: "rgba(149,213,178,0.8)",
+                        border: "1px solid rgba(149,213,178,0.1)",
+                      }}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-4 mt-2 text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <span>Protein: {nutrition.protein}</span>
+                  <span>Energy: {nutrition.energy}</span>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Image Upload */}
           <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Product Title</label>
-            <input 
-              type="text" 
-              placeholder="e.g. Malabar Cow Milk"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              <Camera size={12} style={{ display: "inline", marginRight: 4 }} />
+              Product Photo
+            </label>
+            <label
+              className="flex items-center justify-center gap-2 w-full rounded-xl px-4 py-4 text-sm font-semibold cursor-pointer transition-all"
+              style={{
+                background: "rgba(0,0,0,0.2)",
+                border: "2px dashed rgba(149,213,178,0.2)",
+                color: "rgba(149,213,178,0.6)",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.2)")}
+            >
+              <Upload size={18} />
+              <span>{uploadedImg ? "Tap to change photo" : "Tap to upload photo"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
+
+          {/* Product Name */}
+          <div>
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              <Image size={12} style={{ display: "inline", marginRight: 4 }} />
+              {t("product.name", lang)}
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Banana, Coconut, Egg..."
+              className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
+              style={{
+                background: "rgba(0,0,0,0.25)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                outline: "none",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
               required
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            {/* Price */}
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+                <IndianRupee size={12} style={{ display: "inline", marginRight: 4 }} />
+                {t("product.price", lang)}
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="₹"
+                min="0"
+                className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
+                style={{
+                  background: "rgba(0,0,0,0.25)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  outline: "none",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                required
+              />
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+                <Package size={12} style={{ display: "inline", marginRight: 4 }} />
+                {t("product.quantity", lang)}
+              </label>
+              <input
+                type="text"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="1 kg, 12 nos"
+                className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
+                style={{
+                  background: "rgba(0,0,0,0.25)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  outline: "none",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Harvest Date */}
           <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Category</label>
-            <select 
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all"
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              <Clock size={12} style={{ display: "inline", marginRight: 4 }} />
+              {t("product.harvestTime", lang)}
+            </label>
+            <input
+              type="date"
+              value={harvestDate}
+              onChange={(e) => setHarvestDate(e.target.value)}
+              className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
+              style={{
+                background: "rgba(0,0,0,0.25)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                outline: "none",
+                colorScheme: "dark",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+              required
+            />
+          </div>
+
+          {/* Availability toggle */}
+          <div>
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              <AlertCircle size={12} style={{ display: "inline", marginRight: 4 }} />
+              {t("product.availability", lang)}
+            </label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setAvailable(true)}
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all"
+                style={{
+                  background: available ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${available ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  color: available ? "#22c55e" : "rgba(255,255,255,0.4)",
+                  cursor: "pointer",
+                }}
+              >
+                {t("product.available", lang)}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAvailable(false)}
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all"
+                style={{
+                  background: !available ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${!available ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  color: !available ? "#ef4444" : "rgba(255,255,255,0.4)",
+                  cursor: "pointer",
+                }}
+              >
+                {t("product.notAvailable", lang)}
+              </button>
+            </div>
+          </div>
+
+          {/* Delivery option */}
+          <div>
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              <Truck size={12} style={{ display: "inline", marginRight: 4 }} />
+              {t("product.delivery", lang)}
+            </label>
+            <select
+              value={delivery}
+              onChange={(e) => setDelivery(e.target.value)}
+              className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
+              style={{
+                background: "rgba(0,0,0,0.25)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                outline: "none",
+              }}
             >
-              <option value="Milk">Milk</option>
-              <option value="Eggs">Eggs</option>
-              <option value="Vegetables">Vegetables</option>
+              <option value="pickup" style={{ background: "#042f1a" }}>Farmer Pickup</option>
+              <option value="delivery" style={{ background: "#042f1a" }}>Home Delivery</option>
+              <option value="both" style={{ background: "#042f1a" }}>Both</option>
             </select>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Price (₹)</label>
-            <input 
-              type="number" 
-              placeholder="e.g. 60"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Unit / Quantity</label>
-            <input 
-              type="text" 
-              placeholder="e.g. 1 Litre, 12 Nos"
-              value={quantity}
-              onChange={e => setQuantity(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Initial Stock Count</label>
-            <input 
-              type="number" 
-              placeholder="e.g. 50"
-              value={stock}
-              onChange={e => setStock(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Delivery Time Slot</label>
-            <input 
-              type="text" 
-              placeholder="e.g. 06:00 AM - 10:00 AM"
-              value={availTime}
-              onChange={e => setAvailTime(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all placeholder:text-emerald-800/80"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">AI Freshness Score</label>
-            <input 
-              type="number" 
-              value={freshnessScore}
-              onChange={e => setFreshnessScore(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Nutrition Facts</label>
-            <input 
-              type="text" 
-              value={nutrition}
-              onChange={e => setNutrition(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Protein Amount</label>
-            <input 
-              type="text" 
-              value={protein}
-              onChange={e => setProtein(e.target.value)}
-              className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all"
-              required
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Photo Image URL</label>
-          <input 
-            type="text" 
-            value={image}
-            onChange={e => setImage(e.target.value)}
-            className="w-full bg-emerald-950/80 border border-emerald-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400 transition-all font-mono"
-            required
-          />
-        </div>
-
-        <button 
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-emerald-500 hover:bg-emerald-400 text-farmgreen-950 font-extrabold py-3.5 rounded-xl transition-all shadow-lg active:scale-95 text-xs disabled:opacity-50"
-        >
-          {submitting ? 'Publishing Harvest...' : 'Publish Harvest Entry'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-4 rounded-xl text-sm font-extrabold transition-all"
+            style={{
+              background: "linear-gradient(135deg, #2D6A4F, #1B4332)",
+              border: "1px solid rgba(149,213,178,0.2)",
+              color: "#fff",
+              cursor: "pointer",
+              opacity: submitting ? 0.6 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!submitting) {
+                e.currentTarget.style.background = "linear-gradient(135deg, #40916C, #2D6A4F)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!submitting) {
+                e.currentTarget.style.background = "linear-gradient(135deg, #2D6A4F, #1B4332)";
+              }
+            }}
+          >
+            {submitting ? "Adding..." : t("product.add", lang)}
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 }

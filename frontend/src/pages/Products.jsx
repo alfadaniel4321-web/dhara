@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setCartSuccess } from "../redux/slices/cartSlice";
+import { api } from "../services/api";
 import CategoryBar from '../components/CategoryBar';
 
 const CATEGORIES = [
@@ -188,12 +189,35 @@ export default function Products() {
     setSelectedRatings(prev => prev.includes(rating) ? prev.filter(r => r !== rating) : [...prev, rating]);
   }, []);
 
-  const handleAddToCart = useCallback((product) => {
-    dispatch(setCartSuccess({
-      products: [{ productId: product.id, count: 1 }],
-      totalPrice: product.price,
-    }));
-    navigate('/cart');
+  const handleAddToCart = useCallback(async (product) => {
+    try {
+      const mockProducts = JSON.parse(localStorage.getItem('mock_products') || '[]');
+      const exists = mockProducts.find(p => p.id === product.id || p._id === product.id);
+      if (!exists) {
+        mockProducts.push({
+          id: product.id,
+          _id: product.id,
+          title: product.title,
+          image: product.image,
+          category: product.category,
+          price: product.price,
+          originalPrice: product.originalPrice,
+          rating: product.rating,
+          reviews: product.reviews,
+          brand: product.brand,
+          description: product.description,
+          quantity: '1 unit',
+          stock: 100,
+          availableTime: '06:00 AM - 10:00 AM',
+        });
+        localStorage.setItem('mock_products', JSON.stringify(mockProducts));
+      }
+      const updatedCart = await api.cart.addToCart(product.id, 1);
+      dispatch(setCartSuccess(updatedCart));
+      navigate('/cart');
+    } catch (err) {
+      console.error('Failed to add to cart', err);
+    }
   }, [dispatch, navigate]);
 
   const filteredProducts = useMemo(() => {

@@ -10,7 +10,6 @@ import {
   RefreshCw,
   Users,
   Package,
-  MessageCircle,
   Tag,
   Info,
   Search,
@@ -20,14 +19,12 @@ import {
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", id: "home" },
-  { icon: MapPin, label: "Nearby Farms", id: "nearby" },
   { icon: Grid, label: "All Products", id: "products" },
   { icon: Clock, label: "Harvest Countdown", id: "harvest" },
   { icon: ShoppingBag, label: "Daily Orders", id: "orders" },
   { icon: RefreshCw, label: "Subscriptions", id: "subscriptions" },
   { icon: Users, label: "Farmers", id: "farmers" },
   { icon: Package, label: "My Orders", id: "myorders" },
-  { icon: MessageCircle, label: "Chat with Farmer", id: "chat" },
   { icon: Tag, label: "Offers & Deals", id: "offers" },
   { icon: Info, label: "About Us", id: "about" },
 ];

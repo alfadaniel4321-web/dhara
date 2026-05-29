@@ -1,236 +1,341 @@
-import { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setAuthStart, setAuthSuccess, setAuthFailure } from '../redux/slices/authSlice';
-import { api } from '../services/api';
-import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
-import storyGroveImg from "../assets/story-grove.jpg";
-import bgImage from "../assets/image.jpeg";
+import { useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { setAuthStart, setAuthSuccess, setAuthFailure } from "../redux/slices/authSlice";
+import { api } from "../services/api";
+import { Leaf, User, Shield, Sprout, ChevronLeft } from "lucide-react";
+
+const roles = [
+  { id: "farmer", label: "Farmer", icon: Sprout, desc: "Sell your farm produce" },
+  { id: "customer", label: "Customer", icon: User, desc: "Buy fresh farm products" },
+  { id: "admin", label: "Admin", icon: Shield, desc: "Manage the marketplace" },
+];
 
 export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [email, setEmail] = useState(''); // accepts username or email
-  const [password, setPassword] = useState('');
-  const [showForgot, setShowForgot] = useState(false);
+  const [role, setRole] = useState("farmer");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { loading, error } = useSelector((state) => state.auth);
 
-  const handleLogin = useCallback(async (e) => {
-    e.preventDefault();
-    dispatch(setAuthStart());
-    try {
-      const data = await api.auth.login(email, password);
-      dispatch(setAuthSuccess({ user: data.user, token: data.token }));
-      navigate(data.user.role === 'farmer' ? '/farmer' : '/dashboard');
-    } catch (err) {
-      dispatch(setAuthFailure(err.message || 'Login failed'));
-    }
-  }, [email, password, dispatch, navigate]);
+  const handleLogin = useCallback(
+    async (e) => {
+      e.preventDefault();
+      dispatch(setAuthStart());
+
+      if (role === "admin") {
+        if (email === "admin@dhara.com" && password === "admin123") {
+          const adminUser = {
+            id: "admin_1",
+            _id: "admin_1",
+            name: "Dhara Admin",
+            email: "admin@dhara.com",
+            role: "admin",
+            phone: "+91 99999 88888",
+            rating: 5.0,
+            blocked: false,
+            negativeFeedbacksCount: 0,
+          };
+          dispatch(
+            setAuthSuccess({
+              user: adminUser,
+              token: `admin_token_${Date.now()}`,
+            })
+          );
+          navigate("/admin");
+        } else {
+          dispatch(setAuthFailure("Invalid admin credentials"));
+        }
+        return;
+      }
+
+      try {
+        const data = await api.auth.login(email, password);
+        dispatch(setAuthSuccess({ user: data.user, token: data.token }));
+        navigate(data.user.role === "farmer" ? "/farmer" : "/dashboard");
+      } catch (err) {
+        dispatch(setAuthFailure(err.message || "Login failed"));
+      }
+    },
+    [email, password, role, dispatch, navigate]
+  );
 
   return (
-    <div style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {/* Background image */}
-      <img src={bgImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        minHeight: "100vh",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#042f1a",
+      }}
+    >
+      {/* Background pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 25% 25%, rgba(149,213,178,0.8) 0px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-      {/* Dark overlay */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 30, 20, 0.45)' }} />
+      {/* Back button */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 z-20 flex items-center gap-1.5 no-underline transition-all"
+        style={{ color: "rgba(149,213,178,0.5)", fontSize: "0.75rem", fontWeight: 600 }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#95D5B2")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(149,213,178,0.5)")}
+      >
+        <ChevronLeft size={16} />
+        Back
+      </Link>
 
-      {/* Glass Card */}
-      <div className="login-glass-card" style={{
-        position: 'relative',
-        zIndex: 2,
-        width: '520px',
-        maxWidth: '90vw',
-        background: 'rgba(20, 40, 28, 0.45)',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        borderRadius: '16px',
-        padding: '2rem 2.5rem',
-        boxShadow: '0 32px 80px rgba(0,0,0,0.45)',
-      }}>
-        {/* Top-left hamburger + DHARA ORGANIC */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '1rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1 }}>≡</span>
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.7rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase' }}>DHARA ORGANIC</span>
-        </div>
-
-        {/* Two-column layout: image + heading */}
-        <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
-          {/* Left: square image */}
-          <div style={{ width: '40%', flexShrink: 0 }}>
-            <img
-              src={storyGroveImg}
-              alt="Kerala farmland"
-              style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', borderRadius: '8px', display: 'block' }}
-            />
-          </div>
-          {/* Right: heading */}
-          <div style={{ width: '60%', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end' }}>
-            <h1 style={{
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontSize: 'clamp(2.2rem, 4vw, 3rem)',
-              fontWeight: 700,
-              color: '#FFFFFF',
-              lineHeight: 1.1,
-              margin: 0,
-              textAlign: 'right',
-            }}>
-              Fresh<br />from<br />Kerala
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-md mx-4"
+      >
+        <div
+          className="rounded-3xl p-8"
+          style={{
+            background: "rgba(4,47,26,0.6)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid rgba(149,213,178,0.12)",
+            boxShadow: "0 32px 80px rgba(0,0,0,0.5)",
+          }}
+        >
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+              style={{
+                background: "rgba(149,213,178,0.12)",
+                border: "1px solid rgba(149,213,178,0.2)",
+              }}
+            >
+              <Leaf size={32} style={{ color: "#95D5B2" }} />
+            </div>
+            <h1
+              className="text-2xl font-bold text-white"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              DHARA
             </h1>
-          </div>
-        </div>
-
-        {/* Welcome Back section */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2rem', fontWeight: 400, color: '#FFFFFF', margin: '0 0 0.5rem 0' }}>Welcome Back</h2>
-          <div style={{ width: '3rem', height: '1px', background: 'rgba(255,255,255,0.2)', marginBottom: '1rem' }} />
-          <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, fontWeight: 300, margin: 0, fontFamily: '-apple-system, sans-serif' }}>
-            Sign in to your Dhara account to access fresh organic produce from verified Kerala farmers.
-          </p>
-        </div>
-
-        {/* Login form */}
-        <form onSubmit={handleLogin} style={{ marginBottom: '1.5rem' }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <input
-              type="text"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="Username or Email address"
-              autoComplete="username"
-              required
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid rgba(255,255,255,0.25)',
-                padding: '0.6rem 0',
-                fontSize: '0.85rem',
-                fontFamily: '-apple-system, sans-serif',
-                color: '#FFFFFF',
-                outline: 'none',
-                transition: 'border-color 0.3s ease',
-              }}
-              onFocus={e => e.currentTarget.style.borderBottomColor = '#A3C87A'}
-              onBlur={e => e.currentTarget.style.borderBottomColor = 'rgba(255,255,255,0.25)'}
-            />
-          </div>
-          <div style={{ marginBottom: '0.5rem' }}>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Password"
-              autoComplete="current-password"
-              required
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid rgba(255,255,255,0.25)',
-                padding: '0.6rem 0',
-                fontSize: '0.85rem',
-                fontFamily: '-apple-system, sans-serif',
-                color: '#FFFFFF',
-                outline: 'none',
-                transition: 'border-color 0.3s ease',
-              }}
-              onFocus={e => e.currentTarget.style.borderBottomColor = '#A3C87A'}
-              onBlur={e => e.currentTarget.style.borderBottomColor = 'rgba(255,255,255,0.25)'}
-            />
+            <p className="text-xs mt-1" style={{ color: "rgba(149,213,178,0.5)" }}>
+              Organic Kerala
+            </p>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <p style={{ color: '#ff6b6b', fontSize: '0.72rem', fontFamily: '-apple-system, sans-serif', margin: '0.5rem 0', fontWeight: 300 }}>
-              {error}
+          {/* Role selection */}
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            {roles.map((r) => {
+              const Icon = r.icon;
+              const isActive = role === r.id;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => setRole(r.id)}
+                  className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-xs font-semibold transition-all"
+                  style={{
+                    background: isActive
+                      ? "rgba(149,213,178,0.12)"
+                      : "rgba(255,255,255,0.03)",
+                    border: `1px solid ${
+                      isActive
+                        ? "rgba(149,213,178,0.3)"
+                        : "rgba(255,255,255,0.06)"
+                    }`,
+                    color: isActive ? "#95D5B2" : "rgba(255,255,255,0.4)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Icon size={20} />
+                  <span>{r.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {role && (
+            <p
+              className="text-xs text-center mb-6"
+              style={{ color: "rgba(255,255,255,0.3)" }}
+            >
+              {roles.find((r) => r.id === role)?.desc}
             </p>
           )}
-        </form>
 
-        {/* Forgot password */}
-        <div style={{ textAlign: 'right', marginBottom: '1.5rem' }}>
-          <button
-            onClick={() => setShowForgot(true)}
-            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', fontFamily: '"Courier New", monospace', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', transition: 'color 0.3s ease' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#A3C87A'}
-            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
-          >
-            Forgot password?
-          </button>
-        </div>
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <input
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={
+                  role === "admin"
+                    ? "Admin Email"
+                    : "Username or Email address"
+                }
+                autoComplete="username"
+                required
+                className="w-full rounded-xl px-4 py-3.5 text-sm text-white transition-all"
+                style={{
+                  background: "rgba(0,0,0,0.25)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  outline: "none",
+                }}
+                onFocus={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgba(149,213,178,0.4)")
+                }
+                onBlur={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgba(255,255,255,0.08)")
+                }
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                autoComplete="current-password"
+                required
+                className="w-full rounded-xl px-4 py-3.5 text-sm text-white transition-all"
+                style={{
+                  background: "rgba(0,0,0,0.25)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  outline: "none",
+                }}
+                onFocus={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgba(149,213,178,0.4)")
+                }
+                onBlur={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgba(255,255,255,0.08)")
+                }
+              />
+            </div>
 
-        {/* Bottom bar: Connect with Dhara + pills */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem' }}>
-          <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', fontFamily: '"Courier New", monospace', letterSpacing: '0.05em' }}>
-            Connect with Dhara
-          </span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {error && (
+              <p
+                className="text-xs font-medium"
+                style={{ color: "#ef4444" }}
+              >
+                {error}
+              </p>
+            )}
+
             <button
-              onClick={handleLogin}
+              type="submit"
               disabled={loading}
+              className="w-full py-3.5 rounded-xl text-sm font-extrabold transition-all"
               style={{
-                border: '1px solid rgba(255,255,255,0.35)',
-                background: 'transparent',
-                color: '#FFFFFF',
-                borderRadius: '999px',
-                padding: '0.45rem 1.4rem',
-                fontFamily: '"Courier New", monospace',
-                fontSize: '0.65rem',
-                letterSpacing: '0.1em',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                opacity: loading ? 0.7 : 1,
+                background: "linear-gradient(135deg, #2D6A4F, #1B4332)",
+                border: "1px solid rgba(149,213,178,0.15)",
+                color: "#fff",
+                cursor: "pointer",
+                opacity: loading ? 0.6 : 1,
               }}
-              onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; } }}
-              onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = 'transparent'; } }}
+              onMouseEnter={(e) => {
+                if (!loading)
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #40916C, #2D6A4F)";
+              }}
+              onMouseLeave={(e) => {
+                if (!loading)
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #2D6A4F, #1B4332)";
+              }}
             >
-              {loading ? (
-                <span style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'loginSpin 0.6s linear infinite' }} />
-              ) : null}
-              Sign In
+              {loading ? "Signing in..." : "Sign In"}
             </button>
-            <Link
-              to="/signup"
-              style={{
-                background: 'rgba(255,255,255,0.9)',
-                color: '#1B4332',
-                borderRadius: '999px',
-                padding: '0.45rem 1.4rem',
-                fontFamily: '"Courier New", monospace',
-                fontSize: '0.65rem',
-                letterSpacing: '0.1em',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = '#FFFFFF'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.9)'}
+          </form>
+
+          <div className="mt-6 text-center">
+            <p
+              className="text-xs mb-4"
+              style={{ color: "rgba(255,255,255,0.3)" }}
             >
-              Register
-            </Link>
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                style={{
+                  color: "#95D5B2",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                Register
+              </Link>
+            </p>
+
+            <div
+              className="pt-4 text-center"
+              style={{
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <p
+                className="text-[10px] mb-2"
+                style={{ color: "rgba(255,255,255,0.2)" }}
+              >
+                Demo Credentials
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-medium"
+                  style={{
+                    background: "rgba(149,213,178,0.08)",
+                    color: "rgba(149,213,178,0.6)",
+                    border: "1px solid rgba(149,213,178,0.1)",
+                  }}
+                >
+                  Farmer: farmer@dhara.com
+                </span>
+                <span
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-medium"
+                  style={{
+                    background: "rgba(149,213,178,0.08)",
+                    color: "rgba(149,213,178,0.6)",
+                    border: "1px solid rgba(149,213,178,0.1)",
+                  }}
+                >
+                  Customer: customer@dhara.com
+                </span>
+                <span
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-medium"
+                  style={{
+                    background: "rgba(149,213,178,0.08)",
+                    color: "rgba(149,213,178,0.6)",
+                    border: "1px solid rgba(149,213,178,0.1)",
+                  }}
+                >
+                  Admin: admin@dhara.com / admin123
+                </span>
+              </div>
+              <p
+                className="text-[10px] mt-2"
+                style={{ color: "rgba(255,255,255,0.15)" }}
+              >
+                Password: password123
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Forgot Password Modal */}
-      {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
-
-      <style>{`
-        @keyframes loginSpin { to { transform: rotate(360deg); } }
-        @media(max-width:480px){
-          .login-glass-card > div:first-of-type { flex-direction: column !important; }
-          .login-glass-card > div:first-of-type > div:first-child { width: 100% !important; }
-          .login-glass-card > div:first-of-type > div:last-child { width: 100% !important; justify-content: center !important; }
-          .login-glass-card > div:first-of-type > div:last-child h1 { text-align: center !important; }
-        }
-      `}</style>
+      </motion.div>
     </div>
   );
 }

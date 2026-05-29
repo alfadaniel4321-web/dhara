@@ -1,16 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Package, Search, ChevronRight, Clock, CheckCircle, XCircle, RefreshCw, FileText, Truck
 } from "lucide-react";
-
-const ORDERS = [
-  { id: "ORD-001", date: "May 28, 2026", items: ["Kuttanad Duck Eggs", "Fresh Tapioca"], total: 117, status: "Out for Delivery", eta: "08:15 AM", payment: "COD" },
-  { id: "ORD-002", date: "May 28, 2026", items: ["Organic Tomato", "Farm Fresh Milk"], total: 90, status: "Preparing", eta: "09:00 AM", payment: "COD" },
-  { id: "ORD-003", date: "May 27, 2026", items: ["Country Chicken", "Green Chilli"], total: 295, status: "Delivered", eta: "07:15 AM", payment: "Online" },
-  { id: "ORD-004", date: "May 26, 2026", items: ["Coconut Oil", "Raw Honey"], total: 530, status: "Delivered", eta: "10:30 AM", payment: "COD" },
-  { id: "ORD-005", date: "May 25, 2026", items: ["Organic Banana"], total: 30, status: "Cancelled", eta: null, payment: "COD" },
-  { id: "ORD-006", date: "May 24, 2026", items: ["Fresh Tapioca", "Coconut"], total: 70, status: "Delivered", eta: "08:00 AM", payment: "Online" },
-];
+import { api } from "../services/api";
 
 const STATUS_STYLES = {
   "Delivered": { bg: "#EBF5EB", color: "#2D6A4F", icon: CheckCircle },
@@ -24,8 +16,40 @@ const TABS = ["All", "Active", "Delivered", "Cancelled"];
 export default function MyOrders() {
   const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
+  const [orders, setOrders] = useState([]);
 
-  const filtered = ORDERS.filter(o => {
+  const loadOrders = async () => {
+    try {
+      const data = await api.orders.getOrders();
+      const mapped = data.map(o => ({
+        id: o.id || o._id,
+        date: new Date(o.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+        status: o.orderStatus === 'Pending' ? 'Preparing' : (o.orderStatus || 'Preparing'),
+        items: (o.products || []).map(p => p.title || 'Item'),
+        total: o.totalPrice,
+        payment: o.paymentStatus === 'Paid' ? 'Paid' : 'COD',
+      }));
+      setOrders(mapped);
+    } catch (err) {
+      console.error('Failed to load orders', err);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    try {
+      await api.orders.updateOrderStatus(orderId, { orderStatus: 'Cancelled' });
+      await loadOrders();
+    } catch (err) {
+      alert(err.message || 'Failed to cancel order');
+    }
+  };
+
+  const filtered = orders.filter(o => {
     const matchTab = tab === "All" || tab === "Active" ? (tab === "Active" ? o.status !== "Delivered" && o.status !== "Cancelled" : true) : o.status === tab;
     const matchSearch = !search || o.id.toLowerCase().includes(search.toLowerCase()) || o.items.some(i => i.toLowerCase().includes(search.toLowerCase()));
     return matchTab && matchSearch;
@@ -61,7 +85,7 @@ export default function MyOrders() {
           <Search size={16} color="#6A994E" style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)" }} />
           <input type="text" placeholder="Search by order ID or items..." value={search} onChange={e => setSearch(e.target.value)} style={{
             width: "100%", background: "#F4F6F3", border: "1px solid #E0EAE0", borderRadius: "999px",
-            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", boxSizing: "border-box",
+            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", boxSizing: "border-box", color: "#000",
           }} />
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -119,6 +143,15 @@ export default function MyOrders() {
                       fontWeight: 600, fontSize: "0.7rem",
                     }}>
                       <RefreshCw size={12} /> Reorder
+                    </button>
+                  )}
+                  {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                    <button onClick={() => handleCancelOrder(order.id)} style={{
+                      display: "flex", alignItems: "center", gap: "4px", background: "#FEE2E2", color: "#DC2626",
+                      border: "none", borderRadius: "10px", padding: "0.45rem 0.9rem", cursor: "pointer",
+                      fontWeight: 600, fontSize: "0.7rem",
+                    }}>
+                      <XCircle size={12} /> Cancel
                     </button>
                   )}
                   <button style={{

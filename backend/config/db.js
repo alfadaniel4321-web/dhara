@@ -16,7 +16,9 @@ const initialDb = {
   users: [],
   products: [],
   orders: [],
-  feedbacks: []
+  feedbacks: [],
+  preOrders: [],
+  notifications: []
 };
 
 // Helper to read local JSON database

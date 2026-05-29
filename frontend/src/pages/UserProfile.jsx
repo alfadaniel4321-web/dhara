@@ -5,7 +5,7 @@ import { logoutUser } from '../redux/slices/authSlice';
 import { clearCartLocal } from '../redux/slices/cartSlice';
 import { api } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { ChevronLeft, User, MapPin, ListOrdered, Calendar, Heart, ShieldAlert, PackageCheck, IndianRupee, Leaf, Award, Clock, ChevronRight, ShoppingBag, TrendingUp } from 'lucide-react';
+import { ChevronLeft, User, MapPin, ListOrdered, Heart, ShieldAlert, PackageCheck, IndianRupee, Leaf, Award, Clock, ChevronRight, ShoppingBag } from 'lucide-react';
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -57,11 +57,7 @@ export default function UserProfile() {
   };
 
   const totalSpent = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-  const memberSince = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })
-    : 'January 2025';
   const orderCount = orders.length;
-  const loyaltyTier = totalSpent > 5000 ? 'Gold' : totalSpent > 2000 ? 'Silver' : 'Bronze';
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -126,10 +122,6 @@ export default function UserProfile() {
                   <Award className="w-3 h-3" />
                   {user?.role} Account
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-amber-700/40">
-                  <TrendingUp className="w-3 h-3" />
-                  {loyaltyTier} Tier
-                </span>
               </div>
             </div>
           </div>
@@ -158,7 +150,6 @@ export default function UserProfile() {
         {[
           { icon: ShoppingBag, label: 'Total Orders', value: orderCount, suffix: '', color: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-700/30', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-400' },
           { icon: IndianRupee, label: 'Total Spent', value: `₹${totalSpent.toLocaleString()}`, suffix: '', color: 'from-blue-500/20 to-blue-600/10', border: 'border-blue-700/30', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-400' },
-          { icon: Calendar, label: 'Member Since', value: memberSince.split(' ').slice(-2).join(' '), suffix: '', color: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-700/30', iconBg: 'bg-amber-500/15', iconColor: 'text-amber-400' },
           { icon: PackageCheck, label: 'Delivered', value: orders.filter(o => o.orderStatus === 'Delivered').length, suffix: '', color: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-700/30', iconBg: 'bg-purple-500/15', iconColor: 'text-purple-400' },
         ].map((stat, i) => {
           const Icon = stat.icon;

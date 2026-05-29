@@ -1,35 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { api } from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { 
-  BarChart2, 
-  TrendingUp, 
-  ListOrdered, 
-  AlertTriangle, 
-  DollarSign, 
-  PlusCircle, 
-  Sliders, 
-  MessageSquare,
-  ShieldCheck
-} from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
+import SpeechReader from "../components/SpeechReader";
+import { t, getLanguage, onLanguageChange } from "../data/i18n";
+import {
+  IndianRupee, Package, Sprout, RefreshCw, AlertTriangle,
+  PlusCircle, Star, ShieldAlert, Clock
+} from "lucide-react";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function FarmerDashboard() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const [, forceUpdate] = useState(0);
+  const lang = getLanguage();
+
+  useEffect(() => {
+    return onLanguageChange(() => forceUpdate(n => n + 1));
+  }, []);
 
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadDashboardData = async () => {
+  const loadData = async () => {
     if (!user) return;
     setLoading(true);
     try {
       const allProds = await api.products.getProducts();
-      // Filter products uploaded by this farmer
-      const farmerProds = allProds.filter(p => {
+      const farmerProds = allProds.filter((p) => {
         const fId = p.farmerId?._id || p.farmerId?.id || p.farmerId;
         return fId === user.id || fId === user._id;
       });
@@ -45,156 +59,428 @@ export default function FarmerDashboard() {
   };
 
   useEffect(() => {
-    loadDashboardData();
+    loadData();
   }, [user]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("dhara_user");
+    localStorage.removeItem("dhara_token");
+    navigate("/login");
+  };
 
   if (loading) return <LoadingSpinner />;
 
-  // Calculate analytics parameters
-  const totalCompletedOrders = orders.filter(o => o.orderStatus === 'Delivered').length;
-  
-  // Total Revenue calculation
-  let totalEarnings = 0;
-  orders.forEach(o => {
-    // Only calculate items that match this farmer's id
-    const farmerItems = o.products.filter(p => p.farmerId === user.id || p.farmerId === user._id);
-    const itemTotal = farmerItems.reduce((acc, curr) => acc + (curr.price * curr.count), 0);
-    // If order is completed or paid, add to earnings
-    if (o.orderStatus === 'Delivered' || o.paymentStatus === 'Paid') {
-      totalEarnings += itemTotal;
-    }
-  });
+  const totalEarnings = orders
+    .filter((o) => o.orderStatus === "Delivered" || o.paymentStatus === "Paid")
+    .reduce((sum, o) => {
+      const farmerItems = o.products.filter(
+        (p) => p.farmerId === user.id || p.farmerId === user._id
+      );
+      return sum + farmerItems.reduce((acc, curr) => acc + (curr.price || 0) * (curr.count || 1), 0);
+    }, 0);
 
-  const lowStockProducts = products.filter(p => p.stock <= 5);
-  const outOfStockProducts = products.filter(p => p.stock === 0);
+  const subscriptionCount = orders.filter(
+    (o) => o.subscriptionType !== "One-time" && o.orderStatus !== "Cancelled"
+  ).length;
 
-  // Subscriptions simulation count
-  const subscriptionCustomerCount = orders.filter(o => o.subscriptionType !== 'One-time' && o.orderStatus !== 'Cancelled').length;
+  const warnings = user?.negativeFeedbacksCount || 0;
+  const blocked = user?.blocked || false;
+
+  const bigCards = [
+    {
+      icon: IndianRupee, value: `₹${totalEarnings}`, labelKey: "earnings",
+      iconBg: "#EBF5EB", iconColor: "#22c55e", accent: "#22c55e"
+    },
+    {
+      icon: Package, value: orders.length, labelKey: "orders",
+      iconBg: "#EBF5EB", iconColor: "#3b82f6", accent: "#3b82f6"
+    },
+    {
+      icon: Sprout, value: products.length, labelKey: "harvest",
+      iconBg: "#EBF5EB", iconColor: "#eab308", accent: "#eab308"
+    },
+    {
+      icon: RefreshCw, value: subscriptionCount, labelKey: "subscriptions",
+      iconBg: "#EBF5EB", iconColor: "#a855f7", accent: "#a855f7"
+    },
+  ];
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
-      {/* Header with quick links */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-emerald-900/60 pb-4 gap-4">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* ─── HEADER ─── */}
+      <motion.div variants={cardVariants} className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-white">Farmer Analytics Hub</h2>
-          <p className="text-sm text-emerald-300/70">Completed orders and inventory metrics.</p>
-        </div>
-
-        <div className="flex space-x-2 shrink-0">
-          <Link 
-            to="/farmer/add" 
-            className="bg-emerald-500 hover:bg-emerald-400 text-farmgreen-950 font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-1.5 shadow-lg shadow-emerald-500/10"
+          <h1
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: 800,
+              color: "#c09402",
+              margin: 0,
+            }}
           >
-            <PlusCircle className="w-4 h-4" />
-            <span>Record Harvest</span>
-          </Link>
-          
-          <Link 
-            to="/farmer/manage" 
-            className="bg-emerald-900/40 hover:bg-emerald-900 border border-emerald-800 text-emerald-350 px-4 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-1.5"
+            🌿 {t("dashboard.title", lang)}
+          </h1>
+          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.9rem", marginTop: "6px" }}>
+            {user?.name}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <SpeechReader
+            text={`${t("dashboard.title", lang)} - ${t("dashboard.earnings", lang)}: ${totalEarnings} rupees, ${t("dashboard.orders", lang)}: ${orders.length}, ${t("dashboard.warnings", lang)}: ${warnings}/3`}
+            lang={lang === "ml" ? "ml-IN" : lang === "hi" ? "hi-IN" : "en-IN"}
+          />
+        </div>
+      </motion.div>
+
+      {/* ─── WARNING BANNER ─── */}
+      {(warnings > 0 || blocked) && (
+        <motion.div
+          variants={cardVariants}
+          style={{
+            background: blocked
+              ? "linear-gradient(135deg, #FFF5F5, #FFE4E4)"
+              : "linear-gradient(135deg, #FFFEF5, #FFF8E1)",
+            borderRadius: "16px",
+            padding: "1rem 1.5rem",
+          marginBottom: "1.75rem",
+            border: `1px solid ${
+              blocked ? "rgba(239,68,68,0.2)" : "rgba(234,179,8,0.2)"
+            }`,
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <div
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: blocked ? "rgba(239,68,68,0.1)" : "rgba(234,179,8,0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
           >
-            <Sliders className="w-4 h-4" />
-            <span>Inventory</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Analytics stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 hover:border-emerald-500/20 transition-all text-center">
-          <DollarSign className="w-6 h-6 text-emerald-400 mx-auto mb-1.5" />
-          <p className="text-2xl font-black text-white">₹{totalEarnings}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-300/60 mt-1">Total Earnings</p>
-        </div>
-
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 hover:border-emerald-500/20 transition-all text-center">
-          <ListOrdered className="w-6 h-6 text-emerald-400 mx-auto mb-1.5" />
-          <p className="text-2xl font-black text-white">{orders.length}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-300/60 mt-1">Orders Received</p>
-        </div>
-
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 hover:border-emerald-500/20 transition-all text-center">
-          <TrendingUp className="w-6 h-6 text-emerald-400 mx-auto mb-1.5" />
-          <p className="text-2xl font-black text-white">{products.length}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-300/60 mt-1">Harvest Entries</p>
-        </div>
-
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 hover:border-emerald-500/20 transition-all text-center">
-          <MessageSquare className="w-6 h-6 text-emerald-400 mx-auto mb-1.5" />
-          <p className="text-2xl font-black text-white">{subscriptionCustomerCount}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-300/60 mt-1">Subscribed Routines</p>
-        </div>
-      </div>
-
-      {/* Warning notices */}
-      {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
-        <div className="bg-yellow-950/40 border border-yellow-800 p-5 rounded-3xl space-y-3">
-          <h3 className="text-sm font-bold text-yellow-400 flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-2 animate-pulse" />
-            Inventory Stock Alerts
-          </h3>
-          
-          <ul className="text-xs text-yellow-300/90 space-y-1.5 pl-6 list-disc">
-            {outOfStockProducts.map(p => (
-              <li key={p.id || p._id}><strong className="text-white">{p.title}</strong> is OUT of stock!</li>
-            ))}
-            {lowStockProducts.filter(p => p.stock > 0).map(p => (
-              <li key={p.id || p._id}><strong className="text-white">{p.title}</strong> is running low ({p.stock} left in stock)</li>
-            ))}
-          </ul>
-        </div>
+            <AlertTriangle
+              size={18}
+              color={blocked ? "#ef4444" : "#eab308"}
+            />
+          </div>
+          <div>
+            <p style={{ color: blocked ? "#ef4444" : "#eab308", fontWeight: 700, fontSize: "0.85rem", margin: 0 }}>
+              {blocked
+                ? `${t("warning.blocked", lang)}!`
+                : `${t("warning.title", lang)}: ${warnings}/3`}
+            </p>
+            <p style={{ color: "#666", fontSize: "0.75rem", margin: "2px 0 0" }}>
+              {blocked
+                ? "You cannot post products. Contact admin."
+                : `${warnings} severe ${warnings === 1 ? "comment" : "comments"} received. 3 will block your account.`}
+            </p>
+          </div>
+        </motion.div>
       )}
 
-      {/* Main dashboard widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent orders */}
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">Recent Shipments</h3>
-          
-          {orders.length === 0 ? (
-            <p className="text-xs text-emerald-500 italic">No shipments registered.</p>
-          ) : (
-            <div className="space-y-3">
-              {orders.slice(0, 4).map(o => (
-                <div key={o.id || o._id} className="p-3 bg-emerald-950/40 rounded-xl border border-emerald-900/60 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-white block">Order ID: #{o.id || o._id}</span>
-                    <span className="text-[10px] text-emerald-300/60 block mt-0.5">{o.deliveryTime} Slot</span>
-                  </div>
-                  <Link 
-                    to="/farmer/orders"
-                    className="text-xs text-emerald-400 hover:text-white font-bold bg-emerald-900/40 border border-emerald-800 px-3 py-1.5 rounded-lg"
-                  >
-                    Manage
-                  </Link>
+      {/* ─── STAT CARDS ─── */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "1.25rem",
+          marginBottom: "1.75rem",
+        }}
+      >
+        {bigCards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <motion.div
+              key={i}
+              variants={cardVariants}
+              style={{
+                background: "rgba(255,255,255,0.92)",
+                borderRadius: "16px",
+                padding: "2rem",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginBottom: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "52px",
+                    height: "52px",
+                    borderRadius: "14px",
+                    background: card.iconBg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Icon size={26} color={card.iconColor} />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: "#888",
+                  }}
+                >
+                  {t(`dashboard.${card.labelKey}`, lang)}
+                </span>
+              </div>
+              <p
+                style={{
+                  fontSize: "2.2rem",
+                  fontWeight: 800,
+                  color: "#013220",
+                  margin: 0,
+                }}
+              >
+                {card.value}
+              </p>
+            </motion.div>
+          );
+        })}
+      </div>
 
-        {/* Farmer reputation status */}
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">Farmer Reputation Index</h3>
-          
-          <div className="bg-emerald-950/40 p-4 rounded-xl border border-emerald-900/60 space-y-3.5 text-xs text-emerald-305/90">
-            <div className="flex justify-between">
-              <span>Farmer Trust Rating:</span>
-              <span className="font-bold text-yellow-400">{user?.rating || 5.0}★</span>
-            </div>
-            
-            <div className="flex justify-between">
-              <span>Negative Feedback Count:</span>
-              <span className="font-mono font-semibold text-red-400">{user?.negativeFeedbacksCount || 0} / 3 Strikes</span>
-            </div>
-
-            <div className="border-t border-emerald-900/40 pt-3 text-[10px] text-emerald-300/60 flex items-start space-x-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-              <span>To ensure product freshness standards in the hyperlocal sector, farmers are blocked automatically upon receiving three negative feedbacks (review score ≤ 2★).</span>
-            </div>
+      {/* ─── WARNING & RATING STATUS ─── */}
+      <motion.div
+        variants={cardVariants}
+        style={{
+          background: "rgba(255,255,255,0.92)",
+          borderRadius: "16px",
+          padding: "1rem 1.5rem",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: "#FFF8E1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Star size={16} color="#D4A017" fill="#D4A017" />
+          </div>
+          <div>
+            <p style={{ color: "#999", fontSize: "0.7rem", fontWeight: 600, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              {t("dashboard.warnings", lang)}
+            </p>
+            <p style={{ color: "#013220", fontSize: "1rem", fontWeight: 700, margin: 0 }}>
+              {warnings}/3
+            </p>
           </div>
         </div>
-      </div>
-    </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", textAlign: "right" }}>
+          <div>
+            <p style={{ color: "#999", fontSize: "0.7rem", fontWeight: 600, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Rating
+            </p>
+            <p style={{ color: "#D4A017", fontSize: "1rem", fontWeight: 700, margin: 0 }}>
+              {user?.rating || 5.0}★
+            </p>
+          </div>
+          <div
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: warnings >= 3 ? "rgba(239,68,68,0.1)" : "#EBF5EB",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ShieldAlert size={16} color={warnings >= 3 ? "#ef4444" : "#22c55e"} />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ─── RECENT PRODUCTS ─── */}
+      <motion.div
+        variants={cardVariants}
+        style={{
+          background: "rgba(255,255,255,0.92)",
+          borderRadius: "16px",
+          padding: "2rem",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+          marginBottom: "5rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "1rem",
+          }}
+        >
+          <Clock size={16} color="#2D6A4F" />
+          <h3
+            style={{
+              fontSize: "0.95rem",
+              fontWeight: 700,
+              color: "#013220",
+              margin: 0,
+            }}
+          >
+            Recent Products
+          </h3>
+        </div>
+        {products.length === 0 ? (
+          <p style={{ color: "#999", fontSize: "0.8rem", margin: 0 }}>
+            No products added yet. Tap the "+ Add Product" button below to get started.
+          </p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {products.slice(0, 5).map((p) => (
+              <div
+                key={p.id || p._id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "12px",
+                  background: "#F4F6F3",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      background: "#EBF5EB",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      color: "#2D6A4F",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {p.title?.charAt(0) || "?"}
+                  </div>
+                  <span
+                    style={{
+                      color: "#013220",
+                      fontWeight: 600,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {p.title}
+                  </span>
+                </div>
+                <span style={{ color: "#22c55e", fontWeight: 700, flexShrink: 0 }}>
+                  ₹{p.price}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {products.length > 5 && (
+          <Link
+            to="/farmer/manage"
+            style={{
+              display: "block",
+              textAlign: "center",
+              marginTop: "1rem",
+              color: "#2D6A4F",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            View all {products.length} products
+          </Link>
+        )}
+      </motion.div>
+
+      {/* ─── FLOATING ADD PRODUCT BUTTON ─── */}
+      <Link
+        to="/farmer/add"
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          background: "#013220",
+          color: "white",
+          border: "none",
+          borderRadius: "16px",
+          padding: "1rem 1.5rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          fontSize: "0.9rem",
+          fontWeight: 700,
+          cursor: "pointer",
+          boxShadow: "0 8px 24px rgba(1,50,32,0.35)",
+          textDecoration: "none",
+          zIndex: 40,
+          transition: "all 0.3s ease",
+        }}
+        className="fab-button"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#2D6A4F";
+          e.currentTarget.style.transform = "translateY(-2px)";
+          e.currentTarget.style.boxShadow = "0 12px 32px rgba(1,50,32,0.45)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#013220";
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "0 8px 24px rgba(1,50,32,0.35)";
+        }}
+      >
+        <PlusCircle size={22} />
+        <span className="fab-label">{t("dashboard.addProduct", lang)}</span>
+      </Link>
+
+      <style>{`
+        .fab-button {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        @media (max-width: 480px) {
+          .fab-label {
+            display: none;
+          }
+          .fab-button {
+            padding: 1rem !important;
+            border-radius: 50% !important;
+            bottom: 1.25rem !important;
+            right: 1.25rem !important;
+          }
+        }
+      `}</style>
+    </motion.div>
   );
 }

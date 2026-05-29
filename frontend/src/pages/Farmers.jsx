@@ -49,9 +49,9 @@ export default function Farmers() {
       }}>
         <div style={{ position: "relative" }}>
           <Search size={16} color="#6A994E" style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)" }} />
-          <input type="text" placeholder="Search farmers by name, specialty, or location..." value={search} onChange={e => setSearch(e.target.value)} style={{
+          <input type="text" placeholder="Search farmers by location (e.g. Wayanad, Idukki, Thrissur)..." value={search} onChange={e => setSearch(e.target.value)} style={{
             width: "100%", background: "#F4F6F3", border: "1px solid #E0EAE0", borderRadius: "999px",
-            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem",
+            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", color: "#000",
           }} />
         </div>
       </div>
