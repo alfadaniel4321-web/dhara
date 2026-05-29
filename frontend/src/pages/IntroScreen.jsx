@@ -9,9 +9,19 @@ export default function IntroScreen({ onFinish }) {
     const finishTimer = setTimeout(() => {
       const token = localStorage.getItem('dhara_token');
       if (token) {
-        window.location.hash = '#/dashboard';
+        const userStr = localStorage.getItem('dhara_user');
+        let isFarmer = false;
+        try {
+          if (userStr) {
+            const userObj = JSON.parse(userStr);
+            isFarmer = userObj.role === 'farmer';
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        window.location.hash = isFarmer ? '#/farmer' : '#/dashboard';
       } else {
-        window.location.hash = '#/login';
+        window.location.hash = '#/';
       }
       onFinish();
     }, 2600);

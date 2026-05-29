@@ -50,7 +50,9 @@ function ProtectedRoute() {
 
 function PublicOnlyRoute() {
   const { user } = useSelector((state) => state.auth);
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    return <Navigate to={user.role === 'farmer' ? '/farmer' : '/dashboard'} replace />;
+  }
   return <Outlet />;
 }
 
@@ -58,17 +60,21 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Auth Pages — fullscreen, no layout chrome */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route element={<PublicOnlyRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
 
       {/* Public Pages Layout */}
-      <Route element={<PublicOnlyRoute />}>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+      </Route>
+
+      {/* Admin Dashboard (protected) */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
       {/* Customer Dashboard Layout (post-login home & sub-pages) */}

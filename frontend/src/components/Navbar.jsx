@@ -105,29 +105,8 @@ export default function Navbar() {
   const { cartItems } = useSelector((state) => state.cart);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [introHidden, setIntroHidden] = useState(
-    () => document.body.hasAttribute('data-intro')
-  );
   const { scrollY, scrollYProgress } = useScroll();
   const menuRef = useRef(null);
-
-  useEffect(() => {
-    if (!introHidden) return;
-
-    const observer = new MutationObserver(() => {
-      if (!document.body.hasAttribute('data-intro')) {
-        setIntroHidden(false);
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['data-intro'],
-    });
-
-    return () => observer.disconnect();
-  }, [introHidden]);
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 80);
@@ -160,8 +139,6 @@ export default function Navbar() {
   const navHeight = scrolled ? 78 : 96;
   const textColor = '#1B4332';
   const mutedTextColor = 'rgba(27,67,50,0.65)';
-
-  if (introHidden) return null;
 
   return (
     <motion.div
@@ -218,7 +195,7 @@ export default function Navbar() {
         >
           {/* ─── LEFT: Logo ─── */}
           <Link
-            to={user ? '/dashboard' : '/'}
+            to={user ? (user.role === 'farmer' ? '/farmer' : '/dashboard') : '/'}
             onClick={closeMenu}
             className="flex-shrink-0 flex items-center gap-3 no-underline"
           >
@@ -342,7 +319,7 @@ export default function Navbar() {
 
             {/* CTA Button */}
             <Link
-              to="/dashboard"
+              to={user ? (user.role === 'farmer' ? '/farmer' : '/dashboard') : '/login'}
               onClick={closeMenu}
               style={{
                 fontFamily: '"DM Sans", sans-serif',
@@ -551,7 +528,7 @@ export default function Navbar() {
                 className="mt-8 w-full max-w-xs"
               >
                 <Link
-                  to="/dashboard"
+                  to={user ? (user.role === 'farmer' ? '/farmer' : '/dashboard') : '/login'}
                   onClick={closeMenu}
                   className="block w-full text-center no-underline"
                   style={{

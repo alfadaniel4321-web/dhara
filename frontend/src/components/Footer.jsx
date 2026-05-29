@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
   Phone,
   Mail,
@@ -34,6 +35,7 @@ const socialIconStyle = {
 };
 
 export default function Footer() {
+  const { user } = useSelector((state) => state.auth);
   const [email, setEmail] = useState('');
 
   const handleNewsletterSubmit = (e) => {
@@ -93,7 +95,7 @@ export default function Footer() {
           </div>
 
           <Link
-            to="/dashboard"
+            to={user ? (user.role === 'farmer' ? '/farmer' : '/dashboard') : '/login'}
             style={{
               fontFamily: '"Courier New", monospace',
               fontSize: '0.7rem',

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { ArrowRight } from 'lucide-react';
 
 export default function HeroSection() {
+  const { user } = useSelector((state) => state.auth);
   return (
     <div style={{
       position: 'relative',
@@ -65,7 +67,7 @@ export default function HeroSection() {
           From Kerala's oldest organic families to your table — harvest to home in under 24 hours.
         </p>
 
-        <div style={{
+        <div className="hero-cta-wrapper" style={{
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
@@ -74,7 +76,7 @@ export default function HeroSection() {
           flexWrap: 'wrap',
         }}>
           <Link
-            to="/dashboard"
+            to={user ? (user.role === 'farmer' ? '/farmer' : '/dashboard') : '/login'}
             style={{
               display: 'inline-flex',
               alignItems: 'center',

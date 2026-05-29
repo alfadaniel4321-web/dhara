@@ -178,7 +178,7 @@ function CTASection3D() {
   const textY = progress * -30;
 
   return (
-    <section ref={sectionRef} style={{ position: 'relative', background: '#1B4332', overflow: 'hidden', padding: '10rem 1.5rem' }}>
+    <section ref={sectionRef} className="lp-section-cta" style={{ position: 'relative', background: '#1B4332', overflow: 'hidden', padding: '10rem 1.5rem' }}>
       {/* 3D Sphere decoration */}
       <div style={{
         position: 'absolute', right: '-8rem', top: '50%', width: '42rem', height: '42rem',
@@ -201,7 +201,7 @@ function CTASection3D() {
           <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(1.8rem, 4vw, 5rem)', fontWeight: 400, color: '#F5F3E7', textTransform: 'uppercase', letterSpacing: '-0.03em', lineHeight: 1.0, margin: '0 0 2rem 0' }}>From Soil<br /><span style={{ color: '#6A994E' }}>To Your</span><br />Table.</h2>
           <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '1rem', fontWeight: 300, lineHeight: 1.8, color: 'rgba(245,243,231,0.6)', margin: '0 0 3rem 0', maxWidth: '480px' }}>Join thousands of Kerala households receiving peak-freshness organic produce directly from verified farming families every single morning.</p>
           <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link to="/dashboard" style={{ fontFamily: '"Courier New", monospace', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1B4332', background: '#A3C87A', padding: '1rem 2.5rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s ease', boxShadow: '0 0 0 0 rgba(163,200,122,0)' }}
+            <Link to="/login" style={{ fontFamily: '"Courier New", monospace', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1B4332', background: '#A3C87A', padding: '1rem 2.5rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s ease', boxShadow: '0 0 0 0 rgba(163,200,122,0)' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(212,160,23,0.4)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#A3C87A'; e.currentTarget.style.boxShadow = '0 0 0 0 rgba(163,200,122,0)'; }}>
               Shop the Harvest <ArrowRight size={14} />
@@ -251,7 +251,7 @@ function HarvestSection() {
               <span style={{ color: '#D4A017', display: 'block' }}>priced honestly.</span>
             </h2>
           </div>
-          <Link to="/dashboard" style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#F5F3E7', textDecoration: 'none', flexShrink: 0 }}>VIEW ENTIRE HARVEST →</Link>
+          <Link to="/login" style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#F5F3E7', textDecoration: 'none', flexShrink: 0 }}>VIEW ENTIRE HARVEST →</Link>
         </div>
         <div className="harvest-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px',
@@ -288,11 +288,11 @@ function HarvestSection() {
 // ─── HORIZONTAL STORY — Cinematic scroll-driven panels ──────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
 const STORY_SECTIONS = [
-  { label: '01 / Fresh Harvest', heading: 'Fresh Harvest\nEcosystem', body: 'Every morning before sunrise, our network of 980+ verified organic farmers hand-picks produce at peak ripeness. No cold storage. No intermediaries. Just pure, honest food harvested within hours of your order.', cta: 'Explore the Harvest', ctaLink: '/dashboard', image: harvestTomato },
+  { label: '01 / Fresh Harvest', heading: 'Fresh Harvest\nEcosystem', body: 'Every morning before sunrise, our network of 980+ verified organic farmers hand-picks produce at peak ripeness. No cold storage. No intermediaries. Just pure, honest food harvested within hours of your order.', cta: 'Explore the Harvest', ctaLink: '/login', image: harvestTomato },
   { label: '02 / Farm Logistics', heading: 'Soil To Table\nLogistics', body: 'Our hyperlocal delivery network transports produce directly from farm to your doorstep within a single circadian cycle. Each route is optimized for speed, ensuring maximum freshness with minimal carbon footprint.', cta: 'See How It Works', ctaLink: '/about', image: philosophyImg },
   { label: '03 / Our Growers', heading: 'Organic Kerala\nFarmers', body: 'We partner with generational farming families who have preserved native agricultural traditions for decades. Every grower is verified, certified organic, and committed to sustainable farming practices.', cta: 'Meet Our Farmers', ctaLink: '/about', image: growersImg },
   { label: '04 / Smart Tracking', heading: 'AI Freshness\nTracking', body: 'Every product carries a digital freshness passport — tracking soil-to-door journey in real-time. Our AI monitors temperature, handling, and transit conditions to guarantee peak quality upon arrival.', cta: 'See The Technology', ctaLink: '/about', image: traceabilityImg },
-  { label: '05 / Local Delivery', heading: 'Hyperlocal\nDelivery Network', body: 'Our delivery network spans 12 Kerala districts with an average farm-to-door distance of just 11 km. We deliver within 6 hours of harvest, redefining what fresh truly means.', cta: 'Check Your Area', ctaLink: '/dashboard', image: harvestGreens },
+  { label: '05 / Local Delivery', heading: 'Hyperlocal\nDelivery Network', body: 'Our delivery network spans 12 Kerala districts with an average farm-to-door distance of just 11 km. We deliver within 6 hours of harvest, redefining what fresh truly means.', cta: 'Check Your Area', ctaLink: '/login', image: harvestGreens },
 ];
 
 function HorizontalScrollStory() {
@@ -847,7 +847,7 @@ function BrandStorySection() {
 // ═══════════════════════════════════════════════════════════════════════════════
 function ManifestoSection() {
   return (
-    <section style={{ background: '#1B4332', width: '100%', padding: '8rem 2.5rem', position: 'relative', overflow: 'hidden' }}>
+    <section className="lp-section-manifesto" style={{ background: '#1B4332', width: '100%', padding: '8rem 2.5rem', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', pointerEvents: 'none', inset: 0, overflow: 'hidden', zIndex: 0 }}>
         <div style={{ width: '40rem', height: '40rem', borderRadius: '50%', border: '1px solid rgba(163,200,122,0.06)', position: 'absolute', top: '-10rem', right: '-10rem' }} />
         <div style={{ width: '25rem', height: '25rem', borderRadius: '50%', border: '1px solid rgba(163,200,122,0.04)', position: 'absolute', bottom: '-8rem', left: '-6rem' }} />
@@ -955,7 +955,46 @@ export default function LandingPage() {
         @keyframes introTaglineReveal { 0%{opacity:0;letter-spacing:0.5em}100%{opacity:1;letter-spacing:0.25em} }
         @keyframes introPanelUp { 0%{transform:translateY(0)}100%{transform:translateY(-100%)} }
         @keyframes introPanelDown { 0%{transform:translateY(0)}100%{transform:translateY(100%)} }
-        @media(max-width:1023px){.stats-grid{grid-template-columns:repeat(2,1fr)!important}}
+
+        /* ── Small College Laptops (1025px–1366px) ── */
+        @media(min-width:1025px)and(max-width:1366px){
+          .lp-section-hero{height:100vh!important}
+          .lp-section-farmers{padding:6rem 1.5rem!important}
+          .lp-section-testimonials{padding:6rem 1.5rem!important}
+          .lp-section-manifesto{padding:6rem 2rem!important}
+          .lp-section-cta{padding:7rem 1.5rem!important}
+        }
+
+        /* ── Tablet (769px–1024px) ── */
+        @media(min-width:769px)and(max-width:1024px){
+          .stats-grid{grid-template-columns:repeat(2,1fr)!important}
+          .lp-section-farmers{padding:5rem 1.5rem!important}
+          .lp-section-testimonials{padding:5rem 1.5rem!important}
+          .lp-section-manifesto{padding:5rem 2rem!important}
+          .lp-section-cta{padding:6rem 1.5rem!important}
+          .lp-section-hero{height:100vh!important}
+        }
+
+        /* ── Large Mobile / Small Tablet (481px–768px) ── */
+        @media(max-width:768px){
+          .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:1rem!important}
+          .lp-section-hero{height:100vh!important}
+          .lp-section-farmers{padding:3.5rem 1.25rem!important}
+          .lp-section-testimonials{padding:3.5rem 1.25rem!important}
+          .lp-section-manifesto{padding:3.5rem 1.25rem!important}
+          .lp-section-cta{padding:4rem 1.25rem!important}
+          .hero-cta-wrapper{flex-direction:column!important;gap:1.5rem!important;align-items:center!important}
+        }
+
+        /* ── Small Mobile (≤480px) ── */
+        @media(max-width:480px){
+          .stats-grid{grid-template-columns:1fr!important;gap:0.75rem!important}
+          .lp-section-hero{height:100vh!important}
+          .lp-section-farmers{padding:2.5rem 1rem!important}
+          .lp-section-testimonials{padding:2.5rem 1rem!important}
+          .lp-section-manifesto{padding:2.5rem 1rem!important}
+          .lp-section-cta{padding:3rem 1rem!important}
+        }
       `}</style>
 
       {/* ── INTRO OVERLAY ── */}
@@ -974,7 +1013,7 @@ export default function LandingPage() {
       <div style={{ opacity: introPhase === 'done' ? 1 : 0, transition: introPhase === 'done' ? 'opacity 0.6s ease 0.1s' : 'none' }}>
 
         {/* ── HERO ── */}
-        <section style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden' }}>
+        <section className="lp-section-hero" style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden' }}>
           <video ref={videoRef} loop muted playsInline preload="auto" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}>
             <source src={farmVideo} type="video/mp4" />
           </video>
@@ -1004,7 +1043,7 @@ export default function LandingPage() {
         {/* ══════════════════════════════════════════════════ */}
         {/* ── FARMER PROFILES with 3D depth reveal ── */}
         {/* ══════════════════════════════════════════════════ */}
-        <section style={{ padding: '8rem 1.5rem', background: '#F5F3E7', perspective: '1000px' }}>
+        <section className="lp-section-farmers" style={{ padding: '8rem 1.5rem', background: '#F5F3E7', perspective: '1000px' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(2rem, 4vw, 4rem)', alignItems: 'start' }}>
 
@@ -1020,7 +1059,7 @@ export default function LandingPage() {
         {/* ══════════════════════════════════════════════════ */}
         {/* ── TESTIMONIALS with 3D depth ── */}
         {/* ══════════════════════════════════════════════════ */}
-        <section style={{ padding: '8rem 1.5rem', background: '#F5F3E7' }}>
+        <section className="lp-section-testimonials" style={{ padding: '8rem 1.5rem', background: '#F5F3E7' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto' }}>
             <AnimatedSection>
               <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
