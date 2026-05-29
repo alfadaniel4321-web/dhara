@@ -10,6 +10,7 @@ const feedbackRoutes = require('./routes/feedbackRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const preOrderRoutes = require('./routes/preOrderRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,6 +27,7 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/preorders', preOrderRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

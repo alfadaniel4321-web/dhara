@@ -125,6 +125,8 @@ const initLocalStorageMock = () => {
     localStorage.setItem('mock_orders', JSON.stringify([]));
     localStorage.setItem('mock_feedback', JSON.stringify([]));
     localStorage.setItem('mock_wishlist', JSON.stringify({}));
+    localStorage.setItem('mock_preorders', JSON.stringify([]));
+    localStorage.setItem('mock_notifications', JSON.stringify([]));
     localStorage.setItem('mock_initialized_v2', 'true');
   }
 };
@@ -655,6 +657,124 @@ export const api = {
           const fId = f.farmerId?._id || f.farmerId?.id || f.farmerId;
           return fId === farmerId;
         });
+      }
+    }
+  },
+
+  // Pre-Orders
+  preOrders: {
+    createPreOrder: async (productId, farmerId, quantity = 1) => {
+      try {
+        return await request('/preorders', {
+          method: 'POST',
+          body: JSON.stringify({ productId, farmerId, quantity })
+        });
+      } catch (err) {
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        const products = fetchFromMock('mock_products');
+        const product = products.find(p => p.id === productId || p._id === productId);
+        if (!product) throw new Error('Product not found');
+
+        const farmerIdStr = product.farmerId?._id || product.farmerId?.id || product.farmerId;
+        const farmerName = product.farmerId?.name || 'Farmer';
+
+        const confirmationTime = new Date().toISOString();
+        const newPreOrder = {
+          id: `preord_${Date.now()}`,
+          _id: `preord_${Date.now()}`,
+          customerId: user.id || user._id,
+          productId,
+          farmerId: farmerId || farmerIdStr,
+          quantity: Number(quantity),
+          productTitle: product.title,
+          productName: product.title,
+          price: product.price,
+          customerName: user.name || 'Customer',
+          farmerName,
+          expectedHarvestDate: product.harvestDate,
+          status: 'Confirmed',
+          preOrderedAt: confirmationTime,
+          notified: false,
+          createdAt: confirmationTime,
+          updatedAt: confirmationTime
+        };
+
+        const preOrders = fetchFromMock('mock_preorders');
+        preOrders.push(newPreOrder);
+        saveToMock('mock_preorders', preOrders);
+
+        // Create notification for farmer
+        const notifications = fetchFromMock('mock_notifications');
+        notifications.push({
+          id: `notif_${Date.now()}`,
+          _id: `notif_${Date.now()}`,
+          recipientId: farmerId || farmerIdStr,
+          senderId: user.id || user._id,
+          type: 'preorder',
+          title: 'New Pre-Order Received',
+          message: `${user.name || 'Customer'} has pre-ordered ${product.title} (Qty: ${quantity})`,
+          data: {
+            customerName: user.name || 'Customer',
+            productName: product.title,
+            quantity: Number(quantity),
+            preOrderTime: confirmationTime,
+            preOrderId: newPreOrder.id
+          },
+          read: false,
+          createdAt: confirmationTime,
+          updatedAt: confirmationTime
+        });
+        saveToMock('mock_notifications', notifications);
+
+        return { success: true, message: 'Pre-order placed successfully', preOrder: newPreOrder, confirmationTime };
+      }
+    },
+
+    getCustomerPreOrders: async () => {
+      try {
+        return await request('/preorders/customer');
+      } catch (err) {
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        const preOrders = fetchFromMock('mock_preorders');
+        return preOrders.filter(p => p.customerId === user.id || p.customerId === user._id);
+      }
+    },
+
+    getFarmerPreOrders: async () => {
+      try {
+        return await request('/preorders/farmer');
+      } catch (err) {
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        const preOrders = fetchFromMock('mock_preorders');
+        return preOrders.filter(p => p.farmerId === user.id || p.farmerId === user._id);
+      }
+    },
+
+    getNotifications: async () => {
+      try {
+        return await request('/preorders/notifications');
+      } catch (err) {
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        const notifications = fetchFromMock('mock_notifications');
+        const userNotifs = notifications.filter(n => n.recipientId === user.id || n.recipientId === user._id);
+        const unreadCount = userNotifs.filter(n => !n.read).length;
+        return { notifications: userNotifs, unreadCount };
+      }
+    },
+
+    markNotificationsRead: async () => {
+      try {
+        return await request('/preorders/notifications/read', { method: 'PUT' });
+      } catch (err) {
+        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
+        const notifications = fetchFromMock('mock_notifications');
+        notifications.forEach(n => {
+          if (n.recipientId === user.id || n.recipientId === user._id) {
+            n.read = true;
+          }
+        });
+        saveToMock('mock_notifications', notifications);
+        return { success: true };
       }
     }
   }
