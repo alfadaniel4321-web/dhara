@@ -169,6 +169,23 @@
       "description": "",
       "createdAt": "2026-05-29T08:48:40.661Z",
       "updatedAt": "2026-05-29T08:48:40.661Z"
+    },
+    {
+      "_id": "tmbhvs1",
+      "id": "blvrn1j",
+      "name": "Kesavan nair",
+      "email": "kesavan@gmail.com",
+      "password": "$2a$10$LGDPmoZPfUXPnWGnhDz2aeIlvK/8JUF4TCg2bEmkky2cTg2qt670G",
+      "role": "customer",
+      "phone": "1234567890",
+      "rating": 5,
+      "blocked": false,
+      "negativeFeedbacksCount": 0,
+      "village": "",
+      "district": "",
+      "description": "",
+      "createdAt": "2026-05-29T09:10:26.570Z",
+      "updatedAt": "2026-05-29T09:10:26.570Z"
     }
   ],
   "products": [

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, Check, Image, Clock, IndianRupee, Package, Truck, AlertCircle } from "lucide-react";
+import { ChevronLeft, Check, Image, Clock, IndianRupee, Package, Truck, AlertCircle, Upload, Camera } from "lucide-react";
 import { api } from "../services/api";
 import { getProductImage } from "../data/productImages";
 import { getNutrition } from "../data/nutritionDB";
@@ -21,7 +21,18 @@ export default function AddProduct() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
   const [previewImg, setPreviewImg] = useState(null);
+  const [uploadedImg, setUploadedImg] = useState(null);
   const [nutrition, setNutritionInfo] = useState(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setUploadedImg(ev.target?.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (name.trim()) {
@@ -31,6 +42,7 @@ export default function AddProduct() {
       setNutritionInfo(nut);
     } else {
       setPreviewImg(null);
+      setUploadedImg(null);
       setNutritionInfo(null);
     }
   }, [name]);
@@ -46,7 +58,7 @@ export default function AddProduct() {
       const nut = getNutrition(name);
       await api.products.createProduct({
         title: name,
-        image: previewImg || getProductImage(name),
+        image: uploadedImg || previewImg || getProductImage(name),
         category: "Vegetables",
         price: Number(price),
         quantity: quantity,
@@ -63,8 +75,8 @@ export default function AddProduct() {
       setQuantity("");
       setHarvestDate(new Date().toISOString().split("T")[0]);
       setPreviewImg(null);
+      setUploadedImg(null);
       setNutritionInfo(null);
-      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       alert(err.message || "Failed to add product");
     } finally {
@@ -120,7 +132,7 @@ export default function AddProduct() {
         )}
 
         {/* Image preview */}
-        {previewImg && (
+        {(previewImg || uploadedImg) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -131,10 +143,18 @@ export default function AddProduct() {
           >
             <div className="relative">
               <img
-                src={previewImg}
+                src={uploadedImg || previewImg}
                 alt={name}
                 className="w-full h-48 object-cover"
               />
+              {uploadedImg && (
+                <div
+                  className="absolute top-2 left-2 px-2 py-1 rounded-full text-[9px] font-bold"
+                  style={{ background: "rgba(0,0,0,0.6)", color: "#95D5B2" }}
+                >
+                  Your Photo
+                </div>
+              )}
               <div
                 className="absolute top-2 right-2 px-3 py-1 rounded-full text-[10px] font-bold"
                 style={{
@@ -175,6 +195,33 @@ export default function AddProduct() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Image Upload */}
+          <div>
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              <Camera size={12} style={{ display: "inline", marginRight: 4 }} />
+              Product Photo
+            </label>
+            <label
+              className="flex items-center justify-center gap-2 w-full rounded-xl px-4 py-4 text-sm font-semibold cursor-pointer transition-all"
+              style={{
+                background: "rgba(0,0,0,0.2)",
+                border: "2px dashed rgba(149,213,178,0.2)",
+                color: "rgba(149,213,178,0.6)",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.2)")}
+            >
+              <Upload size={18} />
+              <span>{uploadedImg ? "Tap to change photo" : "Tap to upload photo"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
+
           {/* Product Name */}
           <div>
             <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
