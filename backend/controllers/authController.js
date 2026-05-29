@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Farmer = require('../models/Farmer');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dhara_secret_key_kerala';
 
@@ -13,49 +14,49 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    if (role !== 'farmer' && role !== 'customer') {
-      return res.status(400).json({ message: 'Role must be either farmer or customer' });
+    if (!['farmer', 'customer', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
     }
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingFarmer = await Farmer.findOne({ email });
+    if (existingUser || existingFarmer) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-      phone,
-      rating: 5.0,
-      blocked: false,
-      negativeFeedbacksCount: 0
-    });
+    let newUser;
+    if (role === 'farmer') {
+      newUser = await Farmer.create({
+        name, email, password: hashedPassword, role, phone,
+        rating: 5.0, blocked: false, negativeFeedbacksCount: 0
+      });
+    } else {
+      newUser = await User.create({
+        name, email, password: hashedPassword, role, phone
+      });
+    }
 
-    // Create JWT Token
     const token = jwt.sign(
       { userId: newUser.id || newUser._id, role: newUser.role },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
 
-    res.status(201).json({
-      token,
-      user: {
-        id: newUser.id || newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        phone: newUser.phone,
-        rating: newUser.rating,
-        blocked: newUser.blocked
-      }
-    });
+    const userResp = {
+      id: newUser.id || newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      phone: newUser.phone
+    };
+    if (role === 'farmer') {
+      userResp.rating = newUser.rating;
+      userResp.blocked = newUser.blocked;
+    }
+    res.status(201).json({ token, user: userResp });
   } catch (err) {
     console.error('Signup error:', err);
     res.status(500).json({ message: 'Server error during signup' });
@@ -71,7 +72,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Please provide email and password' });
     }
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    if (!user) user = await Farmer.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -91,18 +93,18 @@ exports.login = async (req, res) => {
       { expiresIn: '30d' }
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.id || user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone,
-        rating: user.rating,
-        blocked: user.blocked
-      }
-    });
+    const userResp = {
+      id: user.id || user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone
+    };
+    if (user.role === 'farmer') {
+      userResp.rating = user.rating;
+      userResp.blocked = user.blocked;
+    }
+    res.json({ token, user: userResp });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Server error during login' });
@@ -112,7 +114,7 @@ exports.login = async (req, res) => {
 // Get all farmers
 exports.getFarmers = async (req, res) => {
   try {
-    const farmers = await User.find({ role: 'farmer', blocked: false });
+    const farmers = await Farmer.find({ blocked: false });
     res.json(farmers.map(f => ({
       id: f.id || f._id,
       _id: f._id || f.id,
@@ -121,7 +123,10 @@ exports.getFarmers = async (req, res) => {
       phone: f.phone,
       rating: f.rating,
       blocked: f.blocked,
-      negativeFeedbacksCount: f.negativeFeedbacksCount
+      negativeFeedbacksCount: f.negativeFeedbacksCount,
+      village: f.village || '',
+      district: f.district || '',
+      description: f.description || ''
     })));
   } catch (err) {
     console.error('Get farmers error:', err);
@@ -132,20 +137,31 @@ exports.getFarmers = async (req, res) => {
 // Get User Profile
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    let user;
+    if (req.user.role === 'farmer') {
+      user = await Farmer.findById(req.user.userId);
+      if (!user) user = await User.findById(req.user.userId);
+    } else {
+      user = await User.findById(req.user.userId);
+      if (!user) user = await Farmer.findById(req.user.userId);
+    }
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({
+    const userResp = {
       id: user.id || user._id,
       name: user.name,
       email: user.email,
       role: user.role,
-      phone: user.phone,
-      rating: user.rating,
-      blocked: user.blocked
-    });
+      phone: user.phone
+    };
+    if (user.role === 'farmer') {
+      userResp.rating = user.rating;
+      userResp.blocked = user.blocked;
+    }
+    res.json(userResp);
   } catch (err) {
     console.error('Get profile error:', err);
     res.status(500).json({ message: 'Server error getting profile' });

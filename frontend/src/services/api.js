@@ -182,6 +182,24 @@ export const api = {
 
   // Products
   products: {
+    searchProducts: async (query) => {
+      try {
+        return await request(`/products/search?q=${encodeURIComponent(query)}`);
+      } catch {
+        const allProducts = await api.products.getProducts().catch(() => fetchFromMock('mock_products'));
+        const q = query.toLowerCase();
+        return (Array.isArray(allProducts) ? allProducts : []).filter(p => {
+          const farmerName = p.farmerName || p.farmerId?.name || '';
+          return (
+            (p.title && p.title.toLowerCase().includes(q)) ||
+            (p.category && p.category.toLowerCase().includes(q)) ||
+            (p.description && p.description.toLowerCase().includes(q)) ||
+            farmerName.toLowerCase().includes(q)
+          );
+        }).slice(0, 8);
+      }
+    },
+
     getProducts: async (category) => {
       try {
         const url = category ? `/products?category=${category}` : '/products';
@@ -446,149 +464,182 @@ export const api = {
   // Orders
   orders: {
     createOrder: async (orderData) => {
-      try {
-        return await request('/orders', {
-          method: 'POST',
-          body: JSON.stringify(orderData)
-        });
-      } catch (err) {
-        const orders = fetchFromMock('mock_orders');
-        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
-        
-        // Decrement simulated stock
-        const products = fetchFromMock('mock_products');
-        orderData.products.forEach(item => {
-          const prodIdx = products.findIndex(p => p.id === item.productId || p._id === item.productId);
-          if (prodIdx !== -1) {
-            products[prodIdx].stock = Math.max(0, products[prodIdx].stock - item.count);
-          }
-        });
-        saveToMock('mock_products', products);
-
-        const newOrder = {
-          id: `ord_${Date.now()}`,
-          _id: `ord_${Date.now()}`,
-          customerId: user.id || user._id,
-          products: orderData.products,
-          totalPrice: orderData.totalPrice,
-          deliveryTime: orderData.deliveryTime,
-          paymentStatus: orderData.paymentStatus || 'Pending',
-          orderStatus: 'Pending',
-          subscriptionType: orderData.subscriptionType || 'One-time',
-          createdAt: new Date().toISOString()
-        };
-
-        orders.push(newOrder);
-        saveToMock('mock_orders', orders);
-
-        // Clear cart mock
-        await api.cart.clearCart();
-
-        return newOrder;
-      }
+      return await request('/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData)
+      });
     },
 
     getOrders: async () => {
-      try {
-        return await request('/orders/history');
-      } catch (err) {
-        const orders = fetchFromMock('mock_orders');
-        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
-        
-        if (user.role === 'customer') {
-          return orders.filter(o => o.customerId === user.id || o.customerId === user._id);
-        } else {
-          return orders.filter(order => 
-            order.products.some(p => p.farmerId === user.id || p.farmerId === user._id)
-          );
-        }
-      }
+      return await request('/orders/history');
+    },
+
+    getOrder: async (id) => {
+      return await request(`/orders/${id}`);
     },
 
     trackOrder: async (id) => {
-      try {
-        return await request(`/orders/${id}/track`);
-      } catch (err) {
-        const orders = fetchFromMock('mock_orders');
-        const order = orders.find(o => o.id === id || o._id === id);
-        if (!order) throw new Error('Order not found');
-        return order;
-      }
+      return await request(`/orders/${id}/track`);
     },
 
     updateOrderStatus: async (id, statusData) => {
-      try {
-        return await request(`/orders/${id}/status`, {
-          method: 'PUT',
-          body: JSON.stringify(statusData)
-        });
-      } catch (err) {
-        const orders = fetchFromMock('mock_orders');
-        const idx = orders.findIndex(o => o.id === id || o._id === id);
-        if (idx !== -1) {
-          orders[idx] = {
-            ...orders[idx],
-            ...statusData,
-            updatedAt: new Date().toISOString()
-          };
-          saveToMock('mock_orders', orders);
-          return orders[idx];
-        }
-        throw new Error('Order not found');
-      }
+      return await request(`/orders/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify(statusData)
+      });
     }
   },
 
-  // Subscriptions
-  subscriptions: {
-    getSubscriptions: async () => {
-      try {
-        return await request('/subscriptions');
-      } catch (err) {
-        const orders = fetchFromMock('mock_orders');
-        const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
-        return orders.filter(o => o.customerId === (user.id || user._id) && o.subscriptionType && o.subscriptionType !== 'One-time');
-      }
+  // Admin APIs
+  admin: {
+    getStats: async () => {
+      return await request('/admin/stats');
     },
+    getFarmers: async () => {
+      return await request('/admin/farmers');
+    },
+    blockFarmer: async (id) => {
+      return await request(`/admin/farmers/${id}/block`, { method: 'PUT' });
+    },
+    unblockFarmer: async (id) => {
+      return await request(`/admin/farmers/${id}/unblock`, { method: 'PUT' });
+    },
+    resetFarmerStrikes: async (id) => {
+      return await request(`/admin/farmers/${id}/reset-strikes`, { method: 'PUT' });
+    },
+    getProducts: async () => {
+      return await request('/admin/products');
+    },
+    deleteProduct: async (id) => {
+      return await request(`/admin/products/${id}`, { method: 'DELETE' });
+    },
+    getOrders: async () => {
+      return await request('/admin/orders');
+    },
+    updateOrderStatus: async (id, data) => {
+      return await request(`/admin/orders/${id}/status`, { method: 'PUT', body: JSON.stringify(data) });
+    },
+    getReports: async () => {
+      return await request('/admin/reports');
+    },
+    getAnalytics: async () => {
+      return await request('/admin/analytics');
+    },
+    sendNotification: async (data) => {
+      return await request('/admin/notifications', { method: 'POST', body: JSON.stringify(data) });
+    },
+    getUsers: async () => {
+      return await request('/admin/users');
+    },
+    // Coupons
+    getCoupons: async () => {
+      return await request('/admin/coupons');
+    },
+    createCoupon: async (data) => {
+      return await request('/admin/coupons', { method: 'POST', body: JSON.stringify(data) });
+    },
+    updateCoupon: async (id, data) => {
+      return await request(`/admin/coupons/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    },
+    toggleCoupon: async (id) => {
+      return await request(`/admin/coupons/${id}/toggle`, { method: 'PUT' });
+    },
+    deleteCoupon: async (id) => {
+      return await request(`/admin/coupons/${id}`, { method: 'DELETE' });
+    },
+    // Banners
+    getBanners: async () => {
+      return await request('/admin/banners');
+    },
+    getActiveBanners: async () => {
+      return await request('/admin/banners/active');
+    },
+    createBanner: async (data) => {
+      return await request('/admin/banners', { method: 'POST', body: JSON.stringify(data) });
+    },
+    updateBanner: async (id, data) => {
+      return await request(`/admin/banners/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    },
+    toggleBanner: async (id) => {
+      return await request(`/admin/banners/${id}/toggle`, { method: 'PUT' });
+    },
+    deleteBanner: async (id) => {
+      return await request(`/admin/banners/${id}`, { method: 'DELETE' });
+    }
+  },
 
-    createSubscription: async (subData) => {
+  // Public APIs (no auth required)
+  public: {
+    getActiveBanners: async () => {
+      return await request('/banners/active');
+    },
+    getActiveCoupons: async () => {
+      return await request('/coupons/active');
+    },
+    validateCoupon: async (data) => {
+      return await request('/coupons/validate', { method: 'POST', body: JSON.stringify(data) });
+    }
+  },
+
+  // Farmer-specific APIs
+  farmer: {
+    getStats: async () => {
       try {
-        return await request('/subscriptions', {
-          method: 'POST',
-          body: JSON.stringify(subData)
-        });
+        return await request('/farmer/stats');
       } catch (err) {
-        const orders = fetchFromMock('mock_orders');
         const user = JSON.parse(localStorage.getItem('dhara_user') || '{}');
-        const newSub = {
-          id: `sub_${Date.now()}`,
-          _id: `sub_${Date.now()}`,
-          customerId: user.id || user._id,
-          ...subData,
-          status: 'active',
-          createdAt: new Date().toISOString()
+        const products = fetchFromMock('mock_products');
+        const orders = fetchFromMock('mock_orders');
+        const farmerProds = products.filter(p => {
+          const fId = p.farmerId?._id || p.farmerId?.id || p.farmerId;
+          return fId === user.id || fId === user._id;
+        });
+        const farmerOrders = orders.filter(o =>
+          o.products?.some(p => p.farmerId === user.id || p.farmerId === user._id)
+        );
+        return {
+          totalProducts: farmerProds.length,
+          activeOrders: farmerOrders.filter(o => ['Pending', 'Processing', 'In Transit'].includes(o.orderStatus)).length,
+          completedOrders: farmerOrders.filter(o => o.orderStatus === 'Delivered').length,
+          totalEarnings: farmerOrders.filter(o => o.orderStatus === 'Delivered' || o.paymentStatus === 'Paid')
+            .reduce((sum, o) => sum + (o.totalPrice || 0), 0),
+          productViews: 0,
+          rating: user.rating || 5.0,
+          lowStock: farmerProds.filter(p => p.stock > 0 && p.stock <= 5).length,
+          outOfStock: farmerProds.filter(p => p.stock <= 0).length,
+          pendingDeliveries: farmerOrders.filter(o => o.orderStatus === 'In Transit').length,
+          orderStatusCounts: {
+            pending: farmerOrders.filter(o => o.orderStatus === 'Pending').length,
+            processing: farmerOrders.filter(o => o.orderStatus === 'Processing').length,
+            shipped: farmerOrders.filter(o => o.orderStatus === 'In Transit').length,
+            delivered: farmerOrders.filter(o => o.orderStatus === 'Delivered').length,
+            cancelled: farmerOrders.filter(o => o.orderStatus === 'Cancelled').length
+          }
         };
-        orders.push(newSub);
-        saveToMock('mock_orders', orders);
-        return newSub;
       }
     },
 
-    updateSubscriptionStatus: async (id, statusData) => {
+    getRevenue: async () => {
       try {
-        return await request(`/subscriptions/${id}/status`, {
+        return await request('/revenue/farmer/me');
+      } catch (err) {
+        return {
+          totalEarnings: 0, weeklyRevenue: 0, monthlyRevenue: 0,
+          pendingPayouts: 0, monthlyRevenueData: [], topProducts: [],
+          totalOrders: 0, deliveredOrders: 0
+        };
+      }
+    },
+
+    updateProfile: async (profileData) => {
+      try {
+        return await request('/farmer/profile', {
           method: 'PUT',
-          body: JSON.stringify(statusData)
+          body: JSON.stringify(profileData)
         });
       } catch (err) {
-        const orders = fetchFromMock('mock_orders');
-        const idx = orders.findIndex(o => o.id === id || o._id === id);
-        if (idx !== -1) {
-          orders[idx] = { ...orders[idx], ...statusData, updatedAt: new Date().toISOString() };
-          saveToMock('mock_orders', orders);
-          return orders[idx];
-        }
-        throw new Error('Subscription not found');
+        // For demo: just return success with the data
+        return { ...profileData, message: 'Profile updated (mock)' };
       }
     }
   },
@@ -695,6 +746,25 @@ export const api = {
           const fId = f.farmerId?._id || f.farmerId?.id || f.farmerId;
           return fId === farmerId;
         });
+      }
+    },
+
+    replyToFeedback: async (feedbackId, reply) => {
+      try {
+        return await request(`/feedback/reply/${feedbackId}`, {
+          method: 'POST',
+          body: JSON.stringify({ reply })
+        });
+      } catch (err) {
+        const feedbacks = fetchFromMock('mock_feedback');
+        const idx = feedbacks.findIndex(f => f.id === feedbackId || f._id === feedbackId);
+        if (idx !== -1) {
+          feedbacks[idx].reply = reply;
+          feedbacks[idx].replyAt = new Date().toISOString();
+          saveToMock('mock_feedback', feedbacks);
+          return feedbacks[idx];
+        }
+        throw new Error('Feedback not found');
       }
     }
   },

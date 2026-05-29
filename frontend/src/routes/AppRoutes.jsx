@@ -18,7 +18,7 @@ import Checkout from '../pages/Checkout';
 import OrderSuccess from '../pages/OrderSuccess';
 import OrderTracking from '../pages/OrderTracking';
 import Wishlist from '../pages/Wishlist';
-import Subscription from '../pages/Subscription';
+
 import UserProfile from '../pages/UserProfile';
 import Products from '../pages/Products';
 import HarvestCountdown from '../pages/HarvestCountdown';
@@ -28,13 +28,29 @@ import MyOrders from '../pages/MyOrders';
 import Offers from '../pages/Offers';
 
 import FarmerDashboard from '../pages/FarmerDashboard';
+import FarmerNotifications from '../pages/FarmerNotifications';
 import AddProduct from '../pages/AddProduct';
 import ManageProducts from '../pages/ManageProducts';
 import OrdersManagement from '../pages/OrdersManagement';
 import Feedback from '../pages/Feedback';
 import FarmerProfile from '../pages/FarmerProfile';
+import FarmerProducts from '../pages/FarmerProducts';
+import FarmerOrders from '../pages/FarmerOrders';
+import FarmerRevenue from '../pages/FarmerRevenue';
+import FarmerReviews from '../pages/FarmerReviews';
+import FarmerInventory from '../pages/FarmerInventory';
+import FarmerSettings from '../pages/FarmerSettings';
 
 import AdminDashboard from '../pages/AdminDashboard';
+import AdminFarmers from '../pages/AdminFarmers';
+import AdminProducts from '../pages/AdminProducts';
+import AdminOrders from '../pages/AdminOrders';
+import AdminReports from '../pages/AdminReports';
+import AdminAnalytics from '../pages/AdminAnalytics';
+import AdminNotifications from '../pages/AdminNotifications';
+import AdminSettings from '../pages/AdminSettings';
+import AdminPromotions from '../pages/AdminPromotions';
+import AdminLayout from '../layouts/AdminLayout';
 
 function ProtectedRoute() {
   const { user } = useSelector((state) => state.auth);
@@ -54,18 +70,30 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route element={<PublicOnlyRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<LandingPage />} />
+        </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Route>
 
       <Route element={<MainLayout />}>
-        <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/farmers" element={<AdminFarmers />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin/notifications" element={<AdminNotifications />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/promotions" element={<AdminPromotions />} />
+        </Route>
       </Route>
 
       <Route element={<ProtectedRoute />}>
@@ -74,7 +102,6 @@ export default function AppRoutes() {
           <Route path="/products" element={<Products />} />
           <Route path="/harvest-countdown" element={<HarvestCountdown />} />
           <Route path="/daily-orders" element={<DailyOrders />} />
-          <Route path="/subscriptions" element={<Subscription />} />
           <Route path="/farmers" element={<Farmers />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/offers" element={<Offers />} />
@@ -84,7 +111,6 @@ export default function AppRoutes() {
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/track/:id" element={<OrderTracking />} />
           <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/subscription" element={<Subscription />} />
           <Route path="/profile" element={<UserProfile />} />
         </Route>
       </Route>
@@ -92,10 +118,17 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<FarmerLayout />}>
           <Route path="/farmer" element={<FarmerDashboard />} />
+          <Route path="/farmer/products" element={<FarmerProducts />} />
+          <Route path="/farmer/orders" element={<FarmerOrders />} />
+          <Route path="/farmer/revenue" element={<FarmerRevenue />} />
+          <Route path="/farmer/reviews" element={<FarmerReviews />} />
+          <Route path="/farmer/inventory" element={<FarmerInventory />} />
+          <Route path="/farmer/settings" element={<FarmerSettings />} />
           <Route path="/farmer/add" element={<AddProduct />} />
           <Route path="/farmer/manage" element={<ManageProducts />} />
-          <Route path="/farmer/orders" element={<OrdersManagement />} />
+          <Route path="/farmer/orders-old" element={<OrdersManagement />} />
           <Route path="/farmer/feedback" element={<Feedback />} />
+          <Route path="/farmer/notifications" element={<FarmerNotifications />} />
           <Route path="/farmer/profile" element={<FarmerProfile />} />
         </Route>
       </Route>

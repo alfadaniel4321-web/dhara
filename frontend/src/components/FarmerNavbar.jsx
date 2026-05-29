@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MessageCircle, LogOut, Leaf, Menu, X, Globe } from 'lucide-react';
+import { Home, MessageCircle, LogOut, Leaf, Menu, X, Globe, Bell, ShoppingBag } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logoutUser } from '../redux/slices/authSlice';
@@ -15,6 +15,8 @@ const LANGUAGES = [
 
 const navItems = [
   { icon: Home, labelKey: 'home', path: '/farmer' },
+  { icon: ShoppingBag, labelKey: 'orders', path: '/farmer/orders' },
+  { icon: Bell, labelKey: 'notifications', path: '/farmer/notifications' },
   { icon: MessageCircle, labelKey: 'contact', path: '/farmer/profile' },
 ];
 

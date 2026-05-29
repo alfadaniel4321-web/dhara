@@ -7,11 +7,10 @@ import growersImg from "../assets/WhatsApp Image 2026-05-27 at 10.23.55 AM.jpeg"
 import traceabilityImg from "../assets/WhatsApp Image 2026-05-27 at 10.24.52 AM.jpeg";
 import harvestTomato from "../assets/product-tomato.jpg";
 import harvestGreens from "../assets/product-greens.jpg";
-import harvestHoney from "../assets/product-honey.jpg";
-import harvestRice from "../assets/product-rice.jpg";
 import storyGroveImg from "../assets/story-grove.jpg";
 import storySoilImg from "../assets/story-soil.jpg";
 import { Star, MapPin, ArrowRight } from 'lucide-react';
+import { api } from '../services/api';
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
 function useReveal(threshold = 0.15) {
@@ -91,6 +90,7 @@ function FarmerCard3D({ farmer, index }) {
   const fName = farmer.name || 'Verified Kerala Farmer';
   const fRating = farmer.rating || 5.0;
   const initials = fName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  const location = [farmer.village, farmer.district].filter(Boolean).join(', ') || 'Kerala, India';
 
   return (
     <div ref={ref} style={{
@@ -126,9 +126,9 @@ function FarmerCard3D({ farmer, index }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <MapPin size={12} color="#6A994E" />
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', letterSpacing: '0.05em', color: 'rgba(27,67,50,0.6)', textTransform: 'uppercase' }}>{farmer.address || 'Kerala, India'}</span>
+          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', letterSpacing: '0.05em', color: 'rgba(27,67,50,0.6)', textTransform: 'uppercase' }}>{location}</span>
         </div>
-        <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.7, color: '#3D4F45', margin: 0 }}>Sustainable, family-owned farming producing daily fresh harvests without preservative additives. Certified organic by Kerala State Organic Mission.</p>
+        <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.7, color: '#3D4F45', margin: 0 }}>{farmer.description || 'Sustainable, family-owned farming producing daily fresh harvests without preservative additives. Certified organic by Kerala State Organic Mission.'}</p>
       </div>
     </div>
   );
@@ -231,15 +231,38 @@ function CTASection3D() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ─── HARVEST SECTION ─────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
-const HARVEST_ITEMS = [
-  { index: '01', name: 'Heirloom Tomatoes', price: '180', unit: 'KG', region: 'WAYANAD', farmer: 'RAVI MENON', image: harvestTomato },
-  { index: '02', name: 'Wild Leafy Greens', price: '120', unit: 'BUNCH', region: 'IDUKKI', farmer: 'LAKSHMI PILLAI', image: harvestGreens },
-  { index: '03', name: 'Forest Honey', price: '640', unit: 'JAR', region: 'THRISSUR', farmer: 'JOSEPH KURUVILLA', image: harvestHoney },
-  { index: '04', name: 'Red Matta Rice', price: '240', unit: 'KG', region: 'PALAKKAD', farmer: 'RAVI MENON', image: harvestRice },
-];
 
 function HarvestSection() {
   const [ref] = useReveal(0.15);
+  const [harvestItems, setHarvestItems] = useState([]);
+
+  useEffect(() => {
+    const fetchHarvest = async () => {
+      try {
+        const products = await api.products.getProducts();
+        if (products && products.length > 0) {
+          const items = products.slice(0, 4).map((p, i) => ({
+            index: String(i + 1).padStart(2, '0'),
+            name: p.title,
+            price: p.price ?? 0,
+            unit: (p.quantity || '').toUpperCase(),
+            region: (p.farmerId?.address || p.farmerId?.district || '').toUpperCase(),
+            farmer: (p.farmerId?.name || '').toUpperCase(),
+            image: p.image,
+          }));
+          setHarvestItems(items);
+        }
+      } catch {
+        // API unavailable, show nothing
+      }
+    };
+    fetchHarvest();
+  }, []);
+
+  if (harvestItems.length === 0) return null;
+
+  const displayItems = harvestItems;
+
   return (
     <section style={{ background: '#1B4332', padding: '5rem 2.5rem' }}>
       <div ref={ref} style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -257,7 +280,7 @@ function HarvestSection() {
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px',
           background: 'rgba(245,243,231,0.12)', marginTop: '3rem',
         }}>
-          {HARVEST_ITEMS.map((item) => (
+          {displayItems.map((item) => (
             <div key={item.index} style={{ background: '#1B4332' }}>
               <div style={{ position: 'relative', overflow: 'hidden' }}>
                 <img src={item.image} alt={item.name} style={{ width: '100%', height: 'clamp(180px, 22vw, 320px)', objectFit: 'cover', display: 'block', transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1)' }} />
@@ -920,9 +943,17 @@ export default function LandingPage() {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    const farmers = mockUsers.filter(u => u.role === 'farmer' && !u.blocked);
-    setTopFarmers(farmers.slice(0, 2));
+    const fetchFarmers = async () => {
+      try {
+        const farmers = await api.auth.getFarmers();
+        setTopFarmers(farmers.slice(0, 2));
+      } catch {
+        const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
+        const farmers = mockUsers.filter(u => u.role === 'farmer' && !u.blocked);
+        setTopFarmers(farmers.slice(0, 2));
+      }
+    };
+    fetchFarmers();
   }, []);
 
   useEffect(() => {

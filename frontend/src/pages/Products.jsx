@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Search, ShoppingCart, Heart, Star, X, SlidersHorizontal,
   ChevronLeft, ChevronRight, Grid3X3, Sun, Moon, Eye,
@@ -97,6 +97,7 @@ function RatingsFilter({ selected, onChange }) {
 export default function Products() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'));
   const [loading, setLoading] = useState(true);
@@ -111,6 +112,14 @@ export default function Products() {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get("search");
+    if (searchParam) {
+      setSearch(searchParam);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchProducts = async () => {

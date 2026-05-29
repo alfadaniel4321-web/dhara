@@ -47,37 +47,46 @@ export default function Checkout() {
     }
 
     try {
-      const orderProducts = cartItems.map(item => {
-        const prod = item.productId || {};
+      const orderProducts = await Promise.all(cartItems.map(async (item) => {
+        const rawId = typeof item.productId === 'string' ? item.productId : (item.productId?._id || item.productId?.id);
+        let prod = typeof item.productId === 'object' ? (item.productId || {}) : {};
         const fId = prod.farmerId?._id || prod.farmerId?.id || prod.farmerId;
+
+        if (!prod.title || !prod.quantity) {
+          try {
+            const fetched = await api.products.getProduct(rawId);
+            if (fetched) prod = fetched;
+          } catch {}
+        }
+
         return {
-          productId: prod._id || prod.id,
+          productId: rawId,
           title: prod.title,
           quantity: prod.quantity,
-          price: prod.price || 50,
+          price: prod.price ?? 0,
           count: item.count,
-          farmerId: fId
+          farmerId: fId || prod.farmerId,
         };
-      });
+      }));
 
       const orderObj = await api.orders.createOrder({
         products: orderProducts,
         deliveryTime,
+        deliveryDate,
         subscriptionType: 'One-time',
         totalPrice: totals.finalTotal,
         address: address.trim(),
-        paymentStatus: 'Pending' // COD is pending until hand-over
+        paymentStatus: 'Pending'
       });
 
-      // Save address for future orders and order details for success page
+      // Save address for future orders
       localStorage.setItem('dhara_delivery_address', address.trim());
-      localStorage.setItem('last_order_details', JSON.stringify(orderObj));
       
       // Clear client cart
       dispatch(clearCartLocal());
       
-      // Navigate to success page
-      navigate('/order-success');
+      // Navigate to my orders
+      navigate('/my-orders');
     } catch (e) {
       alert(e.message || 'Order placement failed');
     }
@@ -206,8 +215,8 @@ export default function Checkout() {
           <div className="space-y-3.5 max-h-44 overflow-y-auto pr-1">
             {cartItems.map((item, idx) => (
               <div key={idx} className="flex justify-between items-center text-xs">
-                <span className="text-emerald-300 truncate max-w-[70%]">{item.productId?.title || 'Harvest Item'} <strong className="text-[10px] text-white">x{item.count}</strong></span>
-                <span className="font-mono text-emerald-200">₹{(item.productId?.price || 50) * item.count}</span>
+                <span className="text-emerald-300 truncate max-w-[70%]">{item.productId?.title || '—'} <strong className="text-[10px] text-white">x{item.count}</strong></span>
+                <span className="font-mono text-emerald-200">{item.productId?.price != null ? `₹${item.productId.price * item.count}` : '—'}</span>
               </div>
             ))}
           </div>

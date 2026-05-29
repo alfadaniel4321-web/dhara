@@ -1,6 +1,7 @@
 const PreOrder = require('../models/PreOrder');
 const Notification = require('../models/Notification');
 const Product = require('../models/Product');
+const Farmer = require('../models/Farmer');
 const User = require('../models/User');
 
 // Create a pre-order
@@ -18,7 +19,7 @@ exports.createPreOrder = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    const farmer = await User.findById(farmerId);
+    const farmer = await Farmer.findById(farmerId);
     if (!farmer) {
       return res.status(404).json({ message: 'Farmer not found' });
     }

@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCartSuccess } from "../redux/slices/cartSlice";
 import { api } from '../services/api';
 import {
   Home,
@@ -7,22 +9,20 @@ import {
   Grid,
   Clock,
   ShoppingBag,
-  RefreshCw,
   Users,
   Package,
   Tag,
   Info,
-  Search,
   Star,
   Zap,
 } from "lucide-react";
+import SearchBar from "../components/SearchBar";
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", id: "home" },
   { icon: Grid, label: "All Products", id: "products" },
   { icon: Clock, label: "Harvest Countdown", id: "harvest" },
   { icon: ShoppingBag, label: "Daily Orders", id: "orders" },
-  { icon: RefreshCw, label: "Subscriptions", id: "subscriptions" },
   { icon: Users, label: "Farmers", id: "farmers" },
   { icon: Package, label: "My Orders", id: "myorders" },
   { icon: Tag, label: "Offers & Deals", id: "offers" },
@@ -34,22 +34,27 @@ const FEATURES = [
   { icon: MapPin, label: "Nearby Products" },
   { icon: Zap, label: "AI Freshness Rating" },
 
-  { icon: RefreshCw, label: "Subscriptions" },
   { icon: Users, label: "Meet Farmers" },
 ];
 
-const OFFERS = [
-  { id: 1, title: "Fresh Coconut", image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800", price: 25, quantity: "3 Nos", discount: "20% OFF" },
-  { id: 2, title: "Organic Tomato", image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?q=80&w=800", price: 35, quantity: "1 Kg", discount: "15% OFF" },
-  { id: 3, title: "Raw Honey", image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?q=80&w=800", price: 350, quantity: "250 g", discount: "10% OFF" },
-  { id: 4, title: "Country Chicken", image: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?q=80&w=800", price: 280, quantity: "1 Kg", discount: "25% OFF" },
-  { id: 5, title: "Coconut Oil", image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=800", price: 180, quantity: "500 ml", discount: "12% OFF" },
-];
+
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleAddToCart = useCallback(async (product) => {
+    try {
+      const updatedCart = await api.cart.addToCart(product.id || product._id, 1);
+      dispatch(setCartSuccess(updatedCart));
+    } catch (err) {
+      console.error('Failed to add to cart', err);
+    }
+  }, [dispatch]);
 
   const [products, setProducts] = useState([]);
+  const [offers, setOffers] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [search, setSearch] = useState("");
   const [bannerIndex, setBannerIndex] = useState(0);
   const [countdown, setCountdown] = useState("");
@@ -60,55 +65,19 @@ export default function Dashboard() {
         const data = await api.products.getProducts();
         if (data && data.length > 0) {
           setProducts(data);
+          const offerProducts = data.filter(p => p.offerDetails);
+          setOffers(offerProducts);
         }
-      } catch {
-        // fallback below
-      }
+      } catch {}
+    };
+    const fetchBanners = async () => {
+      try {
+        const data = await api.public.getActiveBanners();
+        if (data && data.length > 0) setBanners(data);
+      } catch {}
     };
     fetchProducts();
-  }, []);
-
-  const saleSlides = [
-    {
-      badge: "MEGA HARVEST SALE",
-      heading: "GET READY FOR THE FRESHEST SALE",
-      subtitle: "Organic products directly from nearby farms",
-      product: "Farm Fresh Vegetables",
-      gradient: "linear-gradient(135deg, #1B4332, #013220, #14532d)",
-      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400&h=300&fit=crop",
-    },
-    {
-      badge: "DAIRY SPECIAL",
-      heading: "FRESH FROM THE FARM TO YOUR DOOR",
-      subtitle: "Pure & organic milk sourced from local farms",
-      product: "Organic A2 Milk",
-      gradient: "linear-gradient(135deg, #0D3B2E, #1B5E3A, #2D7A4A)",
-      image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=400&h=300&fit=crop",
-    },
-    {
-      badge: "EGG FEST",
-      heading: "FARM FRESH EGGS DAILY",
-      subtitle: "Free-range eggs from happy hens",
-      product: "Kuttanad Duck Eggs",
-      gradient: "linear-gradient(135deg, #3A2A1A, #5C4033, #7A5A4A)",
-      image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?q=80&w=400&h=300&fit=crop",
-    },
-    {
-      badge: "KERALA HARVEST",
-      heading: "CELEBRATE LOCAL FLAVOURS",
-      subtitle: "Special harvest from Kerala's finest farms",
-      product: "Nendran Bananas",
-      gradient: "linear-gradient(135deg, #2D1F0E, #4A3520, #6B4F30)",
-      image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b6f9?q=80&w=400&h=300&fit=crop",
-    },
-  ];
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setBannerIndex((prev) => (prev + 1) % saleSlides.length);
-    }, 5000);
-
-    return () => clearInterval(id);
+    fetchBanners();
   }, []);
 
   useEffect(() => {
@@ -129,17 +98,66 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
+  const activeSlides = banners.length > 0
+    ? banners.map(b => ({
+        badge: (b.type || 'general').replace(/_/g, ' ').toUpperCase(),
+        heading: b.title,
+        subtitle: b.subtitle || '',
+        product: b.title,
+        gradient: 'linear-gradient(135deg, #1B4332, #013220, #14532d)',
+        image: b.image,
+        link: b.link,
+      }))
+    : [];
+
+  const slidesLenRef = useRef(activeSlides.length);
+
+  useEffect(() => {
+    slidesLenRef.current = activeSlides.length;
+    if (bannerIndex >= activeSlides.length && activeSlides.length > 0) {
+      setBannerIndex(0);
+    }
+  }, [activeSlides.length]);
+
+  useEffect(() => {
+    const len = activeSlides.length;
+    if (len === 0) return;
+    const id = setInterval(() => {
+      setBannerIndex((prev) => (prev + 1) % len);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [activeSlides.length]);
+
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayHarvest = products.filter(p => {
     const harvestDay = p.harvestDate ? p.harvestDate.slice(0, 10) : '';
     return harvestDay === todayStr;
   });
 
-  const displayProducts = todayHarvest.length > 0 ? todayHarvest : products;
+  const sortedRecent = [...products].sort((a, b) => {
+    const da = a.harvestDate ? new Date(a.harvestDate) : new Date(0);
+    const db = b.harvestDate ? new Date(b.harvestDate) : new Date(0);
+    return db - da;
+  });
 
-  const filteredProducts = displayProducts.filter(p =>
-    !search || p.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const displayProducts = todayHarvest.length > 0 ? todayHarvest : sortedRecent.slice(0, 5);
+
+  const searchResults = search.trim()
+    ? products.filter(p => {
+        const q = search.toLowerCase();
+        const farmerName = p.farmerName || p.farmerId?.name || '';
+        return (
+          (p.title && p.title.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q)) ||
+          (p.description && p.description.toLowerCase().includes(q)) ||
+          farmerName.toLowerCase().includes(q)
+        );
+      })
+    : [];
+
+  const filteredProducts = search.trim()
+    ? searchResults
+    : displayProducts;
 
   return (
     <div style={{ background: "#F4F6F3" }}>
@@ -245,53 +263,15 @@ export default function Dashboard() {
           gap: "clamp(0.75rem, 1.5vw, 1.5rem)",
         }}
       >
-        {/* SEARCH FILTER */}
+        {/* SEARCH BAR */}
 
-        <div
-          style={{
-            background: "white",
-            borderRadius: "16px",
-            padding: "1rem",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "1rem",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ position: "relative", flex: 1 }}>
-            <Search
-              size={16}
-              color="#6A994E"
-              style={{
-                position: "absolute",
-                left: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
-            />
-
-            <input
-              type="text"
-              placeholder="Search fresh harvest milk, duck eggs..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && search.trim()) navigate('/products'); }}
-              style={{
-                width: "100%",
-                background: "#F4F6F3",
-                border: "1px solid #E0EAE0",
-                borderRadius: "999px",
-                padding: "0.8rem 1rem 0.8rem 2.8rem",
-                outline: "none",
-                color: "#000",
-              }}
-            />
-          </div>
-
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <SearchBar onSearchChange={setSearch} />
         </div>
 
         {/* PROMOTIONAL BANNER */}
 
+        {activeSlides.length > 0 && (
         <div
           style={{
             position: "relative",
@@ -302,7 +282,7 @@ export default function Dashboard() {
           <div
             className="sale-banner"
             style={{
-              background: saleSlides[bannerIndex].gradient,
+              background: activeSlides[bannerIndex].gradient,
               borderRadius: "20px",
               padding: "2rem 2.5rem",
               minHeight: "220px",
@@ -341,7 +321,7 @@ export default function Dashboard() {
                   textTransform: "uppercase",
                 }}
               >
-                {saleSlides[bannerIndex].badge}
+                {activeSlides[bannerIndex].badge}
               </div>
 
               <h1
@@ -352,11 +332,11 @@ export default function Dashboard() {
                   lineHeight: 1.2,
                 }}
               >
-                {saleSlides[bannerIndex].heading}
+                {activeSlides[bannerIndex].heading}
               </h1>
 
               <p style={{ opacity: 0.75, fontSize: "0.9rem", marginBottom: "16px" }}>
-                {saleSlides[bannerIndex].subtitle}
+                {activeSlides[bannerIndex].subtitle}
               </p>
 
               <button
@@ -381,8 +361,8 @@ export default function Dashboard() {
 
             <div className="banner-image-wrapper" style={{ zIndex: 2, minWidth: "200px", width: "280px", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.3)", marginLeft: "1.5rem", flexShrink: 0 }}>
               <img
-                src={saleSlides[bannerIndex].image}
-                alt={saleSlides[bannerIndex].product}
+                src={activeSlides[bannerIndex].image}
+                alt={activeSlides[bannerIndex].product}
                 style={{ width: "100%", height: "180px", objectFit: "cover", display: "block", transition: "transform 0.5s ease" }}
                 className="banner-image"
               />
@@ -398,7 +378,7 @@ export default function Dashboard() {
               marginTop: "12px",
             }}
           >
-            {saleSlides.map((_, i) => (
+            {activeSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setBannerIndex(i)}
@@ -416,6 +396,7 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+        )}
 
         {/* FEATURES */}
 
@@ -517,6 +498,7 @@ export default function Dashboard() {
               {countdown}
             </div>
           </div>
+          {activeSlides.length > 0 && (
           <div
             style={{
               fontSize: "0.8rem",
@@ -524,8 +506,9 @@ export default function Dashboard() {
               fontWeight: 600,
             }}
           >
-            {saleSlides[bannerIndex].product}
+            {activeSlides[bannerIndex].product}
           </div>
+          )}
         </div>
 
         {/* 🌿 TODAY'S FRESH HARVEST */}
@@ -554,10 +537,10 @@ export default function Dashboard() {
                   marginBottom: "4px",
                 }}
               >
-                🌿 Today's Fresh Harvest
+                {search.trim() ? "🔍 Search Results" : "🌿 Today's Fresh Harvest"}
               </h2>
               <p style={{ color: "#555", fontSize: "0.8rem" }}>
-                Handpicked today from nearby farms
+                {search.trim() ? `Found ${searchResults.length} products matching "${search}"` : "Handpicked today from nearby farms"}
               </p>
             </div>
             <button
@@ -583,9 +566,15 @@ export default function Dashboard() {
               gap: "1rem",
             }}
           >
-            {filteredProducts.slice(0, 5).map((p) => (
+            {filteredProducts.length === 0 && search.trim() ? (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "3rem 1rem", color: "#999" }}>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#013220", marginBottom: "6px" }}>No products found</div>
+                <div style={{ fontSize: "0.85rem" }}>Try a different search term</div>
+              </div>
+            ) : null}
+            {filteredProducts.length > 0 && filteredProducts.slice(0, search.trim() ? filteredProducts.length : 5).map((p) => (
               <div
-                key={p.id}
+                key={p.id || p._id}
                 style={{
                   background: "white",
                   borderRadius: "16px",
@@ -624,7 +613,7 @@ export default function Dashboard() {
                   >
                     <Star size={13} fill="#D4A017" color="#D4A017" />
                     <span style={{ fontSize: "0.75rem", color: "#666" }}>
-                      4.9 (16)
+                      {p.freshnessScore || '—'}
                     </span>
                   </div>
                   <div
@@ -646,7 +635,7 @@ export default function Dashboard() {
                     / {p.quantity}
                   </div>
                   <button
-                    onClick={() => navigate('/cart')}
+                    onClick={() => handleAddToCart(p)}
                     style={{
                       width: "100%",
                       background: "#013220",
@@ -669,6 +658,7 @@ export default function Dashboard() {
 
         {/* OFFERS SECTION */}
 
+        {offers.length > 0 && (
         <div
           className="dashboard-section"
           style={{
@@ -722,9 +712,9 @@ export default function Dashboard() {
               gap: "1rem",
             }}
           >
-            {OFFERS.map((o) => (
+            {offers.map((o) => (
               <div
-                key={o.id}
+                key={o.id || o._id}
                 style={{
                   background: "white",
                   borderRadius: "16px",
@@ -748,7 +738,7 @@ export default function Dashboard() {
                     zIndex: 2,
                   }}
                 >
-                  {o.discount}
+                  {o.offerDetails || o.discount || "OFFER"}
                 </div>
                 <div
                   style={{
@@ -798,7 +788,7 @@ export default function Dashboard() {
                   >
                     <Star size={13} fill="#D4A017" color="#D4A017" />
                     <span style={{ fontSize: "0.75rem", color: "#666" }}>
-                      4.8 (22)
+                      {o.freshnessScore || '—'}
                     </span>
                   </div>
                   <div
@@ -837,7 +827,7 @@ export default function Dashboard() {
                     / {o.quantity}
                   </div>
                   <button
-                    onClick={() => navigate('/cart')}
+                    onClick={() => handleAddToCart(o)}
                     style={{
                       width: "100%",
                       background: "linear-gradient(135deg, #D4A017, #B8860B)",
@@ -857,6 +847,7 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+        )}
 
       </main>
 

@@ -47,16 +47,21 @@ export default function Cart() {
     }
   };
 
-  const handleApplyCoupon = (e) => {
+  const handleApplyCoupon = async (e) => {
     e.preventDefault();
     setCouponError('');
     setCouponSuccess('');
-    
-    if (coupon.toUpperCase() === 'HARVEST15') {
-      setDiscountPercent(15);
-      setCouponSuccess('🎟️ 15% discount applied successfully!');
-    } else {
-      setCouponError('Invalid coupon code');
+
+    try {
+      const result = await api.public.validateCoupon({ code: coupon, cartTotal: totalPrice });
+      if (result.valid) {
+        const pct = result.coupon.discountType === 'percentage' ? result.coupon.discountValue : 0;
+        setDiscountPercent(pct);
+        setCouponSuccess(result.coupon.description || 'Coupon applied successfully!');
+      }
+    } catch (err) {
+      const msg = err.message || 'Invalid coupon code';
+      setCouponError(msg);
       setDiscountPercent(0);
     }
   };

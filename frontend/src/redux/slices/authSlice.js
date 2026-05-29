@@ -44,9 +44,15 @@ const authSlice = createSlice({
         state.user.blocked = action.payload.blocked;
         localStorage.setItem('dhara_user', JSON.stringify(state.user));
       }
+    },
+    updateUser: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        localStorage.setItem('dhara_user', JSON.stringify(state.user));
+      }
     }
   },
 });
 
-export const { setAuthStart, setAuthSuccess, setAuthFailure, logoutUser, updateUserRating } = authSlice.actions;
+export const { setAuthStart, setAuthSuccess, setAuthFailure, logoutUser, updateUserRating, updateUser } = authSlice.actions;
 export default authSlice.reducer;

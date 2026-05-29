@@ -1,169 +1,208 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { ShieldCheck, UserMinus, ShieldAlert, Award, Sliders, AlertTriangle } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  Users, UserCheck, Package, ShoppingBag, IndianRupee, Truck,
+  MapPin, Home, ShieldAlert, AlertTriangle, ArrowUpRight
+} from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { api } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function AdminDashboard() {
-  const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [success, setSuccess] = useState('');
-
-  const loadAdminData = () => {
-    setLoading(true);
-    try {
-      const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-      const mockProducts = JSON.parse(localStorage.getItem('mock_products') || '[]');
-      const mockOrders = JSON.parse(localStorage.getItem('mock_orders') || '[]');
-      
-      setUsers(mockUsers);
-      setProducts(mockProducts);
-      setOrders(mockOrders);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadAdminData();
+    const load = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const [s, a] = await Promise.all([
+          api.admin.getStats(),
+          api.admin.getAnalytics(),
+        ]);
+        setStats(s);
+        setAnalytics(a);
+      } catch (e) {
+        setError(e.message);
+      }
+      finally { setLoading(false); }
+    };
+    load();
   }, []);
 
-  const handleResetStrikes = (userId) => {
-    setSuccess('');
-    const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    const idx = mockUsers.findIndex(u => u.id === userId || u._id === userId);
-    
-    if (idx !== -1) {
-      mockUsers[idx].blocked = false;
-      mockUsers[idx].negativeFeedbacksCount = 0;
-      mockUsers[idx].rating = 5.0; // reset
-      localStorage.setItem('mock_users', JSON.stringify(mockUsers));
-      
-      // Also clear negative reviews logs for this farmer to clean up
-      const mockFeedback = JSON.parse(localStorage.getItem('mock_feedback') || '[]');
-      const filteredFeedback = mockFeedback.filter(f => {
-        const fId = f.farmerId?._id || f.farmerId?.id || f.farmerId;
-        return fId !== userId;
-      });
-      localStorage.setItem('mock_feedback', JSON.stringify(filteredFeedback));
-
-      setSuccess(`Reset strikes and unblocked farmer: ${mockUsers[idx].name}`);
-      loadAdminData();
-    }
-  };
-
-  const handleBlockFarmer = (userId) => {
-    setSuccess('');
-    const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    const idx = mockUsers.findIndex(u => u.id === userId || u._id === userId);
-    
-    if (idx !== -1) {
-      mockUsers[idx].blocked = true;
-      mockUsers[idx].negativeFeedbacksCount = 3;
-      localStorage.setItem('mock_users', JSON.stringify(mockUsers));
-      setSuccess(`Blocked farmer: ${mockUsers[idx].name}`);
-      loadAdminData();
-    }
-  };
-
   if (loading) return <LoadingSpinner />;
+  if (error) return (
+    <div className="text-center py-20">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-900/30 flex items-center justify-center">
+        <AlertTriangle size={28} className="text-red-400" />
+      </div>
+      <p className="text-emerald-200 font-semibold text-lg">Failed to load dashboard data</p>
+      <p className="text-emerald-400/50 text-sm mt-2 max-w-md mx-auto">{error}</p>
+      <p className="text-emerald-400/40 text-xs mt-3">Try logging out and logging back in</p>
+    </div>
+  );
 
-  const farmers = users.filter(u => u.role === 'farmer');
-  const customers = users.filter(u => u.role === 'customer');
-  const blockedFarmers = farmers.filter(f => f.blocked);
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+  const cards = [
+    { icon: Users, label: "Total Users", value: stats?.totalUsers || 0, color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+    { icon: UserCheck, label: "Total Farmers", value: stats?.totalFarmers || 0, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    { icon: Package, label: "Total Products", value: stats?.totalProducts || 0, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    { icon: ShoppingBag, label: "Total Orders", value: stats?.totalOrders || 0, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    { icon: IndianRupee, label: "Total Revenue", value: `₹${(stats?.totalRevenue || 0).toLocaleString()}`, color: "#059669", bg: "rgba(5,150,105,0.12)" },
+    { icon: Truck, label: "Pending Deliveries", value: stats?.pendingDeliveries || 0, color: "#f97316", bg: "rgba(249,115,22,0.12)" },
+    { icon: MapPin, label: "Pickup Orders", value: stats?.pickupOrders || 0, color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+    { icon: Home, label: "Direct Orders", value: stats?.directOrders || 0, color: "#ec4899", bg: "rgba(236,72,153,0.12)" },
+  ];
+
+  const chartData = analytics?.dailyOrderData || [];
+  const revenueData = analytics?.revenueData || [];
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload?.length) {
+      return (
+        <div className="bg-[#0a2a14] border border-emerald-800/30 rounded-xl px-4 py-3 shadow-2xl">
+          <p className="text-xs text-emerald-400/70">{label}</p>
+          <p className="text-lg font-bold text-emerald-300">{payload[0].value?.toLocaleString() || 0}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div className="space-y-6 max-w-screen-2xl mx-auto pb-12">
-      <div className="border-b border-emerald-900/60 pb-4">
-        <h2 className="text-2xl font-bold text-white flex items-center">
-          <ShieldCheck className="w-6 h-6 mr-2 text-emerald-400" />
-          Dhara Platform Administration
-        </h2>
-        <p className="text-sm text-emerald-300/70">Moderate farmer reputation indices, reset negative strikes, and track aggregates.</p>
-      </div>
-
-      {success && (
-        <div className="bg-emerald-500/10 border border-emerald-500/40 text-emerald-305 p-3.5 rounded-xl text-xs">
-          {success}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-emerald-100">Admin Dashboard</h1>
+          <p className="text-xs text-emerald-400/50 mt-1">Platform overview and analytics</p>
         </div>
-      )}
-
-      {/* Analytics stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 text-center">
-          <p className="text-2xl font-black text-white">{users.length}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-350 mt-1">Total Users</p>
-        </div>
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 text-center">
-          <p className="text-2xl font-black text-white">{farmers.length}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-350 mt-1">Active Farmers</p>
-        </div>
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 text-center">
-          <p className="text-2xl font-black text-white">{products.length}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-350 mt-1">Active Harvests</p>
-        </div>
-        <div className="bg-emerald-950/20 border border-emerald-900 rounded-2xl p-5 text-center">
-          <p className="text-2xl font-black text-emerald-400">₹{totalRevenue}</p>
-          <p className="text-[10px] uppercase font-bold text-emerald-350 mt-1">Gross Sales</p>
-        </div>
-      </div>
-
-      {/* Blocked Farmers list */}
-      <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-450 flex items-center">
-          <ShieldAlert className="w-5 h-5 mr-2 text-red-400" />
-          Blocked Merchant Moderation Queue
-        </h3>
-        
-        {blockedFarmers.length === 0 ? (
-          <p className="text-xs text-emerald-500 italic">No blocked farmers on the platform currently.</p>
-        ) : (
-          <div className="space-y-3">
-            {blockedFarmers.map(f => (
-              <div key={f.id || f._id} className="p-4 bg-red-950/10 border border-red-900/60 rounded-xl flex items-center justify-between text-xs">
-                <div>
-                  <span className="font-bold text-white block">{f.name}</span>
-                  <span className="text-[10px] text-red-400 block mt-0.5 font-mono">{f.phone} • {f.negativeFeedbacksCount} negative reviews</span>
-                </div>
-                <button 
-                  onClick={() => handleResetStrikes(f.id || f._id)}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-farmgreen-950 px-3.5 py-1.5 rounded-lg font-bold"
-                >
-                  Reset Strikes & Unblock
-                </button>
-              </div>
-            ))}
-          </div>
+        {stats?.blockedFarmers > 0 && (
+          <Link to="/admin/farmers"
+            className="flex items-center gap-2 px-4 py-2 bg-red-900/30 border border-red-800/30 rounded-xl text-xs font-bold text-red-400 hover:bg-red-900/50 transition-all"
+          >
+            <ShieldAlert size={14} /> {stats.blockedFarmers} Blocked Farmer{stats.blockedFarmers > 1 ? 's' : ''}
+          </Link>
         )}
       </div>
 
-      {/* Active Farmers list for testing block triggers */}
-      <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">All Registered Farmers</h3>
-        
-        <div className="space-y-3">
-          {farmers.filter(f => !f.blocked).map(f => (
-            <div key={f.id || f._id} className="p-3 bg-emerald-955/20 border border-emerald-900 rounded-xl flex items-center justify-between text-xs">
-              <div>
-                <span className="font-bold text-white block">{f.name}</span>
-                <span className="text-[10px] text-emerald-350 block mt-0.5">Rating: {f.rating}★ • {f.negativeFeedbacksCount || 0} / 3 Strikes</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {cards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+              className="bg-[#0a1a0e] border border-emerald-900/20 rounded-2xl p-5 hover:border-emerald-700/30 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: card.bg }}>
+                <Icon size={18} color={card.color} />
               </div>
-              
-              <button 
-                onClick={() => handleBlockFarmer(f.id || f._id)}
-                className="text-red-400 hover:text-red-300 hover:underline font-bold"
-              >
-                Force Block (Admin Override)
-              </button>
+              <p className="text-xl font-bold text-emerald-100">{card.value}</p>
+              <p className="text-[10px] text-emerald-400/50 mt-1 font-medium">{card.label}</p>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-[#0a1a0e] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-bold text-emerald-100">Daily Orders (Last 30 days)</h3>
+            {chartData.length > 0 && (
+              <span className="text-[10px] text-emerald-400/40">{chartData.length} days</span>
+            )}
+          </div>
+          {chartData.length === 0 ? (
+            <div className="text-center py-12 text-xs text-emerald-400/40">No order data yet</div>
+          ) : (
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+                  <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
+                  <YAxis tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="orders" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          ))}
+          )}
+        </div>
+
+        <div className="bg-[#0a1a0e] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-bold text-emerald-100">Revenue Trend</h3>
+          </div>
+          {revenueData.length === 0 ? (
+            <div className="text-center py-12 text-xs text-emerald-400/40">No revenue data yet</div>
+          ) : (
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+                  <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
+                  <YAxis tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="amount" stroke="#059669" strokeWidth={2} dot={{ fill: "#059669", r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Top Farmers & Products */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-[#0a1a0e] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-emerald-100">Top Farmers</h3>
+            <Link to="/admin/farmers" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
+              View All <ArrowUpRight size={12} />
+            </Link>
+          </div>
+          {analytics?.topFarmers?.length > 0 ? (
+            <div className="space-y-2">
+              {analytics.topFarmers.slice(0, 5).map((f, i) => (
+                <div key={i} className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-emerald-900/5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-emerald-500 w-4">{i + 1}</span>
+                    <span className="text-xs text-emerald-200">{f.name}</span>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-400">{f.units} sold</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-xs text-emerald-400/40">No data yet</div>
+          )}
+        </div>
+
+        <div className="bg-[#0a1a0e] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-emerald-100">Best-Selling Products</h3>
+            <Link to="/admin/products" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
+              View All <ArrowUpRight size={12} />
+            </Link>
+          </div>
+          {analytics?.topProducts?.length > 0 ? (
+            <div className="space-y-2">
+              {analytics.topProducts.slice(0, 5).map((p, i) => (
+                <div key={i} className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-emerald-900/5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-emerald-500 w-4">{i + 1}</span>
+                    <span className="text-xs text-emerald-200">{p.name}</span>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-400">{p.units} sold</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-xs text-emerald-400/40">No data yet</div>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 }

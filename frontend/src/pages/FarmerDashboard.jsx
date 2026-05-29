@@ -1,39 +1,29 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import {
+  Package, ShoppingBag, IndianRupee, Eye, Star, AlertTriangle,
+  TrendingUp, Clock, ArrowUpRight, PlusCircle, BarChart3, Truck
+} from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
-import SpeechReader from "../components/SpeechReader";
-import { t, getLanguage, onLanguageChange } from "../data/i18n";
-import {
-  IndianRupee, Package, Sprout, RefreshCw, AlertTriangle,
-  PlusCircle, Star, ShieldAlert, Clock
-} from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
 };
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
 };
 
 export default function FarmerDashboard() {
-  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const [, forceUpdate] = useState(0);
-  const lang = getLanguage();
-
-  useEffect(() => {
-    return onLanguageChange(() => forceUpdate(n => n + 1));
-  }, []);
-
+  const [stats, setStats] = useState(null);
+  const [revenue, setRevenue] = useState(null);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,15 +32,22 @@ export default function FarmerDashboard() {
     if (!user) return;
     setLoading(true);
     try {
-      const allProds = await api.products.getProducts();
-      const farmerProds = allProds.filter((p) => {
+      const [statsData, revenueData, allProds, allOrders] = await Promise.all([
+        api.farmer.getStats().catch(() => null),
+        api.farmer.getRevenue().catch(() => null),
+        api.products.getProducts().catch(() => []),
+        api.orders.getOrders().catch(() => []),
+      ]);
+
+      const farmerProds = (Array.isArray(allProds) ? allProds : []).filter((p) => {
         const fId = p.farmerId?._id || p.farmerId?.id || p.farmerId;
         return fId === user.id || fId === user._id;
       });
-      setProducts(farmerProds);
 
-      const allOrders = await api.orders.getOrders();
-      setOrders(allOrders);
+      setStats(statsData);
+      setRevenue(revenueData);
+      setProducts(farmerProds);
+      setOrders(Array.isArray(allOrders) ? allOrders : []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -58,429 +55,231 @@ export default function FarmerDashboard() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [user]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("dhara_user");
-    localStorage.removeItem("dhara_token");
-    navigate("/login");
-  };
+  useEffect(() => { loadData(); }, [user]);
 
   if (loading) return <LoadingSpinner />;
 
-  const totalEarnings = orders
-    .filter((o) => o.orderStatus === "Delivered" || o.paymentStatus === "Paid")
-    .reduce((sum, o) => {
-      const farmerItems = o.products.filter(
-        (p) => p.farmerId === user.id || p.farmerId === user._id
-      );
-      return sum + farmerItems.reduce((acc, curr) => acc + (curr.price || 0) * (curr.count || 1), 0);
-    }, 0);
-
-  const subscriptionCount = orders.filter(
-    (o) => o.subscriptionType !== "One-time" && o.orderStatus !== "Cancelled"
-  ).length;
-
+  const totalEarnings = revenue?.totalEarnings || stats?.totalEarnings || 0;
+  const monthRev = revenue?.monthlyRevenue || 0;
+  const activeOrders = stats?.activeOrders || 0;
+  const totalProducts = stats?.totalProducts || products.length;
+  const rating = stats?.rating || user?.rating || 5.0;
+  const lowStock = stats?.lowStock || 0;
   const warnings = user?.negativeFeedbacksCount || 0;
   const blocked = user?.blocked || false;
 
-  const bigCards = [
-    {
-      icon: IndianRupee, value: `₹${totalEarnings}`, labelKey: "earnings",
-      iconBg: "#EBF5EB", iconColor: "#22c55e", accent: "#22c55e"
-    },
-    {
-      icon: Package, value: orders.length, labelKey: "orders",
-      iconBg: "#EBF5EB", iconColor: "#3b82f6", accent: "#3b82f6"
-    },
-    {
-      icon: Sprout, value: products.length, labelKey: "harvest",
-      iconBg: "#EBF5EB", iconColor: "#eab308", accent: "#eab308"
-    },
-    {
-      icon: RefreshCw, value: subscriptionCount, labelKey: "subscriptions",
-      iconBg: "#EBF5EB", iconColor: "#a855f7", accent: "#a855f7"
-    },
+  const recentOrders = orders.slice(0, 5);
+
+  const chartData = revenue?.monthlyRevenueData?.length > 0
+    ? revenue.monthlyRevenueData
+    : [
+        { month: "Jan", amount: 0 }, { month: "Feb", amount: 0 }, { month: "Mar", amount: 0 },
+        { month: "Apr", amount: 0 }, { month: "May", amount: 0 }, { month: "Jun", amount: 0 },
+      ];
+
+  const statCards = [
+    { icon: Package, label: "Total Products", value: totalProducts, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    { icon: ShoppingBag, label: "Active Orders", value: activeOrders, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    { icon: IndianRupee, label: "Total Earnings", value: `₹${totalEarnings.toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    { icon: TrendingUp, label: "Monthly Revenue", value: `₹${monthRev.toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+    { icon: Eye, label: "Product Views", value: stats?.productViews || 0, color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+    { icon: Star, label: "Rating", value: `${rating} ★`, color: "#eab308", bg: "rgba(234,179,8,0.12)" },
+    { icon: BarChart3, label: "Low Stock Items", value: lowStock, color: lowStock > 0 ? "#ef4444" : "#22c55e", bg: lowStock > 0 ? "rgba(239,68,68,0.12)" : "rgba(34,197,94,0.12)" },
+    { icon: Truck, label: "Pending Deliveries", value: stats?.pendingDeliveries || 0, color: "#f97316", bg: "rgba(249,115,22,0.12)" },
   ];
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload?.length) {
+      return (
+        <div className="bg-[#1a1f1a] border border-emerald-800/30 rounded-xl px-4 py-3 shadow-2xl">
+          <p className="text-xs text-emerald-400/70 font-medium">{label}</p>
+          <p className="text-lg font-bold text-emerald-300">₹{payload[0].value?.toLocaleString() || 0}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* ─── HEADER ─── */}
-      <motion.div variants={cardVariants} className="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6">
+      {/* Header */}
+      <motion.div variants={cardVariants} className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1
-            style={{
-              fontSize: "1.75rem",
-              fontWeight: 800,
-              color: "#c09402",
-              margin: 0,
-            }}
-          >
-            🌿 {t("dashboard.title", lang)}
-          </h1>
-          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.9rem", marginTop: "6px" }}>
-            {user?.name}
-          </p>
+          <h1 className="text-2xl font-bold text-emerald-100">Dashboard Overview</h1>
+          <p className="text-xs text-emerald-400/50 mt-1">Welcome back, {user?.name} 🌿</p>
         </div>
-        <div className="flex items-center gap-2">
-          <SpeechReader
-            text={`${t("dashboard.title", lang)} - ${t("dashboard.earnings", lang)}: ${totalEarnings} rupees, ${t("dashboard.orders", lang)}: ${orders.length}, ${t("dashboard.warnings", lang)}: ${warnings}/3`}
-            lang={lang === "ml" ? "ml-IN" : lang === "hi" ? "hi-IN" : "en-IN"}
-          />
-        </div>
+        <Link
+          to="/farmer/products?action=add"
+          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30"
+        >
+          <PlusCircle size={16} />
+          Add Product
+        </Link>
       </motion.div>
 
-      {/* ─── WARNING BANNER ─── */}
+      {/* Warning Banner */}
       {(warnings > 0 || blocked) && (
-        <motion.div
-          variants={cardVariants}
-          style={{
-            background: blocked
-              ? "linear-gradient(135deg, #FFF5F5, #FFE4E4)"
-              : "linear-gradient(135deg, #FFFEF5, #FFF8E1)",
-            borderRadius: "16px",
-            padding: "1rem 1.5rem",
-          marginBottom: "1.75rem",
-            border: `1px solid ${
-              blocked ? "rgba(239,68,68,0.2)" : "rgba(234,179,8,0.2)"
-            }`,
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
+        <motion.div variants={cardVariants}
+          className={`px-5 py-4 rounded-2xl flex items-center gap-3 border ${blocked ? "bg-red-900/10 border-red-800/30" : "bg-yellow-900/10 border-yellow-800/30"}`}
         >
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              background: blocked ? "rgba(239,68,68,0.1)" : "rgba(234,179,8,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <AlertTriangle
-              size={18}
-              color={blocked ? "#ef4444" : "#eab308"}
-            />
-          </div>
+          <AlertTriangle size={20} className={blocked ? "text-red-400" : "text-yellow-400"} />
           <div>
-            <p style={{ color: blocked ? "#ef4444" : "#eab308", fontWeight: 700, fontSize: "0.85rem", margin: 0 }}>
-              {blocked
-                ? `${t("warning.blocked", lang)}!`
-                : `${t("warning.title", lang)}: ${warnings}/3`}
+            <p className={`text-sm font-bold ${blocked ? "text-red-400" : "text-yellow-400"}`}>
+              {blocked ? "Account Blocked" : `${warnings}/3 Negative Reviews`}
             </p>
-            <p style={{ color: "#666", fontSize: "0.75rem", margin: "2px 0 0" }}>
-              {blocked
-                ? "You cannot post products. Contact admin."
-                : `${warnings} severe ${warnings === 1 ? "comment" : "comments"} received. 3 will block your account.`}
+            <p className="text-xs text-emerald-400/50">
+              {blocked ? "You cannot post products. Contact admin." : `${warnings} severe comment${warnings > 1 ? "s" : ""} received. 3 will block your account.`}
             </p>
           </div>
         </motion.div>
       )}
 
-      {/* ─── STAT CARDS ─── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "1.25rem",
-          marginBottom: "1.75rem",
-        }}
-      >
-        {bigCards.map((card, i) => {
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <motion.div
-              key={i}
-              variants={cardVariants}
-              style={{
-                background: "rgba(255,255,255,0.92)",
-                borderRadius: "16px",
-                padding: "2rem",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-                position: "relative",
-                overflow: "hidden",
-              }}
+            <motion.div key={i} variants={cardVariants}
+              className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-5 hover:border-emerald-700/30 transition-all"
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  marginBottom: "12px",
-                }}
-              >
-                <div
-                  style={{
-                    width: "52px",
-                    height: "52px",
-                    borderRadius: "14px",
-                    background: card.iconBg,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Icon size={26} color={card.iconColor} />
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: card.bg }}>
+                  <Icon size={18} color={card.color} />
                 </div>
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    color: "#888",
-                  }}
-                >
-                  {t(`dashboard.${card.labelKey}`, lang)}
-                </span>
               </div>
-              <p
-                style={{
-                  fontSize: "2.2rem",
-                  fontWeight: 800,
-                  color: "#013220",
-                  margin: 0,
-                }}
-              >
-                {card.value}
-              </p>
+              <p className="text-2xl font-bold text-emerald-100">{card.value}</p>
+              <p className="text-xs text-emerald-400/50 mt-1 font-medium">{card.label}</p>
             </motion.div>
           );
         })}
       </div>
 
-      {/* ─── WARNING & RATING STATUS ─── */}
-      <motion.div
-        variants={cardVariants}
-        style={{
-          background: "rgba(255,255,255,0.92)",
-          borderRadius: "16px",
-          padding: "1rem 1.5rem",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              background: "#FFF8E1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Star size={16} color="#D4A017" fill="#D4A017" />
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Revenue Chart */}
+        <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-sm font-bold text-emerald-100">Revenue Overview</h3>
+              <p className="text-[10px] text-emerald-400/40 mt-0.5">Monthly earnings</p>
+            </div>
+            <Link to="/farmer/revenue" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
+              View All <ArrowUpRight size={12} />
+            </Link>
           </div>
-          <div>
-            <p style={{ color: "#999", fontSize: "0.7rem", fontWeight: 600, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              {t("dashboard.warnings", lang)}
-            </p>
-            <p style={{ color: "#013220", fontSize: "1rem", fontWeight: 700, margin: 0 }}>
-              {warnings}/3
-            </p>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+                <XAxis dataKey="month" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="amount" fill="#22c55e" radius={[6, 6, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", textAlign: "right" }}>
-          <div>
-            <p style={{ color: "#999", fontSize: "0.7rem", fontWeight: 600, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Rating
-            </p>
-            <p style={{ color: "#D4A017", fontSize: "1rem", fontWeight: 700, margin: 0 }}>
-              {user?.rating || 5.0}★
-            </p>
-          </div>
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              background: warnings >= 3 ? "rgba(239,68,68,0.1)" : "#EBF5EB",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ShieldAlert size={16} color={warnings >= 3 ? "#ef4444" : "#22c55e"} />
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* ─── RECENT PRODUCTS ─── */}
-      <motion.div
-        variants={cardVariants}
-        style={{
-          background: "rgba(255,255,255,0.92)",
-          borderRadius: "16px",
-          padding: "2rem",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-          marginBottom: "5rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            marginBottom: "1rem",
-          }}
-        >
-          <Clock size={16} color="#2D6A4F" />
-          <h3
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 700,
-              color: "#013220",
-              margin: 0,
-            }}
-          >
-            Recent Products
-          </h3>
-        </div>
-        {products.length === 0 ? (
-          <p style={{ color: "#999", fontSize: "0.8rem", margin: 0 }}>
-            No products added yet. Tap the "+ Add Product" button below to get started.
-          </p>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {products.slice(0, 5).map((p) => (
-              <div
-                key={p.id || p._id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "0.75rem 1rem",
-                  borderRadius: "12px",
-                  background: "#F4F6F3",
-                  fontSize: "0.85rem",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                  <div
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "8px",
-                      background: "#EBF5EB",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.75rem",
-                      fontWeight: 700,
-                      color: "#2D6A4F",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {p.title?.charAt(0) || "?"}
+        {/* Recent Orders */}
+        <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-emerald-100">Recent Orders</h3>
+              <p className="text-[10px] text-emerald-400/40 mt-0.5">Latest {recentOrders.length} orders</p>
+            </div>
+            <Link to="/farmer/orders" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
+              View All <ArrowUpRight size={12} />
+            </Link>
+          </div>
+          {recentOrders.length === 0 ? (
+            <div className="text-center py-8">
+              <ShoppingBag size={28} className="mx-auto text-emerald-700/50 mb-2" />
+              <p className="text-xs text-emerald-400/40">No orders yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {recentOrders.map((order) => (
+                <div key={order._id || order.id}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-emerald-900/10 border border-emerald-900/10"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-200">
+                      Order #{((order._id || order.id) || "").slice(-6)}
+                    </p>
+                    <p className="text-[10px] text-emerald-400/40">
+                      {order.products?.length || 0} items · ₹{order.farmerTotal || order.totalPrice || 0}
+                    </p>
                   </div>
-                  <span
-                    style={{
-                      color: "#013220",
-                      fontWeight: 600,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {p.title}
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${
+                    order.orderStatus === "Delivered" ? "bg-green-900/30 text-green-400" :
+                    order.orderStatus === "Cancelled" ? "bg-red-900/30 text-red-400" :
+                    order.orderStatus === "In Transit" ? "bg-blue-900/30 text-blue-400" :
+                    "bg-yellow-900/30 text-yellow-400"
+                  }`}>
+                    {order.orderStatus}
                   </span>
                 </div>
-                <span style={{ color: "#22c55e", fontWeight: 700, flexShrink: 0 }}>
-                  ₹{p.price}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Top Products & Low Stock */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
+          <h3 className="text-sm font-bold text-emerald-100 mb-4">Top Selling Products</h3>
+          {revenue?.topProducts?.length > 0 ? (
+            <div className="space-y-2">
+              {revenue.topProducts.slice(0, 5).map((p, i) => (
+                <div key={i} className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-emerald-900/5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-emerald-500 w-4">{i + 1}</span>
+                    <span className="text-xs text-emerald-200">{p.name}</span>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-400">{p.units} sold</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-xs text-emerald-400/40">No sales data yet</div>
+          )}
+        </motion.div>
+
+        <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-emerald-100">Low Stock Alerts</h3>
+              <p className="text-[10px] text-emerald-400/40 mt-0.5">Products running low</p>
+            </div>
+            <Link to="/farmer/inventory" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
+              Manage <ArrowUpRight size={12} />
+            </Link>
           </div>
-        )}
-        {products.length > 5 && (
-          <Link
-            to="/farmer/manage"
-            style={{
-              display: "block",
-              textAlign: "center",
-              marginTop: "1rem",
-              color: "#2D6A4F",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            View all {products.length} products
-          </Link>
-        )}
-      </motion.div>
-
-      {/* ─── FLOATING ADD PRODUCT BUTTON ─── */}
-      <Link
-        to="/farmer/add"
-        style={{
-          position: "fixed",
-          bottom: "2rem",
-          right: "2rem",
-          background: "#013220",
-          color: "white",
-          border: "none",
-          borderRadius: "16px",
-          padding: "1rem 1.5rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          fontSize: "0.9rem",
-          fontWeight: 700,
-          cursor: "pointer",
-          boxShadow: "0 8px 24px rgba(1,50,32,0.35)",
-          textDecoration: "none",
-          zIndex: 40,
-          transition: "all 0.3s ease",
-        }}
-        className="fab-button"
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#2D6A4F";
-          e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 12px 32px rgba(1,50,32,0.45)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "#013220";
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 8px 24px rgba(1,50,32,0.35)";
-        }}
-      >
-        <PlusCircle size={22} />
-        <span className="fab-label">{t("dashboard.addProduct", lang)}</span>
-      </Link>
-
-      <style>{`
-        .fab-button {
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-        @media (max-width: 480px) {
-          .fab-label {
-            display: none;
-          }
-          .fab-button {
-            padding: 1rem !important;
-            border-radius: 50% !important;
-            bottom: 1.25rem !important;
-            right: 1.25rem !important;
-          }
-        }
-      `}</style>
+          {products.filter(p => p.stock <= 5).length === 0 ? (
+            <div className="text-center py-8">
+              <Package size={28} className="mx-auto text-emerald-700/50 mb-2" />
+              <p className="text-xs text-emerald-400/40">All products well stocked</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {products.filter(p => p.stock <= 5).slice(0, 5).map((p) => (
+                <div key={p._id || p.id}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-red-900/10 border border-red-900/20"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <AlertTriangle size={14} className="text-red-400 flex-shrink-0" />
+                    <span className="text-xs text-emerald-200 truncate">{p.title}</span>
+                  </div>
+                  <span className={`text-xs font-bold ${p.stock <= 0 ? "text-red-400" : "text-yellow-400"}`}>
+                    {p.stock <= 0 ? "Out of Stock" : `${p.stock} left`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
     </motion.div>
   );
 }

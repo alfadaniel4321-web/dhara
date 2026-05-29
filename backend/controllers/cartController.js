@@ -5,7 +5,7 @@ const Product = require('../models/Product');
 exports.getCart = async (req, res) => {
   try {
     const userId = req.user.userId;
-    let cart = await Cart.findOne({ userId });
+    let cart = await Cart.findOne({ userId }).populate('products.productId');
     
     if (!cart) {
       cart = await Cart.create({ userId, products: [], totalPrice: 0 });
@@ -63,8 +63,7 @@ exports.addToCart = async (req, res) => {
 
     await cart.save();
     
-    // Fetch populated
-    const updatedCart = await Cart.findOne({ userId });
+    const updatedCart = await Cart.findOne({ userId }).populate('products.productId');
     res.json(updatedCart);
   } catch (err) {
     console.error('Add to cart error:', err);
@@ -111,7 +110,7 @@ exports.updateQuantity = async (req, res) => {
       cart.totalPrice = totalPrice;
 
       await cart.save();
-      const updatedCart = await Cart.findOne({ userId });
+      const updatedCart = await Cart.findOne({ userId }).populate('products.productId');
       return res.json(updatedCart);
     } else {
       return res.status(404).json({ message: 'Product not in cart' });
@@ -153,7 +152,7 @@ exports.removeFromCart = async (req, res) => {
     cart.totalPrice = totalPrice;
 
     await cart.save();
-    const updatedCart = await Cart.findOne({ userId });
+    const updatedCart = await Cart.findOne({ userId }).populate('products.productId');
     res.json(updatedCart);
   } catch (err) {
     console.error('Remove from cart error:', err);

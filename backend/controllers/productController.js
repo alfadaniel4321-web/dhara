@@ -1,5 +1,5 @@
 const Product = require('../models/Product');
-const User = require('../models/User');
+const Farmer = require('../models/Farmer');
 
 exports.createProduct = async (req, res) => {
   try {
@@ -10,7 +10,7 @@ exports.createProduct = async (req, res) => {
       return res.status(403).json({ message: 'Only farmers are allowed to upload products' });
     }
 
-    const farmer = await User.findById(farmerId);
+    const farmer = await Farmer.findById(farmerId);
     if (!farmer) {
       return res.status(404).json({ message: 'Farmer account not found' });
     }
@@ -46,6 +46,75 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+exports.searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || !q.trim()) {
+      return res.json([]);
+    }
+
+    const keyword = q.trim();
+    const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+    const [titleMatches, farmerMatches] = await Promise.all([
+      Product.find({
+        $or: [
+          { title: regex },
+          { category: regex },
+          { description: regex }
+        ]
+      }).lean(),
+      Farmer.find({ name: regex }).select('_id name').lean()
+    ]);
+
+    const farmerIdSet = new Set();
+    const farmerNameMap = {};
+    for (const f of farmerMatches) {
+      const id = f._id.toString();
+      farmerIdSet.add(id);
+      farmerNameMap[id] = f.name;
+    }
+
+    let farmerProductMatches = [];
+    if (farmerIdSet.size > 0) {
+      farmerProductMatches = await Product.find({
+        farmerId: { $in: [...farmerIdSet] }
+      }).lean();
+    }
+
+    const seen = new Set();
+    const combined = [];
+    for (const p of [...titleMatches, ...farmerProductMatches]) {
+      const id = p._id.toString();
+      if (!seen.has(id)) {
+        seen.add(id);
+        combined.push(p);
+      }
+    }
+
+    const blockedFarmers = new Set();
+    const allFarmerIds = [...new Set(combined.map(p => p.farmerId?.toString()).filter(Boolean))];
+    for (const fId of allFarmerIds) {
+      const farmer = await Farmer.findById(fId).select('blocked').lean();
+      if (farmer && farmer.blocked) {
+        blockedFarmers.add(fId);
+      }
+    }
+
+    let results = combined.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId.toString()));
+
+    results = results.map(p => ({
+      ...p,
+      farmerName: farmerNameMap[p.farmerId?.toString()] || ''
+    }));
+
+    res.json(results);
+  } catch (err) {
+    console.error('Search products error:', err);
+    res.status(500).json({ message: 'Server error searching products' });
+  }
+};
+
 exports.getProducts = async (req, res) => {
   try {
     const { category } = req.query;
@@ -57,15 +126,15 @@ exports.getProducts = async (req, res) => {
     const products = await Product.find(filter);
 
     const blockedFarmers = new Set();
-    const farmerIds = [...new Set(products.map(p => p.farmerId).filter(Boolean))];
+    const farmerIds = [...new Set(products.map(p => p.farmerId?.toString()).filter(Boolean))];
     for (const fId of farmerIds) {
-      const farmer = await User.findById(fId);
+      const farmer = await Farmer.findById(fId);
       if (farmer && farmer.blocked) {
         blockedFarmers.add(fId);
       }
     }
 
-    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId));
+    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId.toString()));
 
     res.json(activeProducts);
   } catch (err) {
@@ -81,7 +150,7 @@ exports.getProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    const farmer = await User.findById(product.farmerId);
+    const farmer = await Farmer.findById(product.farmerId);
     if (farmer && farmer.blocked) {
       return res.status(403).json({ message: 'Product from blocked farmer' });
     }
@@ -100,7 +169,7 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    if (req.user.role !== 'farmer' || product.farmerId !== req.user.userId) {
+    if (req.user.role !== 'farmer' || product.farmerId.toString() !== req.user.userId) {
       return res.status(403).json({ message: 'Not authorized to update this product' });
     }
 
@@ -127,7 +196,7 @@ exports.deleteProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    if (req.user.role !== 'farmer' || product.farmerId !== req.user.userId) {
+    if (req.user.role !== 'farmer' || product.farmerId.toString() !== req.user.userId) {
       return res.status(403).json({ message: 'Not authorized to delete this product' });
     }
 
@@ -154,15 +223,15 @@ exports.getNearbyProducts = async (req, res) => {
     const products = await Product.find();
 
     const blockedFarmers = new Set();
-    const farmerIds = [...new Set(products.map(p => p.farmerId).filter(Boolean))];
+    const farmerIds = [...new Set(products.map(p => p.farmerId?.toString()).filter(Boolean))];
     for (const fId of farmerIds) {
-      const farmer = await User.findById(fId);
+      const farmer = await Farmer.findById(fId);
       if (farmer && farmer.blocked) {
         blockedFarmers.add(fId);
       }
     }
 
-    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId));
+    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId.toString()));
 
     const locations = [
       'Alappuzha Hyperlocal Zone',

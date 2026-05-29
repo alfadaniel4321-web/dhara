@@ -13,6 +13,7 @@ export default function AddProduct() {
   const lang = getLanguage();
 
   const [name, setName] = useState("");
+  const [category, setCategory] = useState("Vegetables");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [harvestDate, setHarvestDate] = useState(new Date().toISOString().split("T")[0]);
@@ -59,7 +60,7 @@ export default function AddProduct() {
       await api.products.createProduct({
         title: name,
         image: uploadedImg || previewImg || getProductImage(name),
-        category: "Vegetables",
+        category,
         price: Number(price),
         quantity: quantity,
         stock: 100,
@@ -71,6 +72,7 @@ export default function AddProduct() {
       });
       setSuccess("Product added successfully!");
       setName("");
+      setCategory("Vegetables");
       setPrice("");
       setQuantity("");
       setHarvestDate(new Date().toISOString().split("T")[0]);
@@ -243,6 +245,42 @@ export default function AddProduct() {
               onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
               required
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
+              Category
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { emoji: "🥬", label: "Fresh Vegetables", id: "Vegetables" },
+                { emoji: "🍎", label: "Organic Fruits", id: "Fruits" },
+                { emoji: "🥛", label: "Farm Dairy", id: "Milk" },
+                { emoji: "🌾", label: "Rice & Grains", id: "Rice & Grains" },
+                { emoji: "🌿", label: "Fresh Herbs", id: "Fresh Herbs" },
+                { emoji: "🧂", label: "Natural Spices", id: "Natural Spices" },
+                { emoji: "🍯", label: "Honey & Jams", id: "Honey & Jams" },
+                { emoji: "🍞", label: "Bakery Products", id: "Bakery Products" },
+                { emoji: "🥜", label: "Healthy Snacks", id: "Healthy Snacks" },
+                { emoji: "🧃", label: "Farm Drinks", id: "Farm Drinks" },
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategory(cat.id)}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all"
+                  style={{
+                    background: category === cat.id ? "rgba(34,197,94,0.2)" : "rgba(0,0,0,0.2)",
+                    border: `1px solid ${category === cat.id ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.06)"}`,
+                    color: category === cat.id ? "#22c55e" : "rgba(255,255,255,0.6)",
+                  }}
+                >
+                  <span style={{ fontSize: 16 }}>{cat.emoji}</span>
+                  <span>{cat.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

@@ -78,10 +78,9 @@ export default function ProductDetails() {
     );
   }
 
-  const fName = product.farmerId?.name || 'Verified Kerala Farmer';
-  const fRating = product.farmerId?.rating || 5.0;
+  const fName = product.farmerId?.name;
+  const fRating = product.farmerId?.rating;
   const isVerified = fRating >= 4.5;
-  const discount = Math.round(product.price * 0.15);
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
@@ -105,11 +104,6 @@ export default function ProductDetails() {
               <span className="bg-emerald-500 text-farmgreen-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                 Harvested Today
               </span>
-              {discount > 0 && (
-                <span className="bg-yellow-500 text-farmgreen-950 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                  SAVE ₹{discount}
-                </span>
-              )}
             </div>
             <div className="absolute bottom-4 right-4">
               <CountdownTimer availableTime={product.availableTime} />
@@ -145,21 +139,23 @@ export default function ProductDetails() {
           </div>
 
           {/* AI Freshness Panel */}
+          {product.freshnessScore != null && (
           <div className="bg-emerald-950/40 p-4 rounded-2xl border border-emerald-900/60 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-emerald-400 font-bold flex items-center">
                 <ShieldCheck className="w-4 h-4 mr-1.5" />
-                AI Freshness score: {product.freshnessScore || 95}%
+                AI Freshness score: {product.freshnessScore}%
               </span>
               <span className="text-emerald-300 font-mono">Harvest-to-Door Proximity</span>
             </div>
             <div className="w-full bg-emerald-950 h-2 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-yellow-500 to-emerald-400 rounded-full"
-                style={{ width: `${product.freshnessScore || 95}%` }}
+                style={{ width: `${product.freshnessScore}%` }}
               />
             </div>
           </div>
+          )}
 
           {/* Quantity Selector and CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 border-t border-b border-emerald-900/60 py-6">
@@ -172,7 +168,7 @@ export default function ProductDetails() {
               </button>
               <span className="text-sm font-extrabold font-mono text-white px-4">{quantity}</span>
               <button 
-                onClick={() => setQuantity(q => Math.min(product.stock || 20, q + 1))}
+                onClick={() => setQuantity(q => Math.min(product.stock ?? 99, q + 1))}
                 className="w-10 h-10 flex items-center justify-center text-emerald-300 hover:text-white rounded-lg hover:bg-emerald-900/40 transition-colors text-lg"
               >
                 +
@@ -201,13 +197,17 @@ export default function ProductDetails() {
 
           {/* Delivery and stock status */}
           <div className="flex items-center justify-between text-xs text-emerald-300/80">
+            {product.availableTime && (
             <span className="flex items-center">
               <Clock className="w-4 h-4 mr-1 text-emerald-400" />
-              Delivery timing: {product.availableTime || 'Morning delivery'}
+              Delivery timing: {product.availableTime}
             </span>
+            )}
+            {product.stock != null && (
             <span className="font-semibold text-emerald-400">
               {product.stock > 0 ? `${product.stock} units available` : 'Out of Stock'}
             </span>
+            )}
           </div>
 
         </div>
@@ -240,14 +240,18 @@ export default function ProductDetails() {
 
           {activeTab === 'Nutrition' && (
             <div className="max-w-md bg-emerald-950/20 p-4 rounded-2xl border border-emerald-900/85 grid grid-cols-2 gap-4">
+              {product.nutrition && (
               <div>
                 <span className="block text-xs uppercase tracking-wider text-emerald-500 font-bold">Nutrition Details</span>
                 <span className="block text-sm text-white font-medium mt-1">{product.nutrition}</span>
               </div>
+              )}
+              {product.protein && (
               <div>
                 <span className="block text-xs uppercase tracking-wider text-emerald-500 font-bold">Protein Amount</span>
                 <span className="block text-sm text-white font-mono font-semibold mt-1">{product.protein}</span>
               </div>
+              )}
             </div>
           )}
 

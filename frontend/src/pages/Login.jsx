@@ -25,41 +25,17 @@ export default function Login() {
       e.preventDefault();
       dispatch(setAuthStart());
 
-      if (role === "admin") {
-        if (email === "admin@dhara.com" && password === "admin123") {
-          const adminUser = {
-            id: "admin_1",
-            _id: "admin_1",
-            name: "Dhara Admin",
-            email: "admin@dhara.com",
-            role: "admin",
-            phone: "+91 99999 88888",
-            rating: 5.0,
-            blocked: false,
-            negativeFeedbacksCount: 0,
-          };
-          dispatch(
-            setAuthSuccess({
-              user: adminUser,
-              token: `admin_token_${Date.now()}`,
-            })
-          );
-          navigate("/admin");
-        } else {
-          dispatch(setAuthFailure("Invalid admin credentials"));
-        }
-        return;
-      }
-
       try {
         const data = await api.auth.login(email, password);
         dispatch(setAuthSuccess({ user: data.user, token: data.token }));
-        navigate(data.user.role === "farmer" ? "/farmer" : "/dashboard");
+        if (data.user.role === "admin") navigate("/admin");
+        else if (data.user.role === "farmer") navigate("/farmer");
+        else navigate("/dashboard");
       } catch (err) {
         dispatch(setAuthFailure(err.message || "Login failed"));
       }
     },
-    [email, password, role, dispatch, navigate]
+    [email, password, dispatch, navigate]
   );
 
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Home, Grid, Clock, ShoppingBag, RefreshCw, Users, Package,
+  Home, Grid, Clock, ShoppingBag, Users, Package,
   Tag, Info
 } from 'lucide-react';
 
@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { icon: Grid, label: 'All Products', route: '/products' },
   { icon: Clock, label: 'Harvest Countdown', route: '/harvest-countdown' },
   { icon: ShoppingBag, label: 'Daily Orders', route: '/daily-orders' },
-  { icon: RefreshCw, label: 'Subscriptions', route: '/subscriptions' },
   { icon: Users, label: 'Farmers', route: '/farmers' },
   { icon: Package, label: 'My Orders', route: '/my-orders' },
   { icon: Tag, label: 'Offers & Deals', route: '/offers' },

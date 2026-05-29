@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  Users, Search, Star, Mail, UserPlus, ChevronRight, MapPin, Award
+  Users, Search, Star, Mail, Phone, UserPlus, ChevronRight, MapPin, Award, X, MessageCircle
 } from "lucide-react";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -9,6 +9,7 @@ export default function Farmers() {
   const [search, setSearch] = useState("");
   const [farmers, setFarmers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
 
   const loadFarmers = async () => {
     setLoading(true);
@@ -22,14 +23,13 @@ export default function Farmers() {
     }
   };
 
-  useEffect(() => {
-    loadFarmers();
-  }, []);
+  useEffect(() => { loadFarmers(); }, []);
 
   const filtered = farmers.filter(f =>
     (f.name || '').toLowerCase().includes(search.toLowerCase()) ||
-    (f.specialty || '').toLowerCase().includes(search.toLowerCase()) ||
-    (f.location || '').toLowerCase().includes(search.toLowerCase())
+    (f.village || '').toLowerCase().includes(search.toLowerCase()) ||
+    (f.district || '').toLowerCase().includes(search.toLowerCase()) ||
+    (f.description || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleFollow = (id) => {
@@ -37,6 +37,19 @@ export default function Farmers() {
   };
 
   if (loading) return <LoadingSpinner />;
+
+  const contactInfo = selectedFarmer ? (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0.75rem 1rem", background: "#F4F6F3", borderRadius: "10px" }}>
+        <Mail size={16} color="#2D6A4F" />
+        <a href={`mailto:${selectedFarmer.email}`} style={{ color: "#013220", textDecoration: "none", fontWeight: 600, fontSize: "0.9rem" }}>{selectedFarmer.email}</a>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0.75rem 1rem", background: "#F4F6F3", borderRadius: "10px" }}>
+        <Phone size={16} color="#2D6A4F" />
+        <a href={`tel:${selectedFarmer.phone}`} style={{ color: "#013220", textDecoration: "none", fontWeight: 600, fontSize: "0.9rem" }}>{selectedFarmer.phone}</a>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -59,9 +72,9 @@ export default function Farmers() {
       }}>
         <div style={{ position: "relative" }}>
           <Search size={16} color="#6A994E" style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)" }} />
-          <input type="text" placeholder="Search farmers by location (e.g. Wayanad, Idukki, Thrissur)..." value={search} onChange={e => setSearch(e.target.value)} style={{
+          <input type="text" placeholder="Search farmers by name or location..." value={search} onChange={e => setSearch(e.target.value)} style={{
             width: "100%", background: "#F4F6F3", border: "1px solid #E0EAE0", borderRadius: "999px",
-            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", color: "#000",
+            padding: "0.8rem 1rem 0.8rem 2.8rem", outline: "none", fontSize: "0.9rem", color: "#000", boxSizing: "border-box",
           }} />
         </div>
       </div>
@@ -103,34 +116,34 @@ export default function Farmers() {
                   <Star size={12} fill="#D4A017" color="#D4A017" />
                   <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#013220" }}>{f.rating || "N/A"}</span>
                 </div>
-                {f.location && (
+                {(f.village || f.district) && (
                   <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px", fontSize: "0.75rem", color: "#6A994E" }}>
-                    <MapPin size={10} /> {f.location}
+                    <MapPin size={10} /> {[f.village, f.district].filter(Boolean).join(", ")}
                   </div>
                 )}
               </div>
             </div>
 
-            <div style={{ marginBottom: "1rem" }}>
-              {f.specialty && (
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontSize: "0.75rem", fontWeight: 600, color: "#013220" }}>
-                  <Award size={14} color="#6A994E" /> {f.specialty}
-                </div>
-              )}
-            </div>
+            {f.description && (
+              <div style={{ marginBottom: "1rem", fontSize: "0.8rem", color: "#666", lineHeight: 1.5 }}>
+                {f.description}
+              </div>
+            )}
 
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button style={{
+              <button onClick={() => setSelectedFarmer(f)} style={{
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
                 background: "#013220", color: "white", border: "none", borderRadius: "10px",
                 padding: "0.65rem", cursor: "pointer", fontWeight: 700, fontSize: "0.78rem",
+                transition: "all 0.2s",
               }}>
                 <Mail size={14} /> Contact
               </button>
-              <button style={{
+              <button onClick={() => setSelectedFarmer(f)} style={{
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
                 background: "#EBF5EB", color: "#013220", border: "none", borderRadius: "10px",
                 padding: "0.65rem", cursor: "pointer", fontWeight: 700, fontSize: "0.78rem",
+                transition: "all 0.2s",
               }}>
                 View Profile <ChevronRight size={14} />
               </button>
@@ -145,6 +158,102 @@ export default function Farmers() {
           <div style={{ fontWeight: 700, color: "#013220", marginBottom: "4px" }}>No farmers found</div>
           <div style={{ fontSize: "0.85rem" }}>Try a different search term</div>
         </div>
+      )}
+
+      {selectedFarmer && (
+        <>
+          <div onClick={() => setSelectedFarmer(null)} style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 999,
+          }} />
+          <div style={{
+            position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
+            width: "90%", maxWidth: "440px", maxHeight: "85vh", overflowY: "auto",
+            background: "white", borderRadius: "20px", padding: "2rem", zIndex: 1000,
+            boxShadow: "0 24px 64px rgba(0,0,0,0.2)",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{
+                  width: "48px", height: "48px", borderRadius: "14px",
+                  background: "linear-gradient(135deg,#EBF5EB,#D5ECD5)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "1.1rem", fontWeight: 700, color: "#013220",
+                }}>
+                  {selectedFarmer.name.split(" ").map(n => n[0]).join("")}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#013220", fontSize: "1.05rem" }}>{selectedFarmer.name}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                    <Star size={12} fill="#D4A017" color="#D4A017" />
+                    <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#D4A017" }}>{selectedFarmer.rating || "N/A"}</span>
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => setSelectedFarmer(null)} style={{
+                background: "#F4F6F3", border: "none", borderRadius: "10px",
+                padding: "0.4rem", cursor: "pointer", display: "flex",
+              }}>
+                <X size={18} color="#666" />
+              </button>
+            </div>
+
+            {(selectedFarmer.village || selectedFarmer.district) && (
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "1rem", fontSize: "0.85rem", color: "#6A994E" }}>
+                <MapPin size={14} />
+                {[selectedFarmer.village, selectedFarmer.district].filter(Boolean).join(", ")}
+              </div>
+            )}
+
+            {selectedFarmer.description && (
+              <div style={{
+                background: "#F4F6F3", borderRadius: "12px", padding: "1rem",
+                fontSize: "0.85rem", color: "#444", lineHeight: 1.6, marginBottom: "1.5rem",
+              }}>
+                {selectedFarmer.description}
+              </div>
+            )}
+
+            <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
+              Contact Information
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "1.5rem" }}>
+              <a href={`mailto:${selectedFarmer.email}`} style={{
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "0.75rem 1rem", background: "#F4F6F3", borderRadius: "10px",
+                textDecoration: "none", color: "#013220", fontWeight: 600, fontSize: "0.9rem",
+              }}>
+                <Mail size={16} color="#2D6A4F" /> {selectedFarmer.email}
+              </a>
+              <a href={`tel:${selectedFarmer.phone}`} style={{
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "0.75rem 1rem", background: "#F4F6F3", borderRadius: "10px",
+                textDecoration: "none", color: "#013220", fontWeight: 600, fontSize: "0.9rem",
+              }}>
+                <Phone size={16} color="#2D6A4F" /> {selectedFarmer.phone}
+              </a>
+            </div>
+
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <a href={`mailto:${selectedFarmer.email}`} style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                background: "#013220", color: "white", border: "none", borderRadius: "10px",
+                padding: "0.75rem", cursor: "pointer", fontWeight: 700, fontSize: "0.85rem",
+                textDecoration: "none",
+              }}>
+                <Mail size={16} /> Send Email
+              </a>
+              <a href={`tel:${selectedFarmer.phone}`} style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                background: "#EBF5EB", color: "#013220", border: "none", borderRadius: "10px",
+                padding: "0.75rem", cursor: "pointer", fontWeight: 700, fontSize: "0.85rem",
+                textDecoration: "none",
+              }}>
+                <Phone size={16} /> Call
+              </a>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
