@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Menu } from "lucide-react";
 import FarmerSidebar from "../components/FarmerSidebar";
 import MobileBottomNav from "../components/MobileBottomNav";
+import LanguageSelector from "../components/LanguageSelector";
+import { t, onLanguageChange } from "../data/i18n";
 
 export default function FarmerLayout() {
   const { user } = useSelector((state) => state.auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -32,9 +36,10 @@ export default function FarmerLayout() {
             </button>
 
             <div className="flex items-center gap-3 ml-auto">
+              <LanguageSelector variant="inline" />
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-semibold text-emerald-100">{user.name}</div>
-                <div className="text-[10px] text-emerald-400/50 font-medium uppercase tracking-wider">Farmer</div>
+                <div className="text-[10px] text-emerald-400/50 font-medium uppercase tracking-wider">{t('farmerLayout.farmer')}</div>
               </div>
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-900/30">
                 {user.name?.charAt(0) || "F"}
@@ -49,8 +54,8 @@ export default function FarmerLayout() {
 
         <footer className="px-4 lg:px-8 py-4 border-t border-emerald-900/10">
           <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] text-emerald-700/40">
-            <span>© 2026 Dhara Marketplace</span>
-            <span>Farmer Admin Panel v2.0</span>
+            <span>{t('farmerLayout.copyright')}</span>
+            <span>{t('farmerLayout.version')}</span>
           </div>
         </footer>
       </div>

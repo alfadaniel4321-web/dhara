@@ -7,12 +7,13 @@ import {
 } from "lucide-react";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 const STATUS_FLOW = ["Pending", "Processing", "In Transit", "Delivered"];
 const STATUS_ACTIONS = {
-  Pending: { label: "Accept Order", next: "Processing", color: "bg-emerald-600 hover:bg-emerald-500" },
-  Processing: { label: "Mark Shipped", next: "In Transit", color: "bg-blue-600 hover:bg-blue-500" },
-  "In Transit": { label: "Mark Delivered", next: "Delivered", color: "bg-green-600 hover:bg-green-500" },
+  Pending: { label: () => t('farmerOrders.acceptOrder'), next: "Processing", color: "bg-emerald-600 hover:bg-emerald-500" },
+  Processing: { label: () => t('farmerOrders.markShipped'), next: "In Transit", color: "bg-blue-600 hover:bg-blue-500" },
+  "In Transit": { label: () => t('farmerOrders.markDelivered'), next: "Delivered", color: "bg-green-600 hover:bg-green-500" },
 };
 
 export default function FarmerOrders() {
@@ -20,6 +21,8 @@ export default function FarmerOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -87,8 +90,8 @@ export default function FarmerOrders() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-emerald-100">Orders</h1>
-        <p className="text-xs text-emerald-400/50 mt-1">{orders.length} total orders</p>
+        <h1 className="text-2xl font-bold text-emerald-100">{t('farmerOrders.title')}</h1>
+        <p className="text-xs text-emerald-400/50 mt-1">{t('farmerOrders.totalOrders').replace('{count}', orders.length)}</p>
       </div>
 
       {/* Status Tabs */}
@@ -101,7 +104,7 @@ export default function FarmerOrders() {
                 : "bg-emerald-900/10 text-emerald-400/60 border border-transparent hover:bg-emerald-900/20"
             }`}
           >
-            {key} ({count})
+            {({ All: t('farmerOrders.status.all'), Pending: t('farmerOrders.status.pending'), Processing: t('farmerOrders.status.processing'), "In Transit": t('farmerOrders.status.inTransit'), Delivered: t('farmerOrders.status.delivered'), Cancelled: t('farmerOrders.status.cancelled') })[key] || key} ({count})
           </button>
         ))}
       </div>
@@ -110,7 +113,7 @@ export default function FarmerOrders() {
       <div className="relative max-w-md">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/40" />
         <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search by order ID or product..."
+          placeholder={t('farmerOrders.search')}
           className="w-full pl-10 pr-4 py-2.5 bg-[#111811] border border-emerald-900/30 rounded-xl text-sm text-emerald-100 placeholder-emerald-600/40 outline-none focus:border-emerald-600/50"
         />
       </div>
@@ -118,7 +121,7 @@ export default function FarmerOrders() {
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-[#111811] border border-emerald-900/20 rounded-2xl">
           <ShoppingBag size={40} className="mx-auto text-emerald-700/40 mb-3" />
-          <p className="text-sm text-emerald-400/60 font-medium">No orders found</p>
+          <p className="text-sm text-emerald-400/60 font-medium">{t('farmerOrders.noOrdersFound')}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -143,10 +146,10 @@ export default function FarmerOrders() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-emerald-100">
-                        Order #{((order._id || order.id) || "").slice(-8)}
+                        {t('farmerOrders.orderHash')}{((order._id || order.id) || "").slice(-8)}
                       </p>
                       <p className="text-[10px] text-emerald-400/50">
-                        {order.products?.length || 0} items · ₹{order.farmerTotal || order.totalPrice || 0}
+                        {order.products?.length || 0} {t('farmerOrders.items')} · ₹{order.farmerTotal || order.totalPrice || 0}
                       </p>
                     </div>
                   </div>
@@ -158,12 +161,12 @@ export default function FarmerOrders() {
                       order.orderStatus === "Processing" ? "bg-purple-900/30 text-purple-400" :
                       "bg-yellow-900/30 text-yellow-400"
                     }`}>
-                      {order.orderStatus}
+                      {({ Pending: t('farmerOrders.status.pending'), Processing: t('farmerOrders.status.processing'), "In Transit": t('farmerOrders.status.inTransit'), Delivered: t('farmerOrders.status.delivered'), Cancelled: t('farmerOrders.status.cancelled') })[order.orderStatus] || order.orderStatus}
                     </span>
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${
                       order.paymentStatus === "Paid" ? "bg-green-900/30 text-green-400" : "bg-yellow-900/30 text-yellow-400"
                     }`}>
-                      {order.paymentStatus || "Pending"}
+                      {order.paymentStatus === "Paid" ? t('farmerOrders.payment.paid') : t('farmerOrders.payment.pending')}
                     </span>
                   </div>
                 </div>
@@ -171,19 +174,19 @@ export default function FarmerOrders() {
                 {/* Customer Info */}
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-emerald-900/5 rounded-xl p-3">
                   <div>
-                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">Customer</p>
+                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">{t('farmerOrders.customer')}</p>
                     <p className="text-xs text-emerald-200 font-semibold mt-0.5">{order.customerName || `Customer #${((order.customerId?._id || order.customerId || "") + "").slice(-4)}`}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">Items</p>
-                    <p className="text-xs text-emerald-200 font-semibold mt-0.5">{order.farmerItems?.length || order.products?.length || 0} products</p>
+                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">{t('farmerOrders.items')}</p>
+                    <p className="text-xs text-emerald-200 font-semibold mt-0.5">{order.farmerItems?.length || order.products?.length || 0} {t('farmerOrders.products')}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">Delivery</p>
+                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">{t('farmerOrders.delivery')}</p>
                     <p className="text-xs text-emerald-200 font-semibold mt-0.5">{order.deliveryTime || "Morning"}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">Date</p>
+                    <p className="text-[9px] text-emerald-400/40 uppercase tracking-wider">{t('farmerOrders.date')}</p>
                     <p className="text-xs text-emerald-200 font-semibold mt-0.5">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
@@ -197,7 +200,7 @@ export default function FarmerOrders() {
                 ))}
                 {(order.farmerItems || order.products).length > 3 && (
                   <p className="mt-1 text-[10px] text-emerald-400/40 text-center">
-                    +{(order.farmerItems || order.products).length - 3} more items
+                    {t('farmerOrders.moreItems').replace('{count}', (order.farmerItems || order.products).length - 3)}
                   </p>
                 )}
 
@@ -207,20 +210,20 @@ export default function FarmerOrders() {
                     <button onClick={() => updateStatus(order._id || order.id, canAct.next)}
                       className={`px-4 py-2 rounded-xl text-xs font-bold text-white transition-all ${canAct.color}`}
                     >
-                      {canAct.label}
+                      {canAct.label()}
                     </button>
                   )}
                   {order.orderStatus === "Pending" && (
                     <button onClick={() => rejectOrder(order._id || order.id)}
                       className="px-4 py-2 rounded-xl text-xs font-bold text-red-400 bg-red-900/20 hover:bg-red-900/40 transition-all"
                     >
-                      Reject
+                      {t('farmerOrders.reject')}
                     </button>
                   )}
                   <button onClick={() => setSelectedOrder(selectedOrder === (order._id || order.id) ? null : (order._id || order.id))}
                     className="px-4 py-2 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-900/10 hover:bg-emerald-900/20 transition-all flex items-center gap-1.5"
                   >
-                    <Eye size={14} /> Details
+                    <Eye size={14} /> {t('farmerOrders.details')}
                   </button>
                 </div>
               </motion.div>

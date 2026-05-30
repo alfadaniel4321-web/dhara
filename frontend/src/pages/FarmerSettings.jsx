@@ -5,10 +5,13 @@ import { Settings, User, MapPin, Phone, Mail, FileText, Save, CheckCircle, Alert
 import { api } from "../services/api";
 import { updateUser } from "../redux/slices/authSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 export default function FarmerSettings() {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
 
   const [form, setForm] = useState({
     name: "", phone: "", address: "", village: "", district: "", description: "",
@@ -47,10 +50,10 @@ export default function FarmerSettings() {
         const updatedUser = { ...user, ...form };
         localStorage.setItem("dhara_user", JSON.stringify(updatedUser));
         dispatch(updateUser(updatedUser));
-        setSuccess("Profile updated successfully!");
+        setSuccess(t('farmerSettings.profileUpdated'));
       }
     } catch (err) {
-      setError(err.message || "Failed to update profile");
+      setError(err.message || t('farmerSettings.updateFailed'));
     } finally {
       setSaving(false);
     }
@@ -59,12 +62,12 @@ export default function FarmerSettings() {
   if (loading) return <LoadingSpinner />;
 
   const fields = [
-    { key: "name", icon: User, label: "Farm Name", placeholder: "Your farm name" },
-    { key: "phone", icon: Phone, label: "Phone Number", placeholder: "+91 9XXXXXXXXX", type: "tel" },
-    { key: "address", icon: MapPin, label: "Address", placeholder: "Full address" },
-    { key: "village", icon: MapPin, label: "Village", placeholder: "Village name" },
-    { key: "district", icon: MapPin, label: "District", placeholder: "District" },
-    { key: "description", icon: FileText, label: "Farm Description", placeholder: "Describe your farm...", textarea: true },
+    { key: "name", icon: User, label: t('farmerSettings.farmName'), placeholder: t('farmerSettings.placeholders.farmName') },
+    { key: "phone", icon: Phone, label: t('farmerSettings.phoneNumber'), placeholder: t('farmerSettings.placeholders.phone'), type: "tel" },
+    { key: "address", icon: MapPin, label: t('farmerSettings.address'), placeholder: t('farmerSettings.placeholders.address') },
+    { key: "village", icon: MapPin, label: t('farmerSettings.village'), placeholder: t('farmerSettings.placeholders.village') },
+    { key: "district", icon: MapPin, label: t('farmerSettings.district'), placeholder: t('farmerSettings.placeholders.district') },
+    { key: "description", icon: FileText, label: t('farmerSettings.farmDescription'), placeholder: t('farmerSettings.placeholders.description'), textarea: true },
   ];
 
   return (
@@ -74,8 +77,8 @@ export default function FarmerSettings() {
           <Settings size={24} className="text-emerald-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-emerald-100">Farm Settings</h1>
-          <p className="text-xs text-emerald-400/50 mt-0.5">Manage your farm profile and contact information</p>
+          <h1 className="text-2xl font-bold text-emerald-100">{t('farmerSettings.title')}</h1>
+          <p className="text-xs text-emerald-400/50 mt-0.5">{t('farmerSettings.subtitle')}</p>
         </div>
       </div>
 
@@ -115,25 +118,25 @@ export default function FarmerSettings() {
             className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-900/30"
           >
             <Save size={16} />
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t('farmerSettings.saving') : t('farmerSettings.saveChanges')}
           </button>
         </div>
       </form>
 
       {/* Account Info */}
       <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-emerald-100 mb-3">Account Information</h3>
+        <h3 className="text-sm font-bold text-emerald-100 mb-3">{t('farmerSettings.accountInformation')}</h3>
         <div className="space-y-2 text-xs">
           <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-900/5">
-            <span className="text-emerald-400/60">Email</span>
+            <span className="text-emerald-400/60">{t('farmerSettings.email')}</span>
             <span className="text-emerald-200 font-medium">{user?.email}</span>
           </div>
           <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-900/5">
-            <span className="text-emerald-400/60">Account Type</span>
+            <span className="text-emerald-400/60">{t('farmerSettings.accountType')}</span>
             <span className="text-emerald-200 font-medium capitalize">{user?.role}</span>
           </div>
           <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-900/5">
-            <span className="text-emerald-400/60">Rating</span>
+            <span className="text-emerald-400/60">{t('farmerSettings.rating')}</span>
             <span className="text-yellow-400 font-bold">{user?.rating || 5.0} ★</span>
           </div>
         </div>

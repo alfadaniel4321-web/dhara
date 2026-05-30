@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4"];
 
@@ -18,6 +19,8 @@ export default function FarmerRevenue() {
   const { user } = useSelector((state) => state.auth);
   const [revenue, setRevenue] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
 
   useEffect(() => {
     const load = async () => {
@@ -37,14 +40,14 @@ export default function FarmerRevenue() {
 
   if (loading) return <LoadingSpinner />;
   if (!revenue) return (
-    <div className="text-center py-16 text-emerald-400/50 text-sm">Unable to load revenue data</div>
+    <div className="text-center py-16 text-emerald-400/50 text-sm">{t('farmerRevenue.unableToLoad')}</div>
   );
 
   const summaryCards = [
-    { icon: IndianRupee, label: "Total Earnings", value: `₹${(revenue.totalEarnings || 0).toLocaleString()}`, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-    { icon: TrendingUp, label: "Weekly Revenue", value: `₹${(revenue.weeklyRevenue || 0).toLocaleString()}`, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    { icon: Calendar, label: "Monthly Revenue", value: `₹${(revenue.monthlyRevenue || 0).toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    { icon: Wallet, label: "Pending Payouts", value: `₹${(revenue.pendingPayouts || 0).toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+    { icon: IndianRupee, label: t('farmerRevenue.totalEarnings'), value: `₹${(revenue.totalEarnings || 0).toLocaleString()}`, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    { icon: TrendingUp, label: t('farmerRevenue.weeklyRevenue'), value: `₹${(revenue.weeklyRevenue || 0).toLocaleString()}`, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    { icon: Calendar, label: t('farmerRevenue.monthlyRevenue'), value: `₹${(revenue.monthlyRevenue || 0).toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    { icon: Wallet, label: t('farmerRevenue.pendingPayouts'), value: `₹${(revenue.pendingPayouts || 0).toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
   ];
 
   const chartData = revenue.monthlyRevenueData?.length > 0 ? revenue.monthlyRevenueData : [];
@@ -70,8 +73,8 @@ export default function FarmerRevenue() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-emerald-100">Revenue & Earnings</h1>
-        <p className="text-xs text-emerald-400/50 mt-1">Financial overview of your farm business</p>
+        <h1 className="text-2xl font-bold text-emerald-100">{t('farmerRevenue.title')}</h1>
+        <p className="text-xs text-emerald-400/50 mt-1">{t('farmerRevenue.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -96,10 +99,10 @@ export default function FarmerRevenue() {
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-6">
             <BarChart3 size={16} className="text-emerald-400" />
-            <h3 className="text-sm font-bold text-emerald-100">Monthly Revenue</h3>
+            <h3 className="text-sm font-bold text-emerald-100">{t('farmerRevenue.monthlyRevenueChart')}</h3>
           </div>
           {chartData.length === 0 ? (
-            <div className="text-center py-12 text-xs text-emerald-400/40">No revenue data yet</div>
+            <div className="text-center py-12 text-xs text-emerald-400/40">{t('farmerRevenue.noRevenueData')}</div>
           ) : (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
@@ -119,10 +122,10 @@ export default function FarmerRevenue() {
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp size={16} className="text-emerald-400" />
-            <h3 className="text-sm font-bold text-emerald-100">Top Selling Products</h3>
+            <h3 className="text-sm font-bold text-emerald-100">{t('farmerRevenue.topSellingProducts')}</h3>
           </div>
           {pieData.length === 0 ? (
-            <div className="text-center py-12 text-xs text-emerald-400/40">No sales data yet</div>
+            <div className="text-center py-12 text-xs text-emerald-400/40">{t('farmerRevenue.noSalesData')}</div>
           ) : (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
@@ -149,15 +152,15 @@ export default function FarmerRevenue() {
 
       {/* Top Products Table */}
       <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
-        <h3 className="text-sm font-bold text-emerald-100 mb-4">Product Sales Breakdown</h3>
+        <h3 className="text-sm font-bold text-emerald-100 mb-4">{t('farmerRevenue.productSalesBreakdown')}</h3>
         {revenue.topProducts?.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="text-emerald-400/60 uppercase tracking-wider border-b border-emerald-900/20">
-                  <th className="pb-3 font-semibold">#</th>
-                  <th className="pb-3 font-semibold">Product</th>
-                  <th className="pb-3 font-semibold text-right">Units Sold</th>
+                  <th className="pb-3 font-semibold">{t('farmerRevenue.num')}</th>
+                  <th className="pb-3 font-semibold">{t('farmerRevenue.product')}</th>
+                  <th className="pb-3 font-semibold text-right">{t('farmerRevenue.unitsSold')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-emerald-900/10">
@@ -172,7 +175,7 @@ export default function FarmerRevenue() {
             </table>
           </div>
         ) : (
-          <div className="text-center py-8 text-xs text-emerald-400/40">No products sold yet</div>
+          <div className="text-center py-8 text-xs text-emerald-400/40">{t('farmerRevenue.noProductsSold')}</div>
         )}
       </div>
     </motion.div>

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 export default function FarmerProducts() {
   const { user } = useSelector((state) => state.auth);
@@ -15,6 +16,8 @@ export default function FarmerProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
   const [viewMode, setViewMode] = useState("grid");
   const [page, setPage] = useState(1);
   const [editingId, setEditingId] = useState(null);
@@ -65,7 +68,7 @@ export default function FarmerProducts() {
     setSuccess("");
     try {
       await api.products.updateProduct(id, editData);
-      setSuccess("Product updated!");
+      setSuccess(t('farmerProducts.productUpdated'));
       setEditingId(null);
       loadProducts();
     } catch (err) {
@@ -76,7 +79,7 @@ export default function FarmerProducts() {
   const handleDelete = async (id) => {
     try {
       await api.products.deleteProduct(id);
-      setSuccess("Product deleted.");
+      setSuccess(t('farmerProducts.productDeleted'));
       setDeleteConfirm(null);
       loadProducts();
     } catch (err) {
@@ -91,15 +94,15 @@ export default function FarmerProducts() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-emerald-100">Products</h1>
-          <p className="text-xs text-emerald-400/50 mt-1">{products.length} total products</p>
+          <h1 className="text-2xl font-bold text-emerald-100">{t('farmerProducts.title')}</h1>
+          <p className="text-xs text-emerald-400/50 mt-1">{t('farmerProducts.totalProducts').replace('{count}', products.length)}</p>
         </div>
         <Link
           to="/farmer/add"
           className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30"
         >
           <PlusCircle size={16} />
-          Add Product
+          {t('farmerProducts.addProduct')}
         </Link>
       </div>
 
@@ -115,7 +118,7 @@ export default function FarmerProducts() {
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/40" />
           <input
             type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Search products..."
+            placeholder={t('farmerProducts.searchProducts')}
             className="w-full pl-10 pr-4 py-2.5 bg-[#111811] border border-emerald-900/30 rounded-xl text-sm text-emerald-100 placeholder-emerald-600/40 outline-none focus:border-emerald-600/50 transition-all"
           />
         </div>
@@ -132,9 +135,9 @@ export default function FarmerProducts() {
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-[#111811] border border-emerald-900/20 rounded-2xl">
           <Package size={40} className="mx-auto text-emerald-700/40 mb-3" />
-          <p className="text-sm text-emerald-400/60 font-medium">No products found</p>
+          <p className="text-sm text-emerald-400/60 font-medium">{t('farmerProducts.noProductsFound')}</p>
           <Link to="/farmer/add" className="inline-flex items-center gap-1.5 mt-3 text-xs text-emerald-500 hover:text-emerald-400">
-            <PlusCircle size={14} /> Add your first product
+            <PlusCircle size={14} /> {t('farmerProducts.addYourFirst')}
           </Link>
         </div>
       ) : viewMode === "grid" ? (
@@ -163,7 +166,7 @@ export default function FarmerProducts() {
                   </div>
                   {p.stock <= 5 && (
                     <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-lg text-[9px] font-bold ${p.stock <= 0 ? "bg-red-600 text-white" : "bg-yellow-600 text-white"}`}>
-                      {p.stock <= 0 ? "Out of Stock" : `${p.stock} left`}
+                      {p.stock <= 0 ? t('farmerProducts.outOfStock') : `${p.stock} ${t('farmerProducts.left')}`}
                     </div>
                   )}
                 </div>
@@ -174,24 +177,24 @@ export default function FarmerProducts() {
                         className="w-full px-2.5 py-1.5 bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-xs text-emerald-100 outline-none" />
                       <div className="flex gap-2">
                         <input value={editData.price} onChange={e => setEditData(d => ({ ...d, price: e.target.value }))}
-                          className="w-1/2 px-2.5 py-1.5 bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-xs text-emerald-100 outline-none" placeholder="Price" />
+                          className="w-1/2 px-2.5 py-1.5 bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-xs text-emerald-100 outline-none" placeholder={t('farmerProducts.price')} />
                         <input value={editData.stock} onChange={e => setEditData(d => ({ ...d, stock: e.target.value }))}
-                          className="w-1/2 px-2.5 py-1.5 bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-xs text-emerald-100 outline-none" placeholder="Stock" />
+                          className="w-1/2 px-2.5 py-1.5 bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-xs text-emerald-100 outline-none" placeholder={t('farmerProducts.stock')} />
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => saveEdit(p._id || p.id)}
                           className="flex-1 py-1.5 bg-emerald-600 rounded-lg text-[10px] font-bold text-white"
-                        >Save</button>
+                          >{t('farmerProducts.save')}</button>
                         <button onClick={() => setEditingId(null)}
                           className="py-1.5 px-3 bg-emerald-900/30 rounded-lg text-[10px] text-emerald-400"
-                        >Cancel</button>
+                        >{t('farmerProducts.cancel')}</button>
                       </div>
                     </div>
                   ) : (
                     <>
                       <p className="text-[10px] font-medium text-emerald-500 uppercase tracking-wider mb-0.5">{p.category}</p>
                       <h3 className="text-sm font-bold text-emerald-100 truncate">{p.title}</h3>
-                      <p className="text-[10px] text-emerald-400/50 mt-0.5">Stock: {p.stock ?? "N/A"} · ₹{p.price}</p>
+                      <p className="text-[10px] text-emerald-400/50 mt-0.5">{t('farmerProducts.stock')}: {p.stock ?? "N/A"} · ₹{p.price}</p>
                     </>
                   )}
                 </div>
@@ -204,11 +207,11 @@ export default function FarmerProducts() {
           <table className="w-full text-left text-xs responsive-table">
             <thead>
               <tr className="border-b border-emerald-900/30 text-emerald-400/60 uppercase tracking-wider">
-                <th className="p-4 font-semibold">Product</th>
-                <th className="p-4 font-semibold hidden md:table-cell">Category</th>
-                <th className="p-4 font-semibold">Price</th>
-                <th className="p-4 font-semibold">Stock</th>
-                <th className="p-4 font-semibold text-right">Actions</th>
+                <th className="p-4 font-semibold">{t('farmerProducts.product')}</th>
+                <th className="p-4 font-semibold hidden md:table-cell">{t('farmerProducts.category')}</th>
+                <th className="p-4 font-semibold">{t('farmerProducts.price')}</th>
+                <th className="p-4 font-semibold">{t('farmerProducts.stock')}</th>
+                <th className="p-4 font-semibold text-right">{t('farmerProducts.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-emerald-900/10">
@@ -266,15 +269,15 @@ export default function FarmerProducts() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-[#111811] border border-emerald-900/30 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
             <AlertTriangle size={32} className="mx-auto text-red-400 mb-3" />
-            <h3 className="text-lg font-bold text-emerald-100 text-center mb-2">Delete Product?</h3>
-            <p className="text-xs text-emerald-400/60 text-center mb-5">This action cannot be undone.</p>
+            <h3 className="text-lg font-bold text-emerald-100 text-center mb-2">{t('farmerProducts.deleteProduct')}</h3>
+            <p className="text-xs text-emerald-400/60 text-center mb-5">{t('farmerProducts.cannotUndo')}</p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)}
                 className="flex-1 py-2.5 bg-emerald-900/30 hover:bg-emerald-900/50 rounded-xl text-sm font-semibold text-emerald-300 transition-all"
-              >Cancel</button>
+              >{t('farmerProducts.cancel')}</button>
               <button onClick={() => handleDelete(deleteConfirm)}
                 className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 rounded-xl text-sm font-bold text-white transition-all"
-              >Delete</button>
+              >{t('farmerProducts.delete')}</button>
             </div>
           </div>
         </div>

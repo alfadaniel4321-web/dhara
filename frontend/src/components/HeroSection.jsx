@@ -97,37 +97,8 @@ export default function HeroSection() {
             onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.borderColor = '#D4A017'; }}
             onMouseLeave={e => { e.currentTarget.style.background = '#1B4332'; e.currentTarget.style.borderColor = 'rgba(245,243,231,0.15)'; }}
           >
-            Shop now
+            Sign in
             <ArrowRight size={14} />
-          </Link>
-
-          <Link
-            to="/signup?role=farmer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              fontFamily: '"Courier New", monospace',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#A3C87A',
-              textDecoration: 'none',
-              padding: '0.9rem 0',
-              borderBottom: '1px solid rgba(163, 200, 122, 0.3)',
-              cursor: 'pointer',
-              transition: 'color 0.3s ease, border-color 0.3s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.color = '#D4A017';
-              e.currentTarget.style.borderBottomColor = '#D4A017';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color = '#A3C87A';
-              e.currentTarget.style.borderBottomColor = 'rgba(163, 200, 122, 0.3)';
-            }}
-          >
-            Sign in farmer
           </Link>
         </div>
       </div>

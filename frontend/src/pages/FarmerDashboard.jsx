@@ -9,6 +9,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -27,6 +28,8 @@ export default function FarmerDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
 
   const loadData = async () => {
     if (!user) return;
@@ -78,14 +81,14 @@ export default function FarmerDashboard() {
       ];
 
   const statCards = [
-    { icon: Package, label: "Total Products", value: totalProducts, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-    { icon: ShoppingBag, label: "Active Orders", value: activeOrders, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    { icon: IndianRupee, label: "Total Earnings", value: `₹${totalEarnings.toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    { icon: TrendingUp, label: "Monthly Revenue", value: `₹${monthRev.toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
-    { icon: Eye, label: "Product Views", value: stats?.productViews || 0, color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
-    { icon: Star, label: "Rating", value: `${rating} ★`, color: "#eab308", bg: "rgba(234,179,8,0.12)" },
-    { icon: BarChart3, label: "Low Stock Items", value: lowStock, color: lowStock > 0 ? "#ef4444" : "#22c55e", bg: lowStock > 0 ? "rgba(239,68,68,0.12)" : "rgba(34,197,94,0.12)" },
-    { icon: Truck, label: "Pending Deliveries", value: stats?.pendingDeliveries || 0, color: "#f97316", bg: "rgba(249,115,22,0.12)" },
+    { icon: Package, label: t('farmerDashboard.totalProducts'), value: totalProducts, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    { icon: ShoppingBag, label: t('farmerDashboard.activeOrders'), value: activeOrders, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    { icon: IndianRupee, label: t('farmerDashboard.totalEarnings'), value: `₹${totalEarnings.toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    { icon: TrendingUp, label: t('farmerDashboard.monthlyRevenue'), value: `₹${monthRev.toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+    { icon: Eye, label: t('farmerDashboard.productViews'), value: stats?.productViews || 0, color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+    { icon: Star, label: t('farmerDashboard.rating'), value: `${rating} ★`, color: "#eab308", bg: "rgba(234,179,8,0.12)" },
+    { icon: BarChart3, label: t('farmerDashboard.lowStockItems'), value: lowStock, color: lowStock > 0 ? "#ef4444" : "#22c55e", bg: lowStock > 0 ? "rgba(239,68,68,0.12)" : "rgba(34,197,94,0.12)" },
+    { icon: Truck, label: t('farmerDashboard.pendingDeliveries'), value: stats?.pendingDeliveries || 0, color: "#f97316", bg: "rgba(249,115,22,0.12)" },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -105,15 +108,15 @@ export default function FarmerDashboard() {
       {/* Header */}
       <motion.div variants={cardVariants} className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-emerald-100">Dashboard Overview</h1>
-          <p className="text-xs text-emerald-400/50 mt-1">Welcome back, {user?.name} 🌿</p>
+          <h1 className="text-2xl font-bold text-emerald-100">{t('farmerDashboard.title')}</h1>
+          <p className="text-xs text-emerald-400/50 mt-1">{t('farmerDashboard.welcomeBack')}, {user?.name} 🌿</p>
         </div>
         <Link
           to="/farmer/products?action=add"
           className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30"
         >
           <PlusCircle size={16} />
-          Add Product
+          {t('farmerDashboard.addProduct')}
         </Link>
       </motion.div>
 
@@ -125,10 +128,10 @@ export default function FarmerDashboard() {
           <AlertTriangle size={20} className={blocked ? "text-red-400" : "text-yellow-400"} />
           <div>
             <p className={`text-sm font-bold ${blocked ? "text-red-400" : "text-yellow-400"}`}>
-              {blocked ? "Account Blocked" : `${warnings}/3 Negative Reviews`}
+              {blocked ? t('farmerDashboard.accountBlocked') : t('farmerDashboard.negativeReviews').replace('{count}', warnings)}
             </p>
             <p className="text-xs text-emerald-400/50">
-              {blocked ? "You cannot post products. Contact admin." : `${warnings} severe comment${warnings > 1 ? "s" : ""} received. 3 will block your account.`}
+              {blocked ? t('farmerDashboard.blockedDesc') : t('farmerDashboard.negativeReviewDesc').replace('{count}', warnings).replace('{plural}', warnings > 1 ? "s" : "")}
             </p>
           </div>
         </motion.div>
@@ -160,11 +163,11 @@ export default function FarmerDashboard() {
         <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-bold text-emerald-100">Revenue Overview</h3>
-              <p className="text-[10px] text-emerald-400/40 mt-0.5">Monthly earnings</p>
+              <h3 className="text-sm font-bold text-emerald-100">{t('farmerDashboard.revenueOverview')}</h3>
+              <p className="text-[10px] text-emerald-400/40 mt-0.5">{t('farmerDashboard.monthlyEarnings')}</p>
             </div>
             <Link to="/farmer/revenue" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
-              View All <ArrowUpRight size={12} />
+              {t('farmerDashboard.viewAll')} <ArrowUpRight size={12} />
             </Link>
           </div>
           <div className="h-56">
@@ -184,17 +187,17 @@ export default function FarmerDashboard() {
         <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-emerald-100">Recent Orders</h3>
-              <p className="text-[10px] text-emerald-400/40 mt-0.5">Latest {recentOrders.length} orders</p>
+              <h3 className="text-sm font-bold text-emerald-100">{t('farmerDashboard.recentOrders')}</h3>
+              <p className="text-[10px] text-emerald-400/40 mt-0.5">{t('farmerDashboard.latestOrders').replace('{count}', recentOrders.length)}</p>
             </div>
             <Link to="/farmer/orders" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
-              View All <ArrowUpRight size={12} />
+              {t('farmerDashboard.viewAll')} <ArrowUpRight size={12} />
             </Link>
           </div>
           {recentOrders.length === 0 ? (
             <div className="text-center py-8">
               <ShoppingBag size={28} className="mx-auto text-emerald-700/50 mb-2" />
-              <p className="text-xs text-emerald-400/40">No orders yet</p>
+              <p className="text-xs text-emerald-400/40">{t('farmerDashboard.noOrdersYet')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -204,10 +207,10 @@ export default function FarmerDashboard() {
                 >
                   <div>
                     <p className="text-xs font-semibold text-emerald-200">
-                      Order #{((order._id || order.id) || "").slice(-6)}
+                      {t('farmerDashboard.orderHash')}{((order._id || order.id) || "").slice(-6)}
                     </p>
                     <p className="text-[10px] text-emerald-400/40">
-                      {order.products?.length || 0} items · ₹{order.farmerTotal || order.totalPrice || 0}
+                      {order.products?.length || 0} {t('farmerDashboard.items')} · ₹{order.farmerTotal || order.totalPrice || 0}
                     </p>
                   </div>
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${
@@ -228,7 +231,7 @@ export default function FarmerDashboard() {
       {/* Top Products & Low Stock */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
-          <h3 className="text-sm font-bold text-emerald-100 mb-4">Top Selling Products</h3>
+          <h3 className="text-sm font-bold text-emerald-100 mb-4">{t('farmerDashboard.topSellingProducts')}</h3>
           {revenue?.topProducts?.length > 0 ? (
             <div className="space-y-2">
               {revenue.topProducts.slice(0, 5).map((p, i) => (
@@ -237,29 +240,29 @@ export default function FarmerDashboard() {
                     <span className="text-[10px] font-bold text-emerald-500 w-4">{i + 1}</span>
                     <span className="text-xs text-emerald-200">{p.name}</span>
                   </div>
-                  <span className="text-xs font-bold text-emerald-400">{p.units} sold</span>
+                    <span className="text-xs font-bold text-emerald-400">{p.units} {t('farmerDashboard.sold')}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-xs text-emerald-400/40">No sales data yet</div>
+            <div className="text-center py-8 text-xs text-emerald-400/40">{t('farmerDashboard.noSalesData')}</div>
           )}
         </motion.div>
 
         <motion.div variants={cardVariants} className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-emerald-100">Low Stock Alerts</h3>
-              <p className="text-[10px] text-emerald-400/40 mt-0.5">Products running low</p>
+              <h3 className="text-sm font-bold text-emerald-100">{t('farmerDashboard.lowStockAlerts')}</h3>
+              <p className="text-[10px] text-emerald-400/40 mt-0.5">{t('farmerDashboard.productsRunningLow')}</p>
             </div>
             <Link to="/farmer/inventory" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
-              Manage <ArrowUpRight size={12} />
+              {t('farmerDashboard.manage')} <ArrowUpRight size={12} />
             </Link>
           </div>
           {products.filter(p => p.stock <= 5).length === 0 ? (
             <div className="text-center py-8">
               <Package size={28} className="mx-auto text-emerald-700/50 mb-2" />
-              <p className="text-xs text-emerald-400/40">All products well stocked</p>
+              <p className="text-xs text-emerald-400/40">{t('farmerDashboard.allWellStocked')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -272,7 +275,7 @@ export default function FarmerDashboard() {
                     <span className="text-xs text-emerald-200 truncate">{p.title}</span>
                   </div>
                   <span className={`text-xs font-bold ${p.stock <= 0 ? "text-red-400" : "text-yellow-400"}`}>
-                    {p.stock <= 0 ? "Out of Stock" : `${p.stock} left`}
+                    {p.stock <= 0 ? t('farmerDashboard.outOfStock') : `${p.stock} ${t('farmerDashboard.left')}`}
                   </span>
                 </div>
               ))}

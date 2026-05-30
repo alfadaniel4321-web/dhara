@@ -8,12 +8,15 @@ import {
 } from "lucide-react";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 export default function FarmerInventory() {
   const { user } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
   const [editingId, setEditingId] = useState(null);
   const [editStock, setEditStock] = useState("");
   const [success, setSuccess] = useState("");
@@ -41,7 +44,7 @@ export default function FarmerInventory() {
     setSuccess("");
     try {
       await api.products.updateProduct(id, { stock: Number(editStock) });
-      setSuccess("Stock updated!");
+      setSuccess(t('farmerInventory.stockUpdated'));
       setEditingId(null);
       loadProducts();
     } catch (err) {
@@ -62,8 +65,8 @@ export default function FarmerInventory() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-emerald-100">Inventory Management</h1>
-        <p className="text-xs text-emerald-400/50 mt-1">Track stock levels and manage product availability</p>
+        <h1 className="text-2xl font-bold text-emerald-100">{t('farmerInventory.title')}</h1>
+        <p className="text-xs text-emerald-400/50 mt-1">{t('farmerInventory.subtitle')}</p>
       </div>
 
       {success && (
@@ -81,7 +84,7 @@ export default function FarmerInventory() {
             </div>
           </div>
           <p className="text-2xl font-bold text-red-400">{outOfStock.length}</p>
-          <p className="text-[10px] text-emerald-400/50 font-medium mt-1">Out of Stock</p>
+          <p className="text-[10px] text-emerald-400/50 font-medium mt-1">{t('farmerInventory.outOfStock')}</p>
         </div>
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-3">
@@ -90,7 +93,7 @@ export default function FarmerInventory() {
             </div>
           </div>
           <p className="text-2xl font-bold text-yellow-400">{lowStock.length}</p>
-          <p className="text-[10px] text-emerald-400/50 font-medium mt-1">Low Stock (≤5)</p>
+          <p className="text-[10px] text-emerald-400/50 font-medium mt-1">{t('farmerInventory.lowStock')}</p>
         </div>
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-3">
@@ -99,7 +102,7 @@ export default function FarmerInventory() {
             </div>
           </div>
           <p className="text-2xl font-bold text-green-400">{inStock.length}</p>
-          <p className="text-[10px] text-emerald-400/50 font-medium mt-1">In Stock</p>
+          <p className="text-[10px] text-emerald-400/50 font-medium mt-1">{t('farmerInventory.inStock')}</p>
         </div>
       </div>
 
@@ -108,7 +111,7 @@ export default function FarmerInventory() {
         <div className="px-4 py-3 rounded-xl bg-red-900/10 border border-red-800/30 flex items-center gap-3">
           <AlertTriangle size={16} className="text-red-400 flex-shrink-0" />
           <p className="text-xs text-red-400/80 font-medium">
-            {outOfStock.length} product{outOfStock.length > 1 ? "s are" : " is"} out of stock. Update inventory or add new products.
+            {t('farmerInventory.outOfStockAlert').replace('{count}', outOfStock.length).replace('{s}', outOfStock.length > 1 ? "s" : "").replace('{is}', outOfStock.length > 1 ? "are" : "is")}
           </p>
         </div>
       )}
@@ -117,7 +120,7 @@ export default function FarmerInventory() {
       <div className="relative max-w-md">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/40" />
         <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search products..."
+          placeholder={t('farmerInventory.searchProducts')}
           className="w-full pl-10 pr-4 py-2.5 bg-[#111811] border border-emerald-900/30 rounded-xl text-sm text-emerald-100 placeholder-emerald-600/40 outline-none focus:border-emerald-600/50"
         />
       </div>
@@ -126,19 +129,19 @@ export default function FarmerInventory() {
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-[#111811] border border-emerald-900/20 rounded-2xl">
           <BarChart3 size={40} className="mx-auto text-emerald-700/40 mb-3" />
-          <p className="text-sm text-emerald-400/60 font-medium">No products found</p>
+          <p className="text-sm text-emerald-400/60 font-medium">{t('farmerInventory.noProductsFound')}</p>
         </div>
       ) : (
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-xs responsive-table">
             <thead>
               <tr className="border-b border-emerald-900/30 text-emerald-400/60 uppercase tracking-wider">
-                <th className="p-4 font-semibold">Product</th>
-                <th className="p-4 font-semibold">Category</th>
-                <th className="p-4 font-semibold">Price</th>
-                <th className="p-4 font-semibold">Current Stock</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold text-right">Update</th>
+                <th className="p-4 font-semibold">{t('farmerInventory.product')}</th>
+                <th className="p-4 font-semibold">{t('farmerInventory.category')}</th>
+                <th className="p-4 font-semibold">{t('farmerInventory.price')}</th>
+                <th className="p-4 font-semibold">{t('farmerInventory.currentStock')}</th>
+                <th className="p-4 font-semibold">{t('farmerInventory.status')}</th>
+                <th className="p-4 font-semibold text-right">{t('farmerInventory.update')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-emerald-900/10">
@@ -184,7 +187,7 @@ export default function FarmerInventory() {
                         stockStatus === "low" ? "bg-yellow-900/30 text-yellow-400" :
                         "bg-green-900/30 text-green-400"
                       }`}>
-                        {stockStatus === "out" ? "Out of Stock" : stockStatus === "low" ? "Low Stock" : "In Stock"}
+                        {stockStatus === "out" ? t('farmerInventory.outOfStock') : stockStatus === "low" ? t('farmerInventory.lowStock') : t('farmerInventory.inStock')}
                       </span>
                     </td>
                     <td className="p-4 text-right" data-label="">
@@ -205,7 +208,7 @@ export default function FarmerInventory() {
         <Link to="/farmer/add"
           className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-all"
         >
-          <PlusCircle size={16} /> Add New Product
+          <PlusCircle size={16} /> {t('farmerInventory.addNewProduct')}
         </Link>
       </div>
     </motion.div>

@@ -275,6 +275,7 @@ export default function Navbar() {
               <Heart size={19} style={{ strokeWidth: 1.5 }} />
             </Link>
 
+
             <Link
               to="/cart"
               onClick={closeMenu}

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { Star, MessageSquare, AlertTriangle, Send, ThumbsUp, ThumbsDown, Reply } from "lucide-react";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { t, onLanguageChange } from "../data/i18n";
 
 export default function FarmerReviews() {
   const { user } = useSelector((state) => state.auth);
@@ -11,6 +12,8 @@ export default function FarmerReviews() {
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState({});
   const [replyingId, setReplyingId] = useState(null);
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
 
   const loadFeedbacks = async () => {
     if (!user) return;
@@ -51,8 +54,8 @@ export default function FarmerReviews() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-emerald-100">Customer Reviews</h1>
-        <p className="text-xs text-emerald-400/50 mt-1">Manage your reputation and respond to feedback</p>
+        <h1 className="text-2xl font-bold text-emerald-100">{t('farmerReviews.title')}</h1>
+        <p className="text-xs text-emerald-400/50 mt-1">{t('farmerReviews.subtitle')}</p>
       </div>
 
       {/* Reputation Summary */}
@@ -65,17 +68,17 @@ export default function FarmerReviews() {
                 color={i <= Math.round(Number(avgRating)) ? "#eab308" : "rgba(255,255,255,0.1)"} />
             ))}
           </div>
-          <p className="text-[10px] text-emerald-400/50 font-medium">Average Rating</p>
+          <p className="text-[10px] text-emerald-400/50 font-medium">{t('farmerReviews.averageRating')}</p>
         </div>
         <div className={`bg-[#111811] border rounded-2xl p-5 text-center ${negativeCount >= 3 ? "border-red-800/30" : "border-emerald-900/20"}`}>
           <p className={`text-3xl font-bold ${negativeCount >= 3 ? "text-red-400" : "text-emerald-400"}`}>{negativeCount}</p>
           <div className="flex justify-center items-center gap-1.5 my-2">
             <ThumbsDown size={14} className={negativeCount > 0 ? "text-red-400" : "text-emerald-400/30"} />
           </div>
-          <p className="text-[10px] text-emerald-400/50 font-medium">Negative Reviews</p>
+          <p className="text-[10px] text-emerald-400/50 font-medium">{t('farmerReviews.negativeReviews')}</p>
           {blocked && (
             <div className="mt-2 px-2 py-1 bg-red-900/30 rounded-lg text-[9px] font-bold text-red-400 flex items-center justify-center gap-1">
-              <AlertTriangle size={10} /> Account Blocked
+              <AlertTriangle size={10} /> {t('farmerReviews.accountBlocked')}
             </div>
           )}
         </div>
@@ -84,7 +87,7 @@ export default function FarmerReviews() {
           <div className="flex justify-center items-center gap-1.5 my-2">
             <MessageSquare size={14} className="text-emerald-400" />
           </div>
-          <p className="text-[10px] text-emerald-400/50 font-medium">Total Reviews</p>
+          <p className="text-[10px] text-emerald-400/50 font-medium">{t('farmerReviews.totalReviews')}</p>
         </div>
       </div>
 
@@ -93,7 +96,7 @@ export default function FarmerReviews() {
         <div className="px-4 py-3 rounded-xl bg-yellow-900/10 border border-yellow-800/30 flex items-center gap-3">
           <AlertTriangle size={16} className="text-yellow-400 flex-shrink-0" />
           <p className="text-xs text-yellow-400/80">
-            You have {negativeCount} negative review{negativeCount > 1 ? "s" : ""}. {3 - negativeCount} more will block your account.
+            {t('farmerReviews.negativeWarning').replace('{count}', negativeCount).replace('{s}', negativeCount > 1 ? "s" : "").replace('{remaining}', 3 - negativeCount)}
           </p>
         </div>
       )}
@@ -102,8 +105,8 @@ export default function FarmerReviews() {
       {feedbacks.length === 0 ? (
         <div className="text-center py-16 bg-[#111811] border border-emerald-900/20 rounded-2xl">
           <Star size={40} className="mx-auto text-emerald-700/40 mb-3" />
-          <p className="text-sm text-emerald-400/60 font-medium">No reviews yet</p>
-          <p className="text-xs text-emerald-400/40 mt-1">Reviews from customers will appear here</p>
+          <p className="text-sm text-emerald-400/60 font-medium">{t('farmerReviews.noReviewsYet')}</p>
+          <p className="text-xs text-emerald-400/40 mt-1">{t('farmerReviews.reviewsAppearHere')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -133,12 +136,12 @@ export default function FarmerReviews() {
                         </div>
                         {fb.negative && (
                           <span className="text-[9px] font-bold text-red-400 flex items-center gap-0.5">
-                            <ThumbsDown size={10} /> Negative
+                            <ThumbsDown size={10} /> {t('farmerReviews.negative')}
                           </span>
                         )}
                       </div>
                       {productName && (
-                        <p className="text-[10px] text-emerald-400/50">on {productName}</p>
+                        <p className="text-[10px] text-emerald-400/50">{t('farmerReviews.on')} {productName}</p>
                       )}
                       <p className="text-xs text-emerald-200/80 mt-2">{fb.review}</p>
 
@@ -146,7 +149,7 @@ export default function FarmerReviews() {
                       {fb.reply && (
                         <div className="mt-3 pl-3 border-l-2 border-emerald-600/50">
                           <p className="text-[10px] text-emerald-400/50 font-semibold flex items-center gap-1">
-                            <Reply size={10} /> Your Reply
+                            <Reply size={10} /> {t('farmerReviews.yourReply')}
                           </p>
                           <p className="text-xs text-emerald-300/80 mt-1">{fb.reply}</p>
                         </div>
@@ -157,7 +160,7 @@ export default function FarmerReviews() {
                         <div className="mt-3 flex gap-2">
                           <input value={replyText[fb._id || fb.id] || ""}
                             onChange={e => setReplyText(p => ({ ...p, [fb._id || fb.id]: e.target.value }))}
-                            placeholder="Write your reply..."
+                            placeholder={t('farmerReviews.writeReply')}
                             className="flex-1 px-3 py-2 bg-emerald-900/20 border border-emerald-700/30 rounded-xl text-xs text-emerald-100 outline-none placeholder-emerald-600/40"
                           />
                           <button onClick={() => handleReply(fb._id || fb.id)}
@@ -165,13 +168,13 @@ export default function FarmerReviews() {
                           ><Send size={14} /></button>
                           <button onClick={() => { setReplyingId(null); setReplyText(p => ({ ...p, [fb._id || fb.id]: "" })); }}
                             className="px-3 py-2 bg-emerald-900/30 rounded-xl text-emerald-400 text-xs"
-                          >Cancel</button>
+                          >{t('farmerReviews.cancel')}</button>
                         </div>
                       ) : !fb.reply && (
                         <button onClick={() => setReplyingId(fb._id || fb.id)}
                           className="mt-2 text-[10px] text-emerald-500 hover:text-emerald-400 font-semibold flex items-center gap-1"
                         >
-                          <Reply size={11} /> Reply
+                          <Reply size={11} /> {t('farmerReviews.reply')}
                         </button>
                       )}
                     </div>

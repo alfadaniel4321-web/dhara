@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -7,21 +8,24 @@ import {
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../redux/slices/authSlice";
+import { t, onLanguageChange } from "../data/i18n";
 
 const NAV_ITEMS = [
-  { to: "/farmer", icon: LayoutDashboard, label: "Dashboard", end: true },
-  { to: "/farmer/products", icon: Package, label: "Products" },
-  { to: "/farmer/orders", icon: ShoppingBag, label: "Orders" },
-  { to: "/farmer/revenue", icon: IndianRupee, label: "Revenue" },
-  { to: "/farmer/reviews", icon: Star, label: "Reviews" },
-  { to: "/farmer/inventory", icon: BarChart3, label: "Inventory" },
-  { to: "/farmer/notifications", icon: Bell, label: "Notifications" },
-  { to: "/farmer/settings", icon: Settings, label: "Settings" },
+  { to: "/farmer", icon: LayoutDashboard, key: "dashboard", end: true },
+  { to: "/farmer/products", icon: Package, key: "products" },
+  { to: "/farmer/orders", icon: ShoppingBag, key: "orders" },
+  { to: "/farmer/revenue", icon: IndianRupee, key: "revenue" },
+  { to: "/farmer/reviews", icon: Star, key: "reviews" },
+  { to: "/farmer/inventory", icon: BarChart3, key: "inventory" },
+  { to: "/farmer/notifications", icon: Bell, key: "notifications" },
+  { to: "/farmer/settings", icon: Settings, key: "profile" },
 ];
 
 export default function FarmerSidebar({ open, onClose }) {
   const location = useLocation();
   const dispatch = useDispatch();
+  const [, forceUpdate] = useState(0);
+  useEffect(() => onLanguageChange(() => forceUpdate(n => n + 1)), []);
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -32,7 +36,7 @@ export default function FarmerSidebar({ open, onClose }) {
           </div>
           <div>
             <div className="text-sm font-bold text-white tracking-tight">Dhara</div>
-            <div className="text-[10px] text-emerald-400/70 font-medium">Farmer Panel</div>
+            <div className="text-[10px] text-emerald-400/70 font-medium">{t('farmerLayout.farmer')} Panel</div>
           </div>
         </div>
         <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-emerald-800/30 text-emerald-400/70">
@@ -58,7 +62,7 @@ export default function FarmerSidebar({ open, onClose }) {
               }`}
             >
               <Icon size={18} className={isActive ? "text-emerald-400" : "text-emerald-400/50 group-hover:text-emerald-400"} />
-              <span>{item.label}</span>
+              <span>{t('farmerSidebar.' + item.key)}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
@@ -77,7 +81,7 @@ export default function FarmerSidebar({ open, onClose }) {
           className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-emerald-200/60 hover:bg-emerald-800/20 hover:text-emerald-200 transition-all"
         >
           <Sprout size={18} className="text-emerald-400/50" />
-          <span>Customer View</span>
+          <span>{t('farmerSidebar.customerView')}</span>
         </NavLink>
         <button
           onClick={() => {
@@ -87,7 +91,7 @@ export default function FarmerSidebar({ open, onClose }) {
           className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-400/70 hover:bg-red-900/20 hover:text-red-400 transition-all"
         >
           <LogOut size={18} />
-          <span>Logout</span>
+          <span>{t('farmerSidebar.logout')}</span>
         </button>
       </div>
     </div>
