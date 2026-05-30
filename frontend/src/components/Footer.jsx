@@ -50,13 +50,16 @@ export default function Footer() {
       <style>{`
         @media (max-width: 768px) {
           .footer-cta { flex-direction: column !important; text-align: center !important; }
-          .footer-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+          .footer-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 1rem !important; }
+          .footer-grid > div:first-child { display: none !important; }
           .footer-bottom { flex-direction: column !important; text-align: center !important; }
           .footer-social { justify-content: center !important; }
+          .footer-grid a, .footer-grid span { color: #FFFFFF !important; font-weight: 700 !important; }
+          .footer-grid h4 { color: #FFFFFF !important; }
         }
       `}</style>
       {/* ───── TOP CTA BAND ───── */}
-      <div
+      {!user && <div
         style={{
           borderBottom: '1px solid rgba(106, 153, 78, 0.15)',
           padding: '3rem 1.5rem',
@@ -130,7 +133,7 @@ export default function Footer() {
             <ArrowRight size={14} />
           </Link>
         </div>
-      </div>
+      </div>}
 
       {/* ───── MAIN GRID ───── */}
       <div style={{ padding: 'clamp(1.5rem, 3vw, 3.5rem) clamp(1rem, 3vw, 1.5rem)' }}>

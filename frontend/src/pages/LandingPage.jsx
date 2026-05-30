@@ -935,7 +935,7 @@ function ManifestoSection() {
       </AnimatedSection>
 
       <style>{`
-        @media(max-width:768px){.manifesto-grid{grid-template-columns:1fr!important;gap:3rem!important}}
+        @media(max-width:768px){.manifesto-grid{gap:2rem!important}}
       `}</style>
     </section>
   );
