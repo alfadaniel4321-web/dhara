@@ -286,6 +286,8 @@ function HorizontalScrollStory() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileIndex, setMobileIndex] = useState(0);
+  const scrollRef = useRef(null);
   const total = STORY_SECTIONS.length;
 
   const goToNext = () => {
@@ -434,23 +436,19 @@ function HorizontalScrollStory() {
         </div>
 
         {/* Side navigation buttons */}
-        {isLocked && (
-          <>
-            {activeIndex > 0 && (
-              <button onClick={goToPrev} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', zIndex: 30, background: 'rgba(27,67,50,0.06)', border: '1px solid rgba(27,67,50,0.1)', color: '#1B4332', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease', fontSize: '1.1rem' }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.color = '#F5F3E7'; e.currentTarget.style.borderColor = '#D4A017'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(27,67,50,0.06)'; e.currentTarget.style.color = '#1B4332'; e.currentTarget.style.borderColor = 'rgba(27,67,50,0.1)'; }}>
-                ‹
-              </button>
-            )}
-            {activeIndex < total - 1 && (
-              <button onClick={goToNext} style={{ position: 'absolute', right: '1.5rem', top: '50%', transform: 'translateY(-50%)', zIndex: 30, background: 'rgba(27,67,50,0.06)', border: '1px solid rgba(27,67,50,0.1)', color: '#1B4332', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease', fontSize: '1.1rem' }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.color = '#F5F3E7'; e.currentTarget.style.borderColor = '#D4A017'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(27,67,50,0.06)'; e.currentTarget.style.color = '#1B4332'; e.currentTarget.style.borderColor = 'rgba(27,67,50,0.1)'; }}>
-                ›
-              </button>
-            )}
-          </>
+        {activeIndex > 0 && (
+          <button onClick={goToPrev} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', zIndex: 30, background: 'rgba(27,67,50,0.06)', border: '1px solid rgba(27,67,50,0.1)', color: '#1B4332', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease', fontSize: '1.1rem' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.color = '#F5F3E7'; e.currentTarget.style.borderColor = '#D4A017'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(27,67,50,0.06)'; e.currentTarget.style.color = '#1B4332'; e.currentTarget.style.borderColor = 'rgba(27,67,50,0.1)'; }}>
+            ‹
+          </button>
+        )}
+        {activeIndex < total - 1 && (
+          <button onClick={goToNext} style={{ position: 'absolute', right: '1.5rem', top: '50%', transform: 'translateY(-50%)', zIndex: 30, background: 'rgba(27,67,50,0.06)', border: '1px solid rgba(27,67,50,0.1)', color: '#1B4332', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease', fontSize: '1.1rem' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; e.currentTarget.style.color = '#F5F3E7'; e.currentTarget.style.borderColor = '#D4A017'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(27,67,50,0.06)'; e.currentTarget.style.color = '#1B4332'; e.currentTarget.style.borderColor = 'rgba(27,67,50,0.1)'; }}>
+            ›
+          </button>
         )}
 
         {/* Scroll progress bar */}
@@ -474,7 +472,7 @@ function HorizontalScrollStory() {
   function MobileStoryPanel({ panel, index }) {
     const [ref, visible] = useReveal(0.12);
     return (
-      <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s` }}>
+      <div ref={ref} style={{ minWidth: '100vw', scrollSnapAlign: 'start', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s` }}>
         <div style={{ height: '50vh', overflow: 'hidden', position: 'relative' }}>
           <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, #F5F3E7 0%, rgba(245,243,231,0.8) 50%, transparent 70%)' }} />
@@ -490,9 +488,53 @@ function HorizontalScrollStory() {
     );
   }
 
+  const scrollTo = (idx) => {
+    setMobileIndex(idx);
+    scrollRef.current?.children[idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  };
+
+  const mGoToNext = () => {
+    if (mobileIndex < total - 1) scrollTo(mobileIndex + 1);
+  };
+
+  const mGoToPrev = () => {
+    if (mobileIndex > 0) scrollTo(mobileIndex - 1);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const idx = Math.round(el.scrollLeft / el.offsetWidth);
+      if (idx !== mobileIndex) setMobileIndex(idx);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [mobileIndex]);
+
   return (
-    <section style={{ background: '#F5F3E7', padding: 0 }}>
-      {STORY_SECTIONS.map((panel, i) => <MobileStoryPanel key={i} panel={panel} index={i} />)}
+    <section style={{ background: '#F5F3E7', padding: 0, position: 'relative' }}>
+      {/* Scroll left button */}
+      {mobileIndex > 0 && (
+        <button onClick={mGoToPrev} style={{ position: 'absolute', left: '0.75rem', top: '50%', zIndex: 30, background: 'rgba(27,67,50,0.08)', border: '1px solid rgba(27,67,50,0.1)', color: '#1B4332', width: '2.5rem', height: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease', fontSize: '1rem', borderRadius: '50%', transform: 'translateY(-50%)' }}>
+          ‹
+        </button>
+      )}
+      {/* Scroll right button */}
+      {mobileIndex < total - 1 && (
+        <button onClick={mGoToNext} style={{ position: 'absolute', right: '0.75rem', top: '50%', zIndex: 30, background: 'rgba(27,67,50,0.08)', border: '1px solid rgba(27,67,50,0.1)', color: '#1B4332', width: '2.5rem', height: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease', fontSize: '1rem', borderRadius: '50%', transform: 'translateY(-50%)' }}>
+          ›
+        </button>
+      )}
+      <div ref={scrollRef} style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+        {STORY_SECTIONS.map((panel, i) => <MobileStoryPanel key={i} panel={panel} index={i} />)}
+      </div>
+      {/* Progress dots */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', padding: '1rem 0' }}>
+        {STORY_SECTIONS.map((_, i) => (
+          <button key={i} onClick={() => scrollTo(i)} style={{ height: '2px', width: i === mobileIndex ? '28px' : '14px', background: i === mobileIndex ? '#D4A017' : 'rgba(106,153,78,0.2)', transition: 'width 0.4s, background 0.4s', borderRadius: 0, border: 'none', padding: 0, cursor: 'pointer' }} />
+        ))}
+      </div>
     </section>
   );
 }
@@ -818,8 +860,13 @@ function BrandStorySection() {
 
       <style>{`
         @media(max-width:1024px){
-          .brand-story-grid { grid-template-columns: 1fr !important; }
+          .brand-story-grid { grid-template-columns: 1fr 1.2fr 1fr !important; }
           .brand-story-grid > div:nth-child(2) { min-height: 40vh !important; }
+          .brand-story-grid > div > div { max-width: 100% !important; }
+        }
+        @media(max-width:600px){
+          .brand-story-grid { grid-template-columns: 1fr !important; }
+          .brand-story-grid > div:nth-child(2) { min-height: 30vh !important; }
         }
       `}</style>
     </section>
@@ -982,8 +1029,8 @@ export default function LandingPage() {
 
         /* ── Large Mobile / Small Tablet (481px–768px) ── */
         @media(max-width:768px){
-          .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:1rem!important}
-          .lp-section-hero{height:100vh!important}
+          .stats-grid{grid-template-columns:repeat(4,1fr)!important;gap:0.5rem!important}
+          .lp-section-hero{height:50vh!important}
           .lp-section-farmers{padding:3.5rem 1.25rem!important}
           .lp-section-manifesto{padding:3.5rem 1.25rem!important}
           .lp-section-cta{padding:4rem 1.25rem!important}
@@ -992,8 +1039,8 @@ export default function LandingPage() {
 
         /* ── Small Mobile (≤480px) ── */
         @media(max-width:480px){
-          .stats-grid{grid-template-columns:1fr!important;gap:0.75rem!important}
-          .lp-section-hero{height:100vh!important}
+          .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:0.5rem!important}
+          .lp-section-hero{height:40vh!important}
           .lp-section-farmers{padding:2.5rem 1rem!important}
           .lp-section-manifesto{padding:2.5rem 1rem!important}
           .lp-section-cta{padding:3rem 1rem!important}
