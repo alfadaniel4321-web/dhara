@@ -1,42 +1,15 @@
 import { useState } from "react";
-import { Outlet, Navigate, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { Menu, Shield, AlertTriangle, LogOut } from "lucide-react";
+import { Outlet, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Menu, Shield } from "lucide-react";
 import AdminSidebar from "../components/AdminSidebar";
-import { logoutUser } from "../redux/slices/authSlice";
 
 export default function AdminLayout() {
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== "admin") return <Navigate to="/dashboard" replace />;
-
-  const token = localStorage.getItem("dhara_token");
-  const isMockToken = token && token.startsWith("mock_");
-
-  if (isMockToken) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#042f1a" }}>
-        <div className="text-center max-w-md px-6">
-          <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-red-900/30 flex items-center justify-center">
-            <AlertTriangle size={28} className="text-red-400" />
-          </div>
-          <h1 className="text-xl font-bold text-emerald-100 mb-2">Invalid Session</h1>
-          <p className="text-sm text-emerald-400/60 mb-6">
-            You are logged in with an offline/mock session. Please log out and log back in while the backend server is running.
-          </p>
-          <button onClick={() => { dispatch(logoutUser()); navigate("/login"); }}
-            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 mx-auto"
-          >
-            <LogOut size={16} /> Logout & Re-login
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex" style={{ background: "#042f1a" }}>

@@ -220,10 +220,10 @@ exports.getFarmerProducts = async (req, res) => {
 
 exports.getNearbyProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().populate('farmerId', 'name district village address');
 
     const blockedFarmers = new Set();
-    const farmerIds = [...new Set(products.map(p => p.farmerId?.toString()).filter(Boolean))];
+    const farmerIds = [...new Set(products.map(p => p.farmerId?._id?.toString()).filter(Boolean))];
     for (const fId of farmerIds) {
       const farmer = await Farmer.findById(fId);
       if (farmer && farmer.blocked) {
@@ -231,24 +231,15 @@ exports.getNearbyProducts = async (req, res) => {
       }
     }
 
-    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId.toString()));
-
-    const locations = [
-      'Alappuzha Hyperlocal Zone',
-      'Kottayam Farm Belt',
-      'Kochi Organic Hub',
-      'Thrissur Greenlands',
-      'Wayanad High-range Coop',
-      'Muvattupuzha Fields'
-    ];
+    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId._id.toString()));
 
     const nearbyProducts = activeProducts.map(p => {
-      const seed = (p.title.length + (p.id || p._id || '').charCodeAt(0)) % 10;
-      const distance = parseFloat((1.2 + seed * 1.3).toFixed(1));
-      const location = locations[seed % locations.length];
+      const farmer = p.farmerId;
+      const location = farmer?.district || farmer?.village || farmer?.address || 'Kerala';
+      const distance = parseFloat((1 + Math.random() * 15).toFixed(1));
 
       return {
-        ...p,
+        ...p.toObject(),
         distance,
         location
       };

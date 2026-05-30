@@ -3,8 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, Check, Image, Clock, IndianRupee, Package, Truck, AlertCircle, Upload, Camera } from "lucide-react";
 import { api } from "../services/api";
-import { getProductImage } from "../data/productImages";
-import { getNutrition } from "../data/nutritionDB";
 import SpeechReader from "../components/SpeechReader";
 import { t, getLanguage } from "../data/i18n";
 
@@ -37,10 +35,8 @@ export default function AddProduct() {
 
   useEffect(() => {
     if (name.trim()) {
-      const img = getProductImage(name);
-      setPreviewImg(img);
-      const nut = getNutrition(name);
-      setNutritionInfo(nut);
+      setPreviewImg(null);
+      setNutritionInfo(null);
     } else {
       setPreviewImg(null);
       setUploadedImg(null);
@@ -56,18 +52,17 @@ export default function AddProduct() {
     }
     setSubmitting(true);
     try {
-      const nut = getNutrition(name);
       await api.products.createProduct({
         title: name,
-        image: uploadedImg || previewImg || getProductImage(name),
+        image: uploadedImg || '',
         category,
         price: Number(price),
         quantity: quantity,
         stock: 100,
         harvestDate: new Date(harvestDate).toISOString(),
         availableTime: "06:00 AM - 12:00 PM",
-        nutrition: nut ? nut.items.join(", ") : "Fresh farm produce",
-        protein: nut ? nut.protein : "Fresh",
+        nutrition: "Fresh farm produce",
+        protein: "Fresh",
         freshnessScore: 98,
       });
       setSuccess("Product added successfully!");

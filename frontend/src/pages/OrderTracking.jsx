@@ -27,12 +27,15 @@ export default function OrderTracking() {
       const ord = await api.orders.trackOrder(id);
       setOrder(ord);
 
-      // Find farmer details from users mock if available
       const fItem = ord.products[0];
       if (fItem && fItem.farmerId) {
-        const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
-        const foundFarmer = users.find(u => u.id === fItem.farmerId || u._id === fItem.farmerId);
-        setFarmer(foundFarmer || { name: 'Dhara Logistics Center', phone: '+91 94471 23456' });
+        try {
+          const farmers = await api.auth.getFarmers();
+          const foundFarmer = farmers.find(u => u.id === fItem.farmerId || u._id === fItem.farmerId);
+          setFarmer(foundFarmer || null);
+        } catch {
+          setFarmer(null);
+        }
       }
     } catch (e) {
       console.error(e);

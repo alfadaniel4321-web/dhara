@@ -14,6 +14,7 @@ const farmerRoutes = require('./routes/farmerRoutes');
 const revenueRoutes = require('./routes/revenueRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const publicRoutes = require('./routes/publicRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,6 +33,7 @@ app.use('/api/farmer', farmerRoutes);
 app.use('/api/revenue', revenueRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', publicRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'running', timestamp: new Date().toISOString() });

@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ChevronLeft, Save, Edit3, User, MapPin, Phone, Home, Globe, FileText, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import SpeechReader from "../components/SpeechReader";
+import { api } from "../services/api";
 import { t, getLanguage } from "../data/i18n";
 
 const container = {
@@ -40,20 +41,18 @@ export default function FarmerProfile() {
 
   const handleSave = async () => {
     setSaving(true);
-    const updatedUser = { ...user, ...form };
-    localStorage.setItem("dhara_user", JSON.stringify(updatedUser));
-    const users = JSON.parse(localStorage.getItem("mock_users") || "[]");
-    const idx = users.findIndex((u) => u.id === user?.id || u._id === user?._id);
-    if (idx !== -1) {
-      users[idx] = { ...users[idx], ...form };
-      localStorage.setItem("mock_users", JSON.stringify(users));
-    }
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await api.farmer.updateProfile(form);
+      const updatedUser = { ...user, ...form };
+      localStorage.setItem("dhara_user", JSON.stringify(updatedUser));
       setSaved(true);
       setEditing(false);
       setTimeout(() => setSaved(false), 3000);
-    }, 500);
+    } catch (err) {
+      alert(err.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const fields = [

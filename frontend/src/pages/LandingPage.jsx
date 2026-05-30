@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import farmVideo from "../assets/farm-video.mp4";
@@ -129,38 +129,6 @@ function FarmerCard3D({ farmer, index }) {
           <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', letterSpacing: '0.05em', color: 'rgba(27,67,50,0.6)', textTransform: 'uppercase' }}>{location}</span>
         </div>
         <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.7, color: '#3D4F45', margin: 0 }}>{farmer.description || 'Sustainable, family-owned farming producing daily fresh harvests without preservative additives. Certified organic by Kerala State Organic Mission.'}</p>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ─── 3D TESTIMONIALS — Scroll-driven depth reveal ───────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════════
-function TestimonialBlock3D({ testimonial, index }) {
-  const [ref, visible] = useReveal(0.25);
-  const sectionRef = useRef(null);
-
-  const delay = index * 0.18;
-  const depthShift = visible ? 0 : 80;
-  const rotateVal = visible ? 0 : (index % 2 === 0 ? -6 : 6);
-
-  return (
-    <div style={{ perspective: '800px' }}>
-      <div ref={ref} style={{
-        padding: '3rem 2.5rem',
-        opacity: visible ? 1 : 0,
-        transform: visible
-          ? 'translateY(0) rotateX(0deg) translateZ(0px)'
-          : `translateY(${depthShift}px) rotateX(${rotateVal}deg) translateZ(-80px)`,
-        transition: `opacity 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
-        background: index % 2 === 0 ? 'rgba(27,67,50,0.03)' : 'transparent',
-        borderLeft: `1px solid rgba(106,153,78,${index % 2 === 0 ? '0.2' : '0.1'})`,
-      }}>
-        <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '3.5rem', lineHeight: 0.8, color: '#6A994E', margin: '0 0 0.5rem 0', fontWeight: 400 }}>&ldquo;</p>
-        <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05rem', fontStyle: 'italic', fontWeight: 400, lineHeight: 1.7, color: '#1B4332', margin: '0 0 1.5rem 0' }}>{testimonial.text}</p>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.9rem', fontWeight: 700, color: '#6A994E', margin: '0 0 0.15rem 0' }}>{testimonial.author}</p>
-        <p style={{ fontFamily: '"Courier New", monospace', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(163,200,122,0.4)', margin: 0 }}>Verified Marketplace Member</p>
       </div>
     </div>
   );
@@ -948,9 +916,7 @@ export default function LandingPage() {
         const farmers = await api.auth.getFarmers();
         setTopFarmers(farmers.slice(0, 2));
       } catch {
-        const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-        const farmers = mockUsers.filter(u => u.role === 'farmer' && !u.blocked);
-        setTopFarmers(farmers.slice(0, 2));
+        setTopFarmers([]);
       }
     };
     fetchFarmers();
@@ -973,11 +939,6 @@ export default function LandingPage() {
     if (videoReady && videoRef.current) videoRef.current.play().catch(() => {});
   }, [videoReady]);
 
-  const testimonials = useMemo(() => [
-    { text: 'Dhara completely redefined how we secure fresh organic cow milk in Kottayam. The freshness timer is incredibly reliable.', author: 'Aravind K., Kochi Customer' },
-    { text: 'Selling farm duck eggs directly to urban households doubled my farm profitability. The trust rating maintains our quality standards.', author: 'Madhavan Nair, Wayanad Farmer Partner' },
-  ], []);
-
   return (
     <div style={{ position: 'relative', width: '100%', overflowX: 'hidden', background: '#F5F3E7' }}>
       <style>{`
@@ -990,7 +951,6 @@ export default function LandingPage() {
         @media(min-width:1025px)and(max-width:1366px){
           .lp-section-hero{height:100vh!important}
           .lp-section-farmers{padding:6rem 1.5rem!important}
-          .lp-section-testimonials{padding:6rem 1.5rem!important}
           .lp-section-manifesto{padding:6rem 2rem!important}
           .lp-section-cta{padding:7rem 1.5rem!important}
         }
@@ -999,7 +959,6 @@ export default function LandingPage() {
         @media(min-width:769px)and(max-width:1024px){
           .stats-grid{grid-template-columns:repeat(2,1fr)!important}
           .lp-section-farmers{padding:5rem 1.5rem!important}
-          .lp-section-testimonials{padding:5rem 1.5rem!important}
           .lp-section-manifesto{padding:5rem 2rem!important}
           .lp-section-cta{padding:6rem 1.5rem!important}
           .lp-section-hero{height:100vh!important}
@@ -1010,7 +969,6 @@ export default function LandingPage() {
           .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:1rem!important}
           .lp-section-hero{height:100vh!important}
           .lp-section-farmers{padding:3.5rem 1.25rem!important}
-          .lp-section-testimonials{padding:3.5rem 1.25rem!important}
           .lp-section-manifesto{padding:3.5rem 1.25rem!important}
           .lp-section-cta{padding:4rem 1.25rem!important}
           .hero-cta-wrapper{flex-direction:column!important;gap:1.5rem!important;align-items:center!important}
@@ -1021,7 +979,6 @@ export default function LandingPage() {
           .stats-grid{grid-template-columns:1fr!important;gap:0.75rem!important}
           .lp-section-hero{height:100vh!important}
           .lp-section-farmers{padding:2.5rem 1rem!important}
-          .lp-section-testimonials{padding:2.5rem 1rem!important}
           .lp-section-manifesto{padding:2.5rem 1rem!important}
           .lp-section-cta{padding:3rem 1rem!important}
         }
@@ -1082,22 +1039,7 @@ export default function LandingPage() {
 
         <HarvestSection />
 
-        {/* ══════════════════════════════════════════════════ */}
-        {/* ── TESTIMONIALS with 3D depth ── */}
-        {/* ══════════════════════════════════════════════════ */}
-        <section className="lp-section-testimonials" style={{ padding: '8rem 1.5rem', background: '#F5F3E7' }}>
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-            <AnimatedSection>
-              <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                <p style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#6A994E', margin: '0 0 0.75rem 0' }}>Testimonials</p>
-                <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 400, color: '#1B4332', textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, lineHeight: 1.1 }}>Voice of the Marketplace</h2>
-              </div>
-            </AnimatedSection>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1px', background: 'rgba(106,153,78,0.1)', perspective: '1000px' }}>
-              {testimonials.map((t, i) => <TestimonialBlock3D key={i} testimonial={t} index={i} />)}
-            </div>
-          </div>
-        </section>
+
 
         {/* ══════════════════════════════════════════════════ */}
         {/* ── CTA SECTION ── */}

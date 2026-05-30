@@ -1,4 +1,3 @@
-// Simulates Razorpay order creation & payment verification
 exports.createPaymentOrder = async (req, res) => {
   try {
     const { amount, currency } = req.body;
@@ -7,11 +6,10 @@ exports.createPaymentOrder = async (req, res) => {
       return res.status(400).json({ message: 'Amount is required' });
     }
 
-    // Mock Razorpay order object
     const razorpayOrder = {
       id: `rzp_order_${Math.random().toString(36).substring(2, 9)}`,
       entity: 'order',
-      amount: amount * 100, // in paisa
+      amount: amount * 100,
       currency: currency || 'INR',
       receipt: `receipt_${Date.now()}`,
       status: 'created',
@@ -34,11 +32,9 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ message: 'Payment parameters are required' });
     }
 
-    // Simulate verification (always verified in sandbox demo)
     const success = true;
 
     if (success) {
-      // Return details for receipt generation
       const invoice = {
         invoiceId: `INV-${Date.now()}`,
         transactionId: razorpay_payment_id,

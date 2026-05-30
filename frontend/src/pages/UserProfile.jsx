@@ -40,12 +40,6 @@ export default function UserProfile() {
     setSuccess('');
     const updatedUser = { ...user, address };
     localStorage.setItem('dhara_user', JSON.stringify(updatedUser));
-    const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    const idx = users.findIndex(u => u.id === user.id || u._id === user._id);
-    if (idx !== -1) {
-      users[idx].address = address;
-      localStorage.setItem('mock_users', JSON.stringify(users));
-    }
     setSuccess('Shipping address updated successfully!');
     setTimeout(() => setSuccess(''), 3000);
   };
