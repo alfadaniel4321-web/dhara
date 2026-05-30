@@ -431,8 +431,6 @@ function HorizontalScrollStory() {
                       }}>
                         <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       </div>
-                      <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(${gradientDeg})`, pointerEvents: 'none' }} />
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '30%', background: 'linear-gradient(0deg, rgba(245,243,231,0.6) 0%, transparent 100%)', pointerEvents: 'none' }} />
                       <div style={{ position: 'absolute', top: '1.5rem', ...accentPosition, background: 'rgba(27,67,50,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(27,67,50,0.08)', padding: '0.5rem 0.85rem' }}>
                         <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.4rem', letterSpacing: '0.18em', color: 'rgba(27,67,50,0.35)', textTransform: 'uppercase' }}>Live · Kerala</span>
                       </div>
@@ -483,18 +481,31 @@ function HorizontalScrollStory() {
 
   function MobileStoryPanel({ panel, index }) {
     const [ref, visible] = useReveal(0.12);
+    const isImageLeft = index % 2 === 0;
     return (
-      <div ref={ref} style={{ minWidth: '100vw', scrollSnapAlign: 'start', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s` }}>
-        <div style={{ height: '50vh', overflow: 'hidden', position: 'relative' }}>
-          <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, #F5F3E7 0%, rgba(245,243,231,0.8) 50%, transparent 70%)' }} />
-          <span style={{ position: 'absolute', top: '1.25rem', left: '1.25rem', fontFamily: '"Courier New", monospace', fontSize: '0.55rem', letterSpacing: '0.18em', color: 'rgba(27,67,50,0.6)', textTransform: 'uppercase', background: 'rgba(245,243,231,0.9)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', padding: '0.35rem 0.75rem' }}>{panel.label}</span>
-        </div>
-        <div style={{ padding: '2rem 1.5rem 3rem' }}>
-          <div style={{ width: '1.5rem', height: '1px', background: '#D4A017', marginBottom: '0.85rem' }} />
-          <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(1.6rem, 6vw, 2.2rem)', fontWeight: 400, lineHeight: 1.05, color: '#1B4332', letterSpacing: '-0.02em', margin: '0 0 0.85rem 0', whiteSpace: 'pre-line' }}>{panel.heading}</h2>
-          <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.75, color: 'rgba(27,67,50,0.65)', margin: '0 0 1.5rem 0' }}>{panel.body}</p>
-          <Link to={panel.ctaLink} style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6A994E', textDecoration: 'none', borderBottom: '1px solid rgba(106,153,78,0.3)', paddingBottom: '0.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>{panel.cta} →</Link>
+      <div ref={ref} style={{ minWidth: '100vw', scrollSnapAlign: 'start', opacity: visible ? 1 : 0, transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s` }}>
+        <div style={{ display: 'flex', minHeight: '70vh' }}>
+          {isImageLeft && (
+            <div style={{ width: '50%', overflow: 'hidden', position: 'relative' }}>
+              <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            </div>
+          )}
+          <div style={{ width: '50%', display: 'flex', alignItems: 'center', padding: '1.5rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <span style={{ display: 'inline-block', width: '1rem', height: '1px', background: '#D4A017' }} />
+                <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.45rem', letterSpacing: '0.18em', color: 'rgba(27,67,50,0.45)', textTransform: 'uppercase' }}>{panel.label}</span>
+              </div>
+              <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', fontWeight: 400, lineHeight: 1.05, color: '#1B4332', letterSpacing: '-0.02em', margin: '0 0 0.75rem 0', whiteSpace: 'pre-line' }}>{panel.heading}</h2>
+              <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.7rem', fontWeight: 300, lineHeight: 1.6, color: 'rgba(27,67,50,0.65)', margin: '0 0 1rem 0' }}>{panel.body}</p>
+              <Link to={panel.ctaLink} style={{ fontFamily: '"Courier New", monospace', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6A994E', textDecoration: 'none', borderBottom: '1px solid rgba(106,153,78,0.3)', paddingBottom: '0.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>{panel.cta} →</Link>
+            </div>
+          </div>
+          {!isImageLeft && (
+            <div style={{ width: '50%', overflow: 'hidden', position: 'relative' }}>
+              <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -891,16 +902,13 @@ function ManifestoSection() {
           <AnimatedSection delay={0}>
             <div>
               <p style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.25em', color: 'rgba(163,200,122,0.6)', margin: '0 0 1.5rem 0' }}>WHY WE EXIST</p>
-              <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 400, lineHeight: 1.0, letterSpacing: '-0.03em', textTransform: 'uppercase', margin: '0 0 2rem 0' }}>
+              <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.025em', textTransform: 'uppercase', margin: '0 0 1.5rem 0' }}>
                 <span style={{ color: '#F5F3E7', display: 'block' }}>Kerala's soil</span>
                 <span style={{ color: '#A3C87A', display: 'block' }}>deserves better</span>
                 <span style={{ color: '#F5F3E7', display: 'block' }}>than a cold chain.</span>
               </h2>
-              <p style={{ color: 'rgba(245,243,231,0.65)', fontFamily: '-apple-system, sans-serif', fontSize: '0.95rem', fontWeight: 300, lineHeight: 1.9, maxWidth: '420px', margin: 0 }}>
-                For decades, the richest organic farmland in India has been filtered through distributors, warehouses, and refrigeration units — arriving on your plate days late and nutrients short. Dhara exists to end that.
-              </p>
-              <p style={{ color: 'rgba(245,243,231,0.65)', fontFamily: '-apple-system, sans-serif', fontSize: '0.95rem', fontWeight: 300, lineHeight: 1.9, maxWidth: '420px', marginTop: '1.25rem' }}>
-                We rebuild the direct relationship between the farmer who grew it and the family who eats it. Every order. Every morning.
+              <p style={{ color: 'rgba(245,243,231,0.65)', fontFamily: '-apple-system, sans-serif', fontSize: '0.9rem', fontWeight: 300, lineHeight: 1.7, maxWidth: '420px', margin: 0 }}>
+                We connect local farmers directly with consumers, creating a fair, transparent, and sustainable food ecosystem.
               </p>
               <Link to="/about" style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#A3C87A', textDecoration: 'none', borderBottom: '1px solid rgba(163,200,122,0.3)', paddingBottom: '0.3rem', display: 'inline-block', marginTop: '2.5rem' }}>
                 Read our full story →
@@ -1032,6 +1040,7 @@ export default function LandingPage() {
         @media(max-width:768px){
           .stats-grid{grid-template-columns:repeat(4,1fr)!important;gap:0.5rem!important}
           .lp-section-hero{height:50vh!important}
+          .lp-section-hero video{object-fit:contain!important}
           .lp-section-farmers{padding:3.5rem 1.25rem!important}
           .lp-section-manifesto{padding:3.5rem 1.25rem!important}
           .lp-section-cta{padding:4rem 1.25rem!important}
@@ -1042,6 +1051,7 @@ export default function LandingPage() {
         @media(max-width:480px){
           .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:0.5rem!important}
           .lp-section-hero{height:40vh!important}
+          .lp-section-hero video{object-fit:contain!important}
           .lp-section-farmers{padding:2.5rem 1rem!important}
           .lp-section-manifesto{padding:2.5rem 1rem!important}
           .lp-section-cta{padding:3rem 1rem!important}
