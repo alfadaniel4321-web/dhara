@@ -47,6 +47,14 @@ export default function Footer() {
 
   return (
     <footer style={{ background: '#080E0A', width: '100%' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .footer-cta { flex-direction: column !important; text-align: center !important; }
+          .footer-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+          .footer-bottom { flex-direction: column !important; text-align: center !important; }
+          .footer-social { justify-content: center !important; }
+        }
+      `}</style>
       {/* ───── TOP CTA BAND ───── */}
       <div
         style={{
@@ -55,6 +63,7 @@ export default function Footer() {
         }}
       >
         <div
+          className="footer-cta"
           style={{
             maxWidth: '1200px',
             margin: '0 auto',
@@ -126,7 +135,7 @@ export default function Footer() {
       {/* ───── MAIN GRID ───── */}
       <div style={{ padding: 'clamp(1.5rem, 3vw, 3.5rem) clamp(1rem, 3vw, 1.5rem)' }}>
         <div
-          className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+          className="footer-grid"
           style={{
             maxWidth: '1200px',
             margin: '0 auto',
@@ -407,6 +416,7 @@ export default function Footer() {
         }}
       >
         <div
+          className="footer-bottom"
           style={{
             maxWidth: '1200px',
             margin: '0 auto',
@@ -429,7 +439,7 @@ export default function Footer() {
             &copy; 2026 Dhara Inc. Kerala, India.
           </p>
 
-          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
             {['Privacy Policy', 'Terms of Service', 'Returns'].map((item) => (
               <Link
                 key={item}
