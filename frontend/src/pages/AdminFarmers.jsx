@@ -20,6 +20,7 @@ export default function AdminFarmers() {
       const data = await api.admin.getFarmers();
       setFarmers(Array.isArray(data) ? data : []);
     } catch (e) { console.error(e); }
+    
     finally { setLoading(false); }
   };
 
