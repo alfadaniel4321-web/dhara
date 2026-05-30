@@ -27,7 +27,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside style={{
+    <aside className="fd-sidebar" style={{
       width: '220px',
       height: '100vh',
       position: 'sticky',
