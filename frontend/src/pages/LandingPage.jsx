@@ -935,7 +935,24 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
-    if (videoReady && videoRef.current) videoRef.current.play().catch(() => {});
+    if (videoReady && videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise) playPromise.catch(() => {});
+    }
+  }, [videoReady]);
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (videoRef.current && videoRef.current.paused && videoReady) {
+        videoRef.current.play().catch(() => {});
+      }
+    };
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    document.addEventListener('click', handleInteraction, { once: true });
+    return () => {
+      document.removeEventListener('touchstart', handleInteraction);
+      document.removeEventListener('click', handleInteraction);
+    };
   }, [videoReady]);
 
   return (
@@ -1000,9 +1017,7 @@ export default function LandingPage() {
 
         {/* ── HERO ── */}
         <section className="lp-section-hero" style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden' }}>
-          <video ref={videoRef} loop muted playsInline preload="auto" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}>
-            <source src={farmVideo} type="video/mp4" />
-          </video>
+          <video ref={videoRef} src={farmVideo} loop muted playsInline preload="auto" poster={storyGroveImg} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(8,14,10,0.88) 0%, rgba(8,14,10,0.50) 50%, rgba(8,14,10,0.20) 100%)' }} />
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <HeroSection />
