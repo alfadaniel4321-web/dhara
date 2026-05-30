@@ -9,7 +9,7 @@ const CATEGORIES = [
   { emoji: "🌿", label: "Fresh Herbs", id: "Fresh Herbs" },
   { emoji: "🧂", label: "Natural Spices", id: "Natural Spices" },
   { emoji: "🍯", label: "Honey & Jams", id: "Honey & Jams" },
-  { emoji: "🍞", label: "Bakery Products", id: "Bakery Products" },
+  { emoji: "🏝️", label: "Dry Products", id: "Dry Products" },
   { emoji: "🥜", label: "Healthy Snacks", id: "Healthy Snacks" },
   { emoji: "🧃", label: "Farm Drinks", id: "Farm Drinks" },
 ];

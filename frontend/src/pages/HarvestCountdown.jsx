@@ -107,7 +107,8 @@ export default function HarvestCountdown() {
       try {
         setLoading(true);
         const data = await api.products.getProducts();
-        setProducts(data || []);
+        const filtered = (data || []).filter(p => p.nextHarvest === true);
+        setProducts(filtered);
       } catch (err) {
         console.error("Failed to fetch products:", err);
         setProducts([]);

@@ -68,7 +68,7 @@ export default function Cart() {
 
   const subtotal = totalPrice;
   const discountAmount = Math.round(subtotal * (discountPercent / 100));
-  const deliveryCost = subtotal > 0 ? 0 : 0; // Simulated free hyperlocal delivery
+  const deliveryCost = subtotal > 0 ? 25 : 0;
   const finalTotal = Math.max(0, subtotal - discountAmount + deliveryCost);
 
   const handleCheckout = () => {
@@ -166,7 +166,7 @@ export default function Cart() {
 
             <div className="flex justify-between">
               <span>Hyperlocal Delivery:</span>
-              <span className="font-semibold text-emerald-400">FREE</span>
+              <span className="font-semibold text-emerald-400">₹25</span>
             </div>
 
             <div className="flex justify-between text-sm font-extrabold text-white border-t border-emerald-900/60 pt-3.5">

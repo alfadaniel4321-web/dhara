@@ -34,7 +34,7 @@ export default function FarmerNotifications() {
     if (!user) return;
     setLoading(true);
     try {
-      const res = await api.notifications.getNotifications();
+      const res = await api.preOrders.getNotifications();
       setNotifications(res.notifications || []);
       setUnreadCount(res.unreadCount || 0);
     } catch (e) {
@@ -49,7 +49,7 @@ export default function FarmerNotifications() {
   const handleMarkRead = async () => {
     setMarking(true);
     try {
-      await api.notifications.markNotificationsRead();
+      await api.preOrders.markNotificationsRead();
       setUnreadCount(0);
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (e) {

@@ -14,9 +14,10 @@ const ProductSchema = new mongoose.Schema({
   freshnessScore: { type: Number, default: 0 },
   description: { type: String, default: '' },
   offerDetails: { type: String, default: '' },
-  farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Farmer', required: true },
   featured: { type: Boolean, default: false },
-  views: { type: Number, default: 0 }
+  views: { type: Number, default: 0 },
+  nextHarvest: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', ProductSchema);

@@ -34,9 +34,9 @@ export default function Wishlist() {
   const handleRemove = async (id) => {
     try {
       const updatedList = await api.wishlist.toggleWishlist(id);
-      dispatch(setWishlist(updatedList.map(item => item.id || item._id)));
-      // Filter local list
-      setProductsList(productsList.filter(p => p.id !== id && p._id !== id));
+      const items = Array.isArray(updatedList) ? updatedList : [];
+      dispatch(setWishlist(items.map(item => item.id || item._id)));
+      setProductsList(items);
     } catch (e) {
       alert(e.message || 'Failed to remove from wishlist');
     }
@@ -77,7 +77,7 @@ export default function Wishlist() {
         <div className="glassmorphism p-12 rounded-3xl text-center space-y-4 max-w-md mx-auto">
           <Heart className="w-12 h-12 text-emerald-700 mx-auto" />
           <h3 className="text-base font-bold text-white">Your Wishlist is Empty</h3>
-          <p className="text-xs text-emerald-305/65">Browse the marketplace catalog and save products you like for later.</p>
+          <p className="text-xs text-emerald-300/65">Browse the marketplace catalog and save products you like for later.</p>
           <button 
             onClick={() => navigate('/dashboard')}
             className="bg-emerald-500 hover:bg-emerald-400 text-farmgreen-950 font-bold px-5 py-2.5 rounded-xl text-xs transition-all active:scale-95"
@@ -94,7 +94,7 @@ export default function Wishlist() {
             return (
               <div 
                 key={product.id || product._id}
-                className="bg-emerald-950/20 rounded-3xl border border-emerald-900 p-4 flex flex-col justify-between hover:border-emerald-555/40 hover:shadow-2xl transition-all"
+                className="bg-emerald-950/20 rounded-3xl border border-emerald-900 p-4 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-2xl transition-all"
               >
                 <div className="space-y-3.5">
                   <div className="relative h-36 w-full rounded-2xl overflow-hidden bg-emerald-900/20">
@@ -125,7 +125,7 @@ export default function Wishlist() {
                 <div className="mt-4 pt-3 border-t border-emerald-900/60 flex items-center gap-2">
                   <button 
                     onClick={() => handleMoveToCart(product)}
-                    className="flex-grow bg-emerald-550 hover:bg-emerald-450 text-white font-bold py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center space-x-1.5"
+                    className="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center space-x-1.5"
                     disabled={stock <= 0}
                   >
                     <ShoppingCart className="w-4 h-4" />

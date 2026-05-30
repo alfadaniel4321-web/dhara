@@ -3,6 +3,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Menu } from "lucide-react";
 import FarmerSidebar from "../components/FarmerSidebar";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 export default function FarmerLayout() {
   const { user } = useSelector((state) => state.auth);
@@ -53,6 +54,7 @@ export default function FarmerLayout() {
           </div>
         </footer>
       </div>
+      <MobileBottomNav role="farmer" />
     </div>
   );
 }

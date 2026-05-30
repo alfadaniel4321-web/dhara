@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Package, Search, ChevronRight, Clock, CheckCircle, XCircle, RefreshCw, FileText, Truck, ShoppingBag } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Package, Search, ChevronRight, Clock, CheckCircle, XCircle, RefreshCw, FileText, Truck, ShoppingBag, Star, MessageSquare } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setCartSuccess } from "../redux/slices/cartSlice";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -14,6 +17,10 @@ const STATUS_STYLES = {
 const TABS = ["All", "Active", "Delivered", "Cancelled"];
 
 export default function MyOrders() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const [showSuccess, setShowSuccess] = useState(location.state?.orderSuccess || false);
   const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState([]);
@@ -34,6 +41,49 @@ export default function MyOrders() {
   useEffect(() => {
     loadOrders();
   }, []);
+
+  const handleReorder = async (order) => {
+    try {
+      for (const item of (order.products || [])) {
+        await api.cart.addToCart(item.productId || item._id, item.count || 1);
+      }
+      dispatch(setCartSuccess(true));
+      navigate('/cart');
+    } catch (err) {
+      console.error('Failed to reorder', err);
+    }
+  };
+
+  const [feedbackOrder, setFeedbackOrder] = useState(null);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackReview, setFeedbackReview] = useState("");
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
+  const handleFeedbackSubmit = async () => {
+    if (feedbackRating === 0 || !feedbackReview.trim()) return;
+    setSubmittingFeedback(true);
+    try {
+      const product = (feedbackOrder.products || [])[0];
+      await api.feedback.createFeedback({
+        farmerId: feedbackOrder.farmerId || feedbackOrder.products?.[0]?.farmerId,
+        productId: product?.productId || product?._id,
+        rating: feedbackRating,
+        review: feedbackReview,
+      });
+      setFeedbackSuccess(true);
+      setTimeout(() => {
+        setFeedbackOrder(null);
+        setFeedbackRating(0);
+        setFeedbackReview("");
+        setFeedbackSuccess(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Feedback failed', err);
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
 
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
@@ -87,6 +137,16 @@ export default function MyOrders() {
         </div>
       </div>
 
+      {showSuccess && (
+        <div className="bg-green-900/20 border border-green-700/50 rounded-2xl p-4 flex items-center gap-3">
+          <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+          <p className="text-sm text-green-300 font-medium">Order successfully placed!</p>
+          <button onClick={() => setShowSuccess(false)} className="ml-auto text-green-400/60 hover:text-green-300 text-xs font-bold">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <div className="space-y-4">
         {filtered.map(order => {
           const status = order.orderStatus || "Pending";
@@ -130,7 +190,7 @@ export default function MyOrders() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {status !== "Cancelled" && (
-                    <button className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-300 rounded-xl text-[10px] font-semibold transition-all">
+                    <button onClick={() => handleReorder(order)} className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-300 rounded-xl text-[10px] font-semibold transition-all">
                       <RefreshCw className="w-3 h-3" /> Reorder
                     </button>
                   )}
@@ -141,15 +201,75 @@ export default function MyOrders() {
                       <XCircle className="w-3 h-3" /> Cancel
                     </button>
                   )}
-                  <button className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-semibold transition-all">
-                    <FileText className="w-3 h-3" /> Invoice
-                  </button>
+                  {status === "Delivered" && (
+                    <button onClick={() => { setFeedbackOrder(order); setFeedbackRating(0); setFeedbackReview(""); setFeedbackSuccess(false); }}
+                      className="flex items-center gap-1.5 px-3.5 py-2 bg-amber-900/30 hover:bg-amber-900/50 text-amber-300 rounded-xl text-[10px] font-semibold transition-all"
+                    >
+                      <Star className="w-3 h-3" /> Feedback
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
       </div>
+
+      {feedbackOrder && (
+        <>
+          <div onClick={() => setFeedbackOrder(null)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md z-50 bg-emerald-950 border border-emerald-800 rounded-2xl p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold text-sm flex items-center gap-2">
+                <MessageSquare size={16} className="text-amber-400" /> Rate Your Order
+              </h3>
+              <button onClick={() => setFeedbackOrder(null)} className="text-emerald-400/60 hover:text-emerald-300">
+                <XCircle size={18} />
+              </button>
+            </div>
+
+            {feedbackSuccess ? (
+              <div className="text-center py-6">
+                <CheckCircle size={40} className="mx-auto text-green-400 mb-3" />
+                <p className="text-green-300 font-bold text-sm">Thank you for your feedback!</p>
+              </div>
+            ) : (
+              <>
+                <div className="text-[10px] text-emerald-400/50 mb-3">
+                  Order #{((feedbackOrder._id || feedbackOrder.id) || '').slice(-8)}
+                </div>
+
+                {/* Star Rating */}
+                <div className="flex items-center justify-center gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <button key={s} onClick={() => setFeedbackRating(s)}
+                      className="p-1 transition-transform hover:scale-110"
+                    >
+                      <Star size={28} fill={s <= feedbackRating ? "#F59E0B" : "none"}
+                        color={s <= feedbackRating ? "#F59E0B" : "#6B7280"}
+                        strokeWidth={1.5}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Review */}
+                <textarea value={feedbackReview} onChange={e => setFeedbackReview(e.target.value)}
+                  placeholder="Share your experience with this product..."
+                  className="w-full bg-emerald-900/30 border border-emerald-700/50 rounded-xl p-3 text-sm text-white placeholder-emerald-600/60 outline-none focus:border-amber-500/50 resize-none min-h-[80px]"
+                  rows={3}
+                />
+
+                <button onClick={handleFeedbackSubmit} disabled={submittingFeedback || feedbackRating === 0 || !feedbackReview.trim()}
+                  className="w-full mt-4 py-3 rounded-xl text-xs font-bold transition-all bg-amber-600 hover:bg-amber-500 text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {submittingFeedback ? "Submitting..." : "Submit Feedback"}
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      )}
 
       {filtered.length === 0 && (
         <div className="text-center py-16 bg-emerald-950/20 border border-emerald-900 rounded-2xl">

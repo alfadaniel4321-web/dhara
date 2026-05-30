@@ -15,6 +15,8 @@ export default function AddProduct() {
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [harvestDate, setHarvestDate] = useState(new Date().toISOString().split("T")[0]);
+  const [nextHarvest, setNextHarvest] = useState("today");
+  const [showCustomDate, setShowCustomDate] = useState(false);
   const [available, setAvailable] = useState(true);
   const [delivery, setDelivery] = useState("pickup");
   const [submitting, setSubmitting] = useState(false);
@@ -51,6 +53,11 @@ export default function AddProduct() {
       return;
     }
     setSubmitting(true);
+    const finalHarvestDate = showCustomDate
+      ? new Date(harvestDate)
+      : nextHarvest === "today"
+        ? new Date()
+        : new Date(Date.now() + 86400000);
     try {
       await api.products.createProduct({
         title: name,
@@ -59,11 +66,12 @@ export default function AddProduct() {
         price: Number(price),
         quantity: quantity,
         stock: 100,
-        harvestDate: new Date(harvestDate).toISOString(),
+        harvestDate: finalHarvestDate.toISOString(),
         availableTime: "06:00 AM - 12:00 PM",
         nutrition: "Fresh farm produce",
         protein: "Fresh",
         freshnessScore: 98,
+        nextHarvest: !showCustomDate,
       });
       setSuccess("Product added successfully!");
       setName("");
@@ -256,7 +264,7 @@ export default function AddProduct() {
                 { emoji: "🌿", label: "Fresh Herbs", id: "Fresh Herbs" },
                 { emoji: "🧂", label: "Natural Spices", id: "Natural Spices" },
                 { emoji: "🍯", label: "Honey & Jams", id: "Honey & Jams" },
-                { emoji: "🍞", label: "Bakery Products", id: "Bakery Products" },
+                { emoji: "🏝️", label: "Dry Products", id: "Dry Products" },
                 { emoji: "🥜", label: "Healthy Snacks", id: "Healthy Snacks" },
                 { emoji: "🧃", label: "Farm Drinks", id: "Farm Drinks" },
               ].map((cat) => (
@@ -327,27 +335,70 @@ export default function AddProduct() {
             </div>
           </div>
 
-          {/* Harvest Date */}
+          {/* Next Harvest */}
           <div>
             <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(149,213,178,0.7)" }}>
               <Clock size={12} style={{ display: "inline", marginRight: 4 }} />
-              {t("product.harvestTime", lang)}
+              Next Harvest
             </label>
-            <input
-              type="date"
-              value={harvestDate}
-              onChange={(e) => setHarvestDate(e.target.value)}
-              className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
-              style={{
-                background: "rgba(0,0,0,0.25)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                outline: "none",
-                colorScheme: "dark",
-              }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
-              required
-            />
+            <div className="flex gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => { setNextHarvest("today"); setShowCustomDate(false); }}
+                className="flex-1 py-3 rounded-xl text-xs font-bold transition-all"
+                style={{
+                  background: !showCustomDate && nextHarvest === "today" ? "rgba(34,197,94,0.2)" : "rgba(0,0,0,0.2)",
+                  border: `1px solid ${!showCustomDate && nextHarvest === "today" ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  color: !showCustomDate && nextHarvest === "today" ? "#22c55e" : "rgba(255,255,255,0.6)",
+                  cursor: "pointer",
+                }}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => { setNextHarvest("tomorrow"); setShowCustomDate(false); }}
+                className="flex-1 py-3 rounded-xl text-xs font-bold transition-all"
+                style={{
+                  background: !showCustomDate && nextHarvest === "tomorrow" ? "rgba(34,197,94,0.2)" : "rgba(0,0,0,0.2)",
+                  border: `1px solid ${!showCustomDate && nextHarvest === "tomorrow" ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  color: !showCustomDate && nextHarvest === "tomorrow" ? "#22c55e" : "rgba(255,255,255,0.6)",
+                  cursor: "pointer",
+                }}
+              >
+                Tomorrow
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCustomDate(true)}
+                className="flex-1 py-3 rounded-xl text-xs font-bold transition-all"
+                style={{
+                  background: showCustomDate ? "rgba(34,197,94,0.2)" : "rgba(0,0,0,0.2)",
+                  border: `1px solid ${showCustomDate ? "rgba(34,197,94,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  color: showCustomDate ? "#22c55e" : "rgba(255,255,255,0.6)",
+                  cursor: "pointer",
+                }}
+              >
+                Custom
+              </button>
+            </div>
+            {showCustomDate && (
+              <input
+                type="date"
+                value={harvestDate}
+                onChange={(e) => setHarvestDate(e.target.value)}
+                className="w-full rounded-xl px-4 py-3.5 text-base text-white transition-all"
+                style={{
+                  background: "rgba(0,0,0,0.25)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  outline: "none",
+                  colorScheme: "dark",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(149,213,178,0.4)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                required
+              />
+            )}
           </div>
 
           {/* Availability toggle */}

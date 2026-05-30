@@ -80,7 +80,7 @@ export default function AdminProducts() {
         </div>
       ) : (
         <div className="bg-[#0a1a0e] border border-emerald-900/20 rounded-2xl overflow-hidden">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs responsive-table">
             <thead>
               <tr className="border-b border-emerald-900/30 text-emerald-400/60 uppercase tracking-wider">
                 <th className="p-4 font-semibold">Product</th>
@@ -94,7 +94,7 @@ export default function AdminProducts() {
             <tbody className="divide-y divide-emerald-900/10">
               {filtered.map((p) => (
                 <tr key={p._id || p.id} className="hover:bg-emerald-900/5 transition-colors">
-                  <td className="p-4">
+                  <td className="p-4" data-label="Product">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-emerald-900/20 overflow-hidden flex-shrink-0">
                         {p.image ? <img src={p.image} className="w-full h-full object-cover" /> : <Image size={16} className="m-auto mt-2.5 text-emerald-700/40" />}
@@ -102,13 +102,13 @@ export default function AdminProducts() {
                       <span className="font-semibold text-emerald-200 truncate max-w-[180px]">{p.title}</span>
                     </div>
                   </td>
-                  <td className="p-4 text-emerald-400/70 hidden md:table-cell">{p.farmerName || "Unknown"}</td>
-                  <td className="p-4"><span className="text-[10px] font-medium px-2 py-0.5 bg-emerald-900/20 text-emerald-400 rounded-lg">{p.category}</span></td>
-                  <td className="p-4 font-mono text-emerald-300 font-bold">₹{p.price}</td>
-                  <td className="p-4 hidden sm:table-cell">
+                  <td className="p-4 text-emerald-400/70 hidden md:table-cell" data-label="Farmer">{p.farmerName || "Unknown"}</td>
+                  <td className="p-4" data-label="Category"><span className="text-[10px] font-medium px-2 py-0.5 bg-emerald-900/20 text-emerald-400 rounded-lg">{p.category}</span></td>
+                  <td className="p-4 font-mono text-emerald-300 font-bold" data-label="Price">₹{p.price}</td>
+                  <td className="p-4 hidden sm:table-cell" data-label="Stock">
                     <span className={`font-bold ${(p.stock ?? 0) <= 0 ? "text-red-400" : (p.stock ?? 0) <= 5 ? "text-yellow-400" : "text-emerald-400"}`}>{p.stock ?? 0}</span>
                   </td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right" data-label="">
                     <button onClick={() => handleDelete(p._id || p.id)}
                       className="p-1.5 text-red-400 hover:text-red-300 rounded-lg hover:bg-red-900/20"
                     ><Trash2 size={14} /></button>

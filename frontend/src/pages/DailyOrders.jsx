@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCartSuccess } from "../redux/slices/cartSlice";
 import {
   ShoppingBag, Clock, RefreshCw, Package, CheckCircle, Truck
 } from "lucide-react";
@@ -13,6 +16,8 @@ const STATUS_STYLES = {
 };
 
 export default function DailyOrders() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
@@ -33,6 +38,18 @@ export default function DailyOrders() {
   useEffect(() => {
     loadOrders();
   }, []);
+
+  const handleReorder = async (order) => {
+    try {
+      for (const item of (order.products || [])) {
+        await api.cart.addToCart(item.productId || item._id, item.count || 1);
+      }
+      dispatch(setCartSuccess(true));
+      navigate('/cart');
+    } catch (err) {
+      console.error('Failed to reorder', err);
+    }
+  };
 
   const filtered = filter === "All" ? orders : filter === "Active" ? orders.filter(o => o.orderStatus !== "Delivered") : orders.filter(o => o.orderStatus === "Delivered");
 
@@ -123,7 +140,7 @@ export default function DailyOrders() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                   <span style={{ fontWeight: 800, color: "#013220", fontSize: "1.1rem" }}>₹{order.totalPrice || 0}</span>
-                  <button style={{
+                  <button onClick={() => handleReorder(order)} style={{
                     display: "flex", alignItems: "center", gap: "4px", background: "#EBF5EB", color: "#013220",
                     border: "none", borderRadius: "10px", padding: "0.5rem 1rem", cursor: "pointer",
                     fontWeight: 600, fontSize: "0.75rem",

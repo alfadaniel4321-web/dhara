@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import MobileBottomNav from '../components/MobileBottomNav';
 
 export default function DashboardLayout() {
   const { user } = useSelector((state) => state.auth);
@@ -24,6 +25,7 @@ export default function DashboardLayout() {
         </main>
       </div>
       <Footer />
+      <MobileBottomNav role="customer" />
     </div>
   );
 }

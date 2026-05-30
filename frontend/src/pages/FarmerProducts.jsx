@@ -201,7 +201,7 @@ export default function FarmerProducts() {
         </div>
       ) : (
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl overflow-hidden">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs responsive-table">
             <thead>
               <tr className="border-b border-emerald-900/30 text-emerald-400/60 uppercase tracking-wider">
                 <th className="p-4 font-semibold">Product</th>
@@ -214,7 +214,7 @@ export default function FarmerProducts() {
             <tbody className="divide-y divide-emerald-900/10">
               {paginated.map((p) => (
                 <tr key={p._id || p.id} className="hover:bg-emerald-900/5 transition-colors">
-                  <td className="p-4">
+                  <td className="p-4" data-label="Product">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-emerald-900/20 overflow-hidden flex-shrink-0">
                         {p.image ? <img src={p.image} className="w-full h-full object-cover" /> : <Image size={16} className="m-auto text-emerald-700/40" />}
@@ -222,14 +222,14 @@ export default function FarmerProducts() {
                       <span className="font-semibold text-emerald-200 truncate max-w-[150px]">{p.title}</span>
                     </div>
                   </td>
-                  <td className="p-4 text-emerald-400/70 hidden md:table-cell">{p.category}</td>
-                  <td className="p-4 font-mono text-emerald-300 font-bold">₹{p.price}</td>
-                  <td className="p-4">
+                  <td className="p-4 text-emerald-400/70 hidden md:table-cell" data-label="Category">{p.category}</td>
+                  <td className="p-4 font-mono text-emerald-300 font-bold" data-label="Price">₹{p.price}</td>
+                  <td className="p-4" data-label="Stock">
                     <span className={`font-bold ${p.stock <= 0 ? "text-red-400" : p.stock <= 5 ? "text-yellow-400" : "text-emerald-400"}`}>
                       {p.stock ?? 0}
                     </span>
                   </td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right" data-label="">
                     <button onClick={() => startEdit(p)} className="p-1.5 text-emerald-400 hover:text-emerald-300 rounded-lg hover:bg-emerald-900/20">
                       <Edit3 size={14} />
                     </button>

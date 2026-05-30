@@ -62,7 +62,7 @@ function QuickViewModal({ product, onClose, onAddToCart }) {
                 </div>
               )}
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{product.nutrition || ''}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Farmer: <span className="font-medium">{product.farmerId?.name || 'Local Farm'}</span></p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Farmer: <span className="font-medium">{product.farmerId?.name || ''}</span></p>
               <div className="flex items-baseline gap-2 mb-6">
                 <span className="text-2xl font-bold text-gray-900 dark:text-white">₹{product.price}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">/ {product.quantity}</span>
@@ -136,8 +136,11 @@ export default function Products() {
   }, []);
 
   const BRANDS = useMemo(() => {
-    const brands = new Set(allProducts.map(p => p.brand).filter(Boolean));
-    brands.add(...allProducts.map(p => p.farmerId?.name).filter(Boolean));
+    const brands = new Set();
+    allProducts.forEach(p => {
+      if (p.brand) brands.add(p.brand);
+      if (p.farmerId?.name) brands.add(p.farmerId.name);
+    });
     return [...brands].sort();
   }, [allProducts]);
 
@@ -151,8 +154,14 @@ export default function Products() {
 
   const toggleDark = () => setDarkMode(prev => !prev);
 
-  const toggleWishlist = useCallback((id) => {
-    setWishlist(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleWishlist = useCallback(async (id) => {
+    try {
+      const updatedList = await api.wishlist.toggleWishlist(id);
+      const ids = (Array.isArray(updatedList) ? updatedList : []).map(item => item.id || item._id);
+      setWishlist(ids);
+    } catch (err) {
+      console.error('Failed to toggle wishlist', err);
+    }
   }, []);
 
   const [selectedBrands, setSelectedBrands] = useState([]);

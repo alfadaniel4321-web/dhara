@@ -3,6 +3,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Menu, Shield } from "lucide-react";
 import AdminSidebar from "../components/AdminSidebar";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 export default function AdminLayout() {
   const { user } = useSelector((state) => state.auth);
@@ -46,6 +47,7 @@ export default function AdminLayout() {
           </div>
         </footer>
       </div>
+      <MobileBottomNav role="admin" />
     </div>
   );
 }

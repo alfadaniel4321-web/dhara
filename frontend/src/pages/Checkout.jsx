@@ -85,8 +85,8 @@ export default function Checkout() {
       // Clear client cart
       dispatch(clearCartLocal());
       
-      // Navigate to my orders
-      navigate('/my-orders');
+      // Navigate to my orders with success
+      navigate('/my-orders', { state: { orderSuccess: true } });
     } catch (e) {
       alert(e.message || 'Order placement failed');
     }
@@ -236,7 +236,7 @@ export default function Checkout() {
 
             <div className="flex justify-between">
               <span>Delivery Cost:</span>
-              <span className="font-semibold text-emerald-400">FREE</span>
+              <span className="font-semibold text-emerald-400">₹25</span>
             </div>
 
             <div className="flex justify-between text-sm font-extrabold text-white border-t border-emerald-900/60 pt-3.5">

@@ -3,7 +3,7 @@ const Farmer = require('../models/Farmer');
 
 exports.createProduct = async (req, res) => {
   try {
-    const { title, image, category, quantity, harvestDate, availableTime, nutrition, protein, freshnessScore, price, stock, description } = req.body;
+    const { title, image, category, quantity, harvestDate, availableTime, nutrition, protein, freshnessScore, price, stock, description, nextHarvest } = req.body;
     const farmerId = req.user.userId;
 
     if (req.user.role !== 'farmer') {
@@ -36,6 +36,7 @@ exports.createProduct = async (req, res) => {
       protein: protein || '',
       freshnessScore: freshnessScore !== undefined ? Number(freshnessScore) : 0,
       description: description || '',
+      nextHarvest: nextHarvest || false,
       farmerId
     });
 
@@ -123,10 +124,10 @@ exports.getProducts = async (req, res) => {
       filter.category = category;
     }
 
-    const products = await Product.find(filter);
+    const products = await Product.find(filter).populate('farmerId', 'name');
 
     const blockedFarmers = new Set();
-    const farmerIds = [...new Set(products.map(p => p.farmerId?.toString()).filter(Boolean))];
+    const farmerIds = [...new Set(products.map(p => p.farmerId?._id?.toString()).filter(Boolean))];
     for (const fId of farmerIds) {
       const farmer = await Farmer.findById(fId);
       if (farmer && farmer.blocked) {
@@ -134,7 +135,7 @@ exports.getProducts = async (req, res) => {
       }
     }
 
-    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId.toString()));
+    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId._id?.toString()));
 
     res.json(activeProducts);
   } catch (err) {
@@ -173,7 +174,7 @@ exports.updateProduct = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this product' });
     }
 
-    const allowedFields = ['title', 'image', 'category', 'price', 'quantity', 'stock', 'harvestDate', 'availableTime', 'nutrition', 'protein', 'freshnessScore', 'description'];
+    const allowedFields = ['title', 'image', 'category', 'price', 'quantity', 'stock', 'harvestDate', 'availableTime', 'nutrition', 'protein', 'freshnessScore', 'description', 'nextHarvest'];
     const updates = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {

@@ -130,7 +130,7 @@ export default function FarmerInventory() {
         </div>
       ) : (
         <div className="bg-[#111811] border border-emerald-900/20 rounded-2xl overflow-hidden">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs responsive-table">
             <thead>
               <tr className="border-b border-emerald-900/30 text-emerald-400/60 uppercase tracking-wider">
                 <th className="p-4 font-semibold">Product</th>
@@ -147,7 +147,7 @@ export default function FarmerInventory() {
                 const stockStatus = p.stock <= 0 ? "out" : p.stock <= 5 ? "low" : "good";
                 return (
                   <tr key={p._id || p.id} className="hover:bg-emerald-900/5 transition-colors">
-                    <td className="p-4">
+                    <td className="p-4" data-label="Product">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-emerald-900/20 overflow-hidden flex-shrink-0">
                           {p.image ? <img src={p.image} className="w-full h-full object-cover" /> :
@@ -156,9 +156,9 @@ export default function FarmerInventory() {
                         <span className="font-semibold text-emerald-200">{p.title}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-emerald-400/70">{p.category}</td>
-                    <td className="p-4 font-mono text-emerald-300 font-bold">₹{p.price}</td>
-                    <td className="p-4">
+                    <td className="p-4 text-emerald-400/70" data-label="Category">{p.category}</td>
+                    <td className="p-4 font-mono text-emerald-300 font-bold" data-label="Price">₹{p.price}</td>
+                    <td className="p-4" data-label="Current Stock">
                       {isEditing ? (
                         <div className="flex items-center gap-1.5">
                           <input type="number" value={editStock} onChange={e => setEditStock(e.target.value)}
@@ -178,7 +178,7 @@ export default function FarmerInventory() {
                         }`}>{p.stock ?? 0}</span>
                       )}
                     </td>
-                    <td className="p-4">
+                    <td className="p-4" data-label="Status">
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
                         stockStatus === "out" ? "bg-red-900/30 text-red-400" :
                         stockStatus === "low" ? "bg-yellow-900/30 text-yellow-400" :
@@ -187,7 +187,7 @@ export default function FarmerInventory() {
                         {stockStatus === "out" ? "Out of Stock" : stockStatus === "low" ? "Low Stock" : "In Stock"}
                       </span>
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="p-4 text-right" data-label="">
                       <button onClick={() => { setEditingId(p._id || p.id); setEditStock(String(p.stock ?? 0)); }}
                         className="p-1.5 text-emerald-400 hover:text-emerald-300 rounded-lg hover:bg-emerald-900/20"
                       ><Edit3 size={14} /></button>

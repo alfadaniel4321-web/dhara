@@ -93,7 +93,7 @@ export default function ManageProducts() {
       ) : (
         <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-xs border-collapse responsive-table">
               <thead>
                 <tr className="bg-emerald-950/50 border-b border-emerald-900 text-emerald-400 uppercase tracking-widest font-bold">
                   <th className="p-4">Produce Details</th>
@@ -109,13 +109,15 @@ export default function ManageProducts() {
                   
                   return (
                     <tr key={product.id || product._id} className="hover:bg-emerald-950/10 transition-colors">
-                      <td className="p-4 flex items-center space-x-3">
-                        <img src={product.image} alt={product.title} className="w-10 h-10 object-cover rounded-lg bg-emerald-900/20" />
-                        <span className="font-bold text-white block truncate max-w-[120px]">{product.title}</span>
+                      <td className="p-4" data-label="Produce Details">
+                        <div className="flex items-center space-x-3">
+                          <img src={product.image} alt={product.title} className="w-10 h-10 object-cover rounded-lg bg-emerald-900/20" />
+                          <span className="font-bold text-white block truncate max-w-[120px]">{product.title}</span>
+                        </div>
                       </td>
-                      <td className="p-4 text-emerald-300 font-semibold">{product.category}</td>
-                      <td className="p-4 font-mono font-bold text-emerald-200">₹{product.price} / {product.quantity}</td>
-                      <td className="p-4">
+                      <td className="p-4 text-emerald-300 font-semibold" data-label="Category">{product.category}</td>
+                      <td className="p-4 font-mono font-bold text-emerald-200" data-label="Price / Unit">₹{product.price} / {product.quantity}</td>
+                      <td className="p-4" data-label="Stock Level">
                         {isEditing ? (
                           <div className="flex items-center space-x-1.5">
                             <input 
@@ -149,7 +151,7 @@ export default function ManageProducts() {
                           </div>
                         )}
                       </td>
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center" data-label="">
                         <button 
                           onClick={() => handleDelete(product.id || product._id)}
                           className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-950/20 rounded-lg transition-all"

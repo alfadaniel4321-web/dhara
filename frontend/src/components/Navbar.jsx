@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
-import { Search, ShoppingBag, User, LogOut, Leaf } from 'lucide-react';
+import { Heart, ShoppingBag, User, LogOut, Leaf } from 'lucide-react';
 import { logoutUser } from '../redux/slices/authSlice';
 import { clearCartLocal } from '../redux/slices/cartSlice';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
-  { label: 'Marketplace', to: '/dashboard' },
   { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
 ];
@@ -257,25 +256,24 @@ export default function Navbar() {
 
           {/* ─── RIGHT: Desktop Actions ─── */}
           <div className="hidden lg:flex items-center gap-5">
-            <button
+            <Link
+              to="/wishlist"
+              onClick={closeMenu}
               className="flex items-center justify-center"
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
                 width: '38px',
                 height: '38px',
                 borderRadius: '50%',
                 transition: 'background-color 0.3s ease',
                 color: mutedTextColor,
+                textDecoration: 'none',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(106,153,78,0.12)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-              aria-label="Search"
+              aria-label="Wishlist"
             >
-              <Search size={19} style={{ strokeWidth: 1.5 }} />
-            </button>
+              <Heart size={19} style={{ strokeWidth: 1.5 }} />
+            </Link>
 
             <Link
               to="/cart"
