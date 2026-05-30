@@ -329,7 +329,7 @@ export default function FarmerProfile() {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {val || f.placeholder}
+                        {val || <span style={{ color: "rgba(1,50,32,0.25)", fontStyle: "italic" }}>Not set</span>}
                       </p>
                     </div>
                   </div>
