@@ -238,7 +238,7 @@ function HarvestSection() {
           <Link to="/login" style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#F5F3E7', textDecoration: 'none', flexShrink: 0 }}>VIEW ENTIRE HARVEST →</Link>
         </div>
         <div className="harvest-grid" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px',
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px',
           background: 'rgba(245,243,231,0.12)', marginTop: '3rem',
         }}>
           {displayItems.map((item) => (
@@ -260,7 +260,8 @@ function HarvestSection() {
         </div>
       </div>
       <style>{`
-        @media(max-width:480px){.harvest-grid{grid-template-columns:1fr!important}}
+        @media(max-width:768px){.harvest-grid{grid-template-columns:repeat(2,1fr)!important}}
+        @media(max-width:480px){.harvest-grid{grid-template-columns:repeat(2,1fr)!important}}
         .harvest-grid > div:hover img { transform: scale(1.04); }
       `}</style>
     </section>
