@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://d3b469615ee51176-103-155-222-123.serveousercontent.com/api';
+const API_BASE_URL = 'https://dhara-5rgb.onrender.com/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('dhara_token');
