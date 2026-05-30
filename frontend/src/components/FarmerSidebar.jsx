@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Package, ShoppingBag, IndianRupee,
-  Star, Bell, Settings, ChevronLeft, Menu, LogOut,
+  Star, Bell, User, ChevronLeft, Menu, LogOut,
   BarChart3, AlertTriangle, X, Users, Sprout
 } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { to: "/farmer/reviews", icon: Star, key: "reviews" },
   { to: "/farmer/inventory", icon: BarChart3, key: "inventory" },
   { to: "/farmer/notifications", icon: Bell, key: "notifications" },
-  { to: "/farmer/settings", icon: Settings, key: "profile" },
+  { to: "/farmer/profile", icon: User, key: "profile" },
 ];
 
 export default function FarmerSidebar({ open, onClose }) {

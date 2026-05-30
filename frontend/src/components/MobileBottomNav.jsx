@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Home, Grid, ShoppingBag, User, Package,
-  LayoutDashboard, Users, Settings, Sprout,
+  LayoutDashboard, Users, Sprout,
   BarChart3, IndianRupee, Bell, Star
 } from "lucide-react";
 
@@ -18,7 +18,7 @@ const ADMIN_ITEMS = [
   { icon: Users, label: "Farmers", route: "/admin/farmers" },
   { icon: Grid, label: "Products", route: "/admin/products" },
   { icon: ShoppingBag, label: "Orders", route: "/admin/orders" },
-  { icon: Settings, label: "Settings", route: "/admin/settings" },
+  { icon: User, label: "Profile", route: "/admin/settings" },
 ];
 
 const FARMER_ITEMS = [
@@ -26,7 +26,7 @@ const FARMER_ITEMS = [
   { icon: Grid, label: "Products", route: "/farmer/products" },
   { icon: IndianRupee, label: "Revenue", route: "/farmer/revenue" },
   { icon: ShoppingBag, label: "Orders", route: "/farmer/orders" },
-  { icon: User, label: "Profile", route: "/farmer/settings" },
+  { icon: User, label: "Profile", route: "/farmer/profile" },
 ];
 
 function NavItem({ item, isActive, onClick }) {

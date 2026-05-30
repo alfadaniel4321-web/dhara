@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   LayoutDashboard, Users, Package, ShoppingBag, AlertTriangle,
-  BarChart3, Bell, Settings, Shield, LogOut, X, Sprout, Percent
+  BarChart3, Bell, User, Shield, LogOut, X, Sprout, Percent
 } from "lucide-react";
 import { logoutUser } from "../redux/slices/authSlice";
 
@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { to: "/admin/reports", icon: AlertTriangle, label: "Reports" },
   { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/admin/notifications", icon: Bell, label: "Notifications" },
-  { to: "/admin/settings", icon: Settings, label: "Settings" },
+  { to: "/admin/settings", icon: User, label: "Profile" },
 ];
 
 export default function AdminSidebar({ open, onClose }) {
