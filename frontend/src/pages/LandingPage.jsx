@@ -355,6 +355,18 @@ function HorizontalScrollStory() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [isMobile]);
 
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const idx = Math.round(el.scrollLeft / el.offsetWidth);
+      if (idx !== mobileIndex) setMobileIndex(idx);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [isMobile, mobileIndex]);
+
   if (!isMobile) {
     return (
       <div ref={sectionRef} style={{ minHeight: '70vh', height: 'auto', position: 'relative', overflow: 'hidden', background: '#F5F3E7' }}>
@@ -500,17 +512,6 @@ function HorizontalScrollStory() {
   const mGoToPrev = () => {
     if (mobileIndex > 0) scrollTo(mobileIndex - 1);
   };
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const idx = Math.round(el.scrollLeft / el.offsetWidth);
-      if (idx !== mobileIndex) setMobileIndex(idx);
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [mobileIndex]);
 
   return (
     <section style={{ background: '#F5F3E7', padding: 0, position: 'relative' }}>
