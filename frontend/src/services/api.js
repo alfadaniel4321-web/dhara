@@ -257,6 +257,9 @@ export const api = {
   },
 
   public: {
+    getStats: async () => {
+      return await request('/stats');
+    },
     getActiveBanners: async () => {
       return await request('/banners/active');
     },

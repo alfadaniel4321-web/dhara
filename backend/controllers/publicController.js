@@ -1,5 +1,8 @@
 const Banner = require('../models/Banner');
 const Coupon = require('../models/Coupon');
+const User = require('../models/User');
+const Farmer = require('../models/Farmer');
+const Product = require('../models/Product');
 
 exports.getActiveBanners = async (req, res) => {
   try {
@@ -43,6 +46,32 @@ exports.getActiveCoupons = async (req, res) => {
 
     res.json(result);
   } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getStats = async (req, res) => {
+  try {
+    const [totalProducts, totalFarmers, avgRatingResult, totalCustomers] = await Promise.all([
+      Product.countDocuments({}),
+      Farmer.countDocuments({ blocked: false }),
+      Farmer.aggregate([
+        { $match: { blocked: false } },
+        { $group: { _id: null, avgRating: { $avg: '$rating' } } }
+      ]),
+      User.countDocuments({ role: 'customer' })
+    ]);
+
+    const avgRating = avgRatingResult.length > 0 ? avgRatingResult[0].avgRating : 5.0;
+
+    res.json({
+      totalProducts,
+      totalFarmers,
+      avgRating: Math.round(avgRating * 10) / 10,
+      totalCustomers
+    });
+  } catch (err) {
+    console.error('Get public stats error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

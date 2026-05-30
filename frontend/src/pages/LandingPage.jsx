@@ -57,13 +57,6 @@ function AnimatedSection({ children, threshold = 0.15, delay = 0, style }) {
 }
 
 // ─── Shared data ─────────────────────────────────────────────────────────────
-const STATS_DATA = [
-  { value: '4.9', suffix: '★', label: 'Customer Rating' },
-  { value: '42.5k+', suffix: '', label: 'Organic Deliveries' },
-  { value: '980+', suffix: '', label: 'Verified Farmers' },
-  { value: '24', suffix: ' min', label: 'Avg Delivery' },
-];
-
 function StatCard({ stat, index }) {
   const [ref, visible] = useReveal(0.2);
   return (
@@ -214,7 +207,7 @@ function HarvestSection() {
             name: p.title,
             price: p.price ?? 0,
             unit: (p.quantity || '').toUpperCase(),
-            region: (p.farmerId?.address || p.farmerId?.district || '').toUpperCase(),
+            region: (p.farmerId?.district || p.farmerId?.village || p.farmerId?.address || 'KERALA').toUpperCase(),
             farmer: (p.farmerId?.name || '').toUpperCase(),
             image: p.image,
           }));
@@ -906,20 +899,26 @@ function ManifestoSection() {
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function LandingPage() {
   const [topFarmers, setTopFarmers] = useState([]);
+  const [stats, setStats] = useState(null);
   const [introPhase, setIntroPhase] = useState('visible');
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const fetchFarmers = async () => {
+    const fetchData = async () => {
       try {
-        const farmers = await api.auth.getFarmers();
+        const [statsData, farmers] = await Promise.all([
+          api.public.getStats(),
+          api.auth.getFarmers()
+        ]);
+        setStats(statsData);
         setTopFarmers(farmers.slice(0, 2));
       } catch {
+        setStats(null);
         setTopFarmers([]);
       }
     };
-    fetchFarmers();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -1013,7 +1012,21 @@ export default function LandingPage() {
         {/* ── STATISTICS BAND ── */}
         <section style={{ padding: '4rem 1.5rem', background: '#F5F3E7' }}>
           <div className="stats-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem' }}>
-            {STATS_DATA.map((stat, i) => <StatCard key={i} stat={stat} index={i} />)}
+            {stats ? (
+              <>
+                <StatCard stat={{ value: stats.avgRating?.toString() || '5.0', suffix: '★', label: 'Customer Rating' }} index={0} />
+                <StatCard stat={{ value: (stats.totalCustomers + stats.totalFarmers).toString() + '+', suffix: '', label: 'Organic Deliveries' }} index={1} />
+                <StatCard stat={{ value: stats.totalFarmers?.toString() + '+', suffix: '', label: 'Verified Farmers' }} index={2} />
+                <StatCard stat={{ value: '24', suffix: ' min', label: 'Avg Delivery' }} index={3} />
+              </>
+            ) : (
+              <>
+                <StatCard stat={{ value: '5.0', suffix: '★', label: 'Customer Rating' }} index={0} />
+                <StatCard stat={{ value: '0', suffix: '', label: 'Organic Deliveries' }} index={1} />
+                <StatCard stat={{ value: '0', suffix: '', label: 'Verified Farmers' }} index={2} />
+                <StatCard stat={{ value: '24', suffix: ' min', label: 'Avg Delivery' }} index={3} />
+              </>
+            )}
           </div>
         </section>
 

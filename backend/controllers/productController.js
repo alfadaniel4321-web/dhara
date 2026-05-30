@@ -124,7 +124,7 @@ exports.getProducts = async (req, res) => {
       filter.category = category;
     }
 
-    const products = await Product.find(filter).populate('farmerId', 'name');
+    const products = await Product.find(filter).populate('farmerId', 'name district village address');
 
     const blockedFarmers = new Set();
     const farmerIds = [...new Set(products.map(p => p.farmerId?._id?.toString()).filter(Boolean))];
