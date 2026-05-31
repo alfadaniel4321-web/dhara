@@ -410,14 +410,14 @@ export default function MobileProfile() {
             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem',
           }}>
             {[
-              { icon: ShoppingBag, count: orderCount, label: 'Orders', bg: 'rgba(27,67,50,0.06)', color: '#1B4332' },
-              { icon: Heart, count: wishlistCount, label: 'Wishlist', bg: 'rgba(212,160,23,0.1)', color: '#D4A017' },
-              { icon: MapPin, count: user?.address ? 1 : 0, label: 'Saved Addresses', bg: 'rgba(106,153,78,0.1)', color: '#6A994E' },
-              { icon: Gift, count: '250', label: 'Reward Points', bg: 'rgba(212,160,23,0.08)', color: '#D4A017' },
+              { icon: ShoppingBag, count: orderCount, label: 'Orders', route: '/my-orders', bg: 'rgba(27,67,50,0.06)', color: '#1B4332' },
+              { icon: Heart, count: wishlistCount, label: 'Wishlist', route: '/wishlist', bg: 'rgba(212,160,23,0.1)', color: '#D4A017' },
+              { icon: MapPin, count: user?.address ? 1 : 0, label: 'Saved Addresses', route: '/profile', bg: 'rgba(106,153,78,0.1)', color: '#6A994E' },
+              { icon: Gift, count: '250', label: 'Reward Points', route: '/profile', bg: 'rgba(212,160,23,0.08)', color: '#D4A017' },
             ].map((s, i) => {
               const Icon = s.icon;
               return (
-                <div key={i} className="stat-card fade-up" style={{ animationDelay: `${0.05 * i}s`, padding: '1.15rem 0.75rem' }}>
+                <Link key={i} to={s.route} className="stat-card fade-up" style={{ animationDelay: `${0.05 * i}s`, padding: '1.15rem 0.75rem', textDecoration: 'none', cursor: 'pointer' }}>
                   <div style={{
                     width: '40px', height: '40px', borderRadius: '14px',
                     background: s.bg,
@@ -434,7 +434,7 @@ export default function MobileProfile() {
                     letterSpacing: '0.08em', color: 'rgba(27,67,50,0.4)',
                     textTransform: 'uppercase', textAlign: 'center',
                   }}>{s.label}</span>
-                </div>
+                </Link>
               );
             })}
           </div>
