@@ -13,6 +13,7 @@ import {
   Home,
   MessageSquare
 } from 'lucide-react';
+import MobileOrderTracking from './MobileOrderTracking';
 
 export default function OrderTracking() {
   const { id } = useParams();
@@ -20,6 +21,13 @@ export default function OrderTracking() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [farmer, setFarmer] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadOrder = async () => {
     setLoading(true);
@@ -57,6 +65,8 @@ export default function OrderTracking() {
       </div>
     );
   }
+
+  if (isMobile) return <MobileOrderTracking />;
 
   // Map orderStatus string to timeline stage index
   const stages = [
