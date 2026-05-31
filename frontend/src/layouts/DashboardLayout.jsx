@@ -6,7 +6,7 @@ import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import MobileBottomNav from '../components/MobileBottomNav';
 
-const SELF_CONTAINED_MOBILE = ['/dashboard', '/daily-orders', '/my-orders', '/profile', '/cart', '/track/'];
+const SELF_CONTAINED_MOBILE = ['/dashboard', '/daily-orders', '/my-orders', '/profile', '/cart', '/track/', '/wishlist'];
 
 export default function DashboardLayout() {
   const { user } = useSelector((state) => state.auth);
