@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCartSuccess } from '../redux/slices/cartSlice';
 import { api } from '../services/api';
 import {
-  ShoppingBag, Heart, Package, Clock, CheckCircle, XCircle,
+  ShoppingBag, Package, Clock, CheckCircle, XCircle,
   Truck, MapPin, CreditCard, ChevronDown, ChevronUp,
   RefreshCw, Leaf, User, Search, Menu, Home,
 } from 'lucide-react';
@@ -263,34 +263,7 @@ export default function MobileOrders() {
               }}>Track & Manage</span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Link to="/wishlist" style={{
-              width: '38px', height: '38px', borderRadius: '12px',
-              background: 'rgba(27,67,50,0.04)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              color: '#1B4332', textDecoration: 'none',
-            }}>
-              <Heart size={18} strokeWidth={1.5} />
-            </Link>
-            <Link to="/cart" style={{
-              width: '38px', height: '38px', borderRadius: '12px',
-              background: 'rgba(27,67,50,0.04)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              color: '#1B4332', textDecoration: 'none', position: 'relative',
-            }}>
-              <ShoppingBag size={18} strokeWidth={1.5} />
-              {totalCartCount > 0 && (
-                <span style={{
-                  position: 'absolute', top: '2px', right: '2px',
-                  width: '16px', height: '16px', borderRadius: '50%',
-                  background: '#D4A017', color: '#FFFFFF',
-                  fontSize: '9px', fontWeight: 700,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: '"DM Sans", sans-serif',
-                }}>{totalCartCount}</span>
-              )}
-            </Link>
-          </div>
+          {/* empty */}
         </div>
       </header>
 
