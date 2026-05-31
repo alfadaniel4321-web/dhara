@@ -1,15 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
-import farmVideo from "../assets/farm-video.mp4";
-import philosophyImg from "../assets/WhatsApp Image 2026-05-27 at 10.24.29 AM.jpeg";
-import growersImg from "../assets/WhatsApp Image 2026-05-27 at 10.23.55 AM.jpeg";
-import traceabilityImg from "../assets/WhatsApp Image 2026-05-27 at 10.24.52 AM.jpeg";
-import harvestTomato from "../assets/product-tomato.jpg";
-import harvestGreens from "../assets/product-greens.jpg";
-import storyGroveImg from "../assets/story-grove.jpg";
-import storySoilImg from "../assets/story-soil.jpg";
-import { Star, MapPin, ArrowRight } from 'lucide-react';
+import { Star, MapPin, ArrowRight, Leaf, Users, ShieldCheck, Truck, Timer, ChevronRight } from 'lucide-react';
 import { api } from '../services/api';
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
@@ -80,10 +72,10 @@ function StatCard({ stat, index }) {
 function FarmerCard3D({ farmer, index }) {
   const [ref, visible] = useReveal(0.2);
   const [isHovered, setIsHovered] = useState(false);
-  const fName = farmer.name || 'Verified Kerala Farmer';
-  const fRating = farmer.rating || 5.0;
-  const initials = fName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-  const location = [farmer.village, farmer.district].filter(Boolean).join(', ') || 'Kerala, India';
+  const fName = farmer.name;
+  const fRating = farmer.rating;
+  const initials = fName ? fName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() : '??';
+  const location = [farmer.village, farmer.district].filter(Boolean).join(', ');
 
   return (
     <div ref={ref} style={{
@@ -121,7 +113,7 @@ function FarmerCard3D({ farmer, index }) {
           <MapPin size={12} color="#6A994E" />
           <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', letterSpacing: '0.05em', color: 'rgba(27,67,50,0.6)', textTransform: 'uppercase' }}>{location}</span>
         </div>
-        <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.7, color: '#3D4F45', margin: 0 }}>{farmer.description || 'Sustainable, family-owned farming producing daily fresh harvests without preservative additives. Certified organic by Kerala State Organic Mission.'}</p>
+        <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.7, color: '#3D4F45', margin: 0 }}>{farmer.description}</p>
       </div>
     </div>
   );
@@ -175,7 +167,7 @@ function CTASection3D() {
           </div>
         </div>
         <div style={{ position: 'relative', height: 'clamp(300px, 35vw, 500px)', overflow: 'hidden' }}>
-          <img src={storySoilImg} alt="Kerala soil" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: `scale(${1 + progress * 0.05})`, transition: 'transform 0.1s linear' }} />
+          <div style={{ width: '100%', height: '100%', background: '#2D6A4F', transform: `scale(${1 + progress * 0.05})`, transition: 'transform 0.1s linear' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(27,67,50,0.3) 0%, transparent 30%)' }} />
           <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', background: 'rgba(27,67,50,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(163,200,122,0.1)', padding: '0.5rem 1rem' }}>
             <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.5rem', letterSpacing: '0.15em', color: 'rgba(163,200,122,0.5)', textTransform: 'uppercase' }}>Wayanad · Kerala</span>
@@ -289,13 +281,7 @@ function HarvestSection() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ─── HORIZONTAL STORY — Cinematic scroll-driven panels ──────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
-const STORY_SECTIONS = [
-  { label: '01 / Fresh Harvest', heading: 'Fresh Harvest\nEcosystem', body: 'Every morning before sunrise, our network of 980+ verified organic farmers hand-picks produce at peak ripeness. No cold storage. No intermediaries. Just pure, honest food harvested within hours of your order.', cta: 'Explore the Harvest', ctaLink: '/login', image: harvestTomato },
-  { label: '02 / Farm Logistics', heading: 'Soil To Table\nLogistics', body: 'Our hyperlocal delivery network transports produce directly from farm to your doorstep within a single circadian cycle. Each route is optimized for speed, ensuring maximum freshness with minimal carbon footprint.', cta: 'See How It Works', ctaLink: '/about', image: philosophyImg },
-  { label: '03 / Our Growers', heading: 'Organic Kerala\nFarmers', body: 'We partner with generational farming families who have preserved native agricultural traditions for decades. Every grower is verified, certified organic, and committed to sustainable farming practices.', cta: 'Meet Our Farmers', ctaLink: '/about', image: growersImg },
-  { label: '04 / Smart Tracking', heading: 'AI Freshness\nTracking', body: 'Every product carries a digital freshness passport — tracking soil-to-door journey in real-time. Our AI monitors temperature, handling, and transit conditions to guarantee peak quality upon arrival.', cta: 'See The Technology', ctaLink: '/about', image: traceabilityImg },
-  { label: '05 / Local Delivery', heading: 'Hyperlocal\nDelivery Network', body: 'Our delivery network spans 12 Kerala districts with an average farm-to-door distance of just 11 km. We deliver within 6 hours of harvest, redefining what fresh truly means.', cta: 'Check Your Area', ctaLink: '/login', image: harvestGreens },
-];
+const DEFAULT_STORY_SECTIONS = [];
 
 function HorizontalScrollStory() {
   const sectionRef = useRef(null);
@@ -305,8 +291,17 @@ function HorizontalScrollStory() {
   const [isLocked, setIsLocked] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileIndex, setMobileIndex] = useState(0);
+  const [storySections, setStorySections] = useState(DEFAULT_STORY_SECTIONS);
   const scrollRef = useRef(null);
-  const total = STORY_SECTIONS.length;
+  const total = storySections.length;
+
+  useEffect(() => {
+    api.siteContent.getByKey('storySections')
+      .then(res => { if (res?.data) setStorySections(res.data); })
+      .catch(() => {});
+  }, []);
+
+  if (total === 0) return null;
 
   const goToNext = () => {
     if (activeIndexRef.current < total - 1) {
@@ -387,21 +382,21 @@ function HorizontalScrollStory() {
 
   if (!isMobile) {
     return (
-      <div ref={sectionRef} style={{ minHeight: '70vh', height: 'auto', position: 'relative', overflow: 'hidden', background: '#F5F3E7' }}>
+      <div ref={sectionRef} style={{ minHeight: '50vh', height: 'auto', position: 'relative', overflow: 'hidden', background: '#F5F3E7', borderRadius: '1.5rem' }}>
         {/* Ambient glow */}
         <div style={{ position: 'absolute', width: '60rem', height: '60rem', borderRadius: '50%', background: 'radial-gradient(circle at center, rgba(106,153,78,0.06) 0%, transparent 70%)', top: '-20rem', right: '-10rem', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', width: '40rem', height: '40rem', borderRadius: '50%', background: 'radial-gradient(circle at center, rgba(212,160,23,0.04) 0%, transparent 70%)', bottom: '-10rem', left: '-10rem', pointerEvents: 'none' }} />
 
         {/* Panels track */}
         <div style={{ display: 'flex', height: '100%', transform: `translate3d(-${activeIndex * 100}vw, 0, 0)`, transition: 'transform 0.7s cubic-bezier(0.16,1,0.3,1)', willChange: 'transform' }}>
-          {STORY_SECTIONS.map((panel, i) => {
+          {storySections.map((panel, i) => {
             const isActive = i === activeIndex;
             const isNext = i === activeIndex + 1;
             const imgScale = isActive ? 1.08 : 1;
             const imgY = isActive ? 0 : 20;
             const opacity = i < activeIndex ? 0 : i === activeIndex ? 1 : i === activeIndex + 1 ? 0.4 : 0.2;
             return (
-              <div key={i} style={{ minWidth: '100vw', minHeight: '70vh', height: 'auto', display: 'flex', position: 'relative', overflow: 'hidden' }}>
+              <div key={i} style={{ minWidth: '100vw', minHeight: '50vh', height: 'auto', display: 'flex', position: 'relative', overflow: 'hidden' }}>
                 {(() => {
                   const textSide = (
                     <div style={{ width: '50%', display: 'flex', alignItems: 'center', padding: '3rem 4rem', position: 'relative', zIndex: 2, opacity, transition: 'opacity 0.6s ease' }}>
@@ -413,10 +408,10 @@ function HorizontalScrollStory() {
                         <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(2.2rem, 4vw, 3.4rem)', fontWeight: 400, lineHeight: 1.0, color: '#1B4332', letterSpacing: '-0.03em', textTransform: 'uppercase', margin: '0 0 1.25rem 0', whiteSpace: 'pre-line' }}>{panel.heading}</h2>
                         <div style={{ width: '2.5rem', height: '1px', background: 'rgba(106,153,78,0.2)', marginBottom: '1.25rem' }} />
                         <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.8, color: 'rgba(27,67,50,0.65)', margin: '0 0 1.5rem 0' }}>{panel.body}</p>
-                        <Link to={panel.ctaLink} style={{ fontFamily: '"Courier New", monospace', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6A994E', textDecoration: 'none', borderBottom: '1px solid rgba(106,153,78,0.3)', paddingBottom: '0.3rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.3s, border-color 0.3s' }}
-                          onMouseEnter={e => { e.currentTarget.style.color = '#D4A017'; e.currentTarget.style.borderBottomColor = '#D4A017'; }}
-                          onMouseLeave={e => { e.currentTarget.style.color = '#6A994E'; e.currentTarget.style.borderBottomColor = 'rgba(106,153,78,0.3)'; }}>
-                          {panel.cta} <span style={{ fontFamily: 'Georgia, serif', fontSize: '0.75rem' }}>→</span>
+                        <Link to={panel.ctaLink} style={{ fontFamily: '"Courier New", monospace', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#FFFFFF', textDecoration: 'none', background: '#1B4332', padding: '0.75rem 1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', transition: 'background 0.3s ease' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#D4A017'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#1B4332'; }}>
+                          {panel.cta} <span style={{ fontFamily: 'Georgia, serif', fontSize: '0.85rem' }}>→</span>
                         </Link>
                         <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2rem' }}>
                           <div><span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.45rem', color: 'rgba(27,67,50,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block' }}>{String(i + 1).padStart(2, '0')}</span></div>
@@ -437,9 +432,10 @@ function HorizontalScrollStory() {
                   const imageSide = (
                     <div style={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: '#F5F3E7' }}>
                       <div style={{
-                        width: '75%',
-                        height: '68%',
+                        width: '18rem',
+                        height: '18rem',
                         position: 'relative',
+                        borderRadius: '1rem',
                         overflow: 'hidden',
                         boxShadow: '0 4px 24px rgba(27,67,50,0.08)',
                         border: '1px solid rgba(27,67,50,0.1)',
@@ -486,7 +482,7 @@ function HorizontalScrollStory() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 2.5rem' }}>
             <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-              {STORY_SECTIONS.map((_, i) => (
+              {storySections.map((_, i) => (
                 <button key={i} onClick={() => { activeIndexRef.current = i; setActiveIndex(i); }} style={{ height: '2px', width: i === activeIndex ? '28px' : '14px', background: i === activeIndex ? '#D4A017' : 'rgba(106,153,78,0.2)', transition: 'width 0.4s, background 0.4s', borderRadius: 0, border: 'none', padding: 0, cursor: 'pointer' }} />
               ))}
             </div>
@@ -502,10 +498,12 @@ function HorizontalScrollStory() {
     const isImageLeft = index % 2 === 0;
     return (
       <div ref={ref} style={{ minWidth: '100vw', scrollSnapAlign: 'start', opacity: visible ? 1 : 0, transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s` }}>
-        <div style={{ display: 'flex', minHeight: '70vh' }}>
+        <div style={{ display: 'flex', minHeight: '50vh' }}>
           {isImageLeft && (
-            <div style={{ width: '50%', overflow: 'hidden', position: 'relative', display: 'flex' }}>
-              <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <div style={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+              <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '0.75rem', overflow: 'hidden' }}>
+                <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
             </div>
           )}
           <div style={{ width: '50%', display: 'flex', alignItems: 'center', padding: '1.5rem' }}>
@@ -516,12 +514,14 @@ function HorizontalScrollStory() {
               </div>
               <h2 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', fontWeight: 400, lineHeight: 1.05, color: '#1B4332', letterSpacing: '-0.02em', margin: '0 0 0.75rem 0', whiteSpace: 'pre-line' }}>{panel.heading}</h2>
               <p style={{ fontFamily: '-apple-system, sans-serif', fontSize: '0.7rem', fontWeight: 300, lineHeight: 1.6, color: 'rgba(27,67,50,0.65)', margin: '0 0 1rem 0' }}>{panel.body}</p>
-              <Link to={panel.ctaLink} style={{ fontFamily: '"Courier New", monospace', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6A994E', textDecoration: 'none', borderBottom: '1px solid rgba(106,153,78,0.3)', paddingBottom: '0.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>{panel.cta} →</Link>
+              <Link to={panel.ctaLink} style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#FFFFFF', textDecoration: 'none', background: '#1B4332', padding: '0.6rem 1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>{panel.cta} →</Link>
             </div>
           </div>
           {!isImageLeft && (
-            <div style={{ width: '50%', overflow: 'hidden', position: 'relative' }}>
-              <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <div style={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+              <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '0.75rem', overflow: 'hidden' }}>
+                <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
             </div>
           )}
         </div>
@@ -557,11 +557,11 @@ function HorizontalScrollStory() {
         </button>
       )}
       <div ref={scrollRef} style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
-        {STORY_SECTIONS.map((panel, i) => <MobileStoryPanel key={i} panel={panel} index={i} />)}
+        {storySections.map((panel, i) => <MobileStoryPanel key={i} panel={panel} index={i} />)}
       </div>
       {/* Progress dots */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', padding: '1rem 0' }}>
-        {STORY_SECTIONS.map((_, i) => (
+        {storySections.map((_, i) => (
           <button key={i} onClick={() => scrollTo(i)} style={{ height: '2px', width: i === mobileIndex ? '28px' : '14px', background: i === mobileIndex ? '#D4A017' : 'rgba(106,153,78,0.2)', transition: 'width 0.4s, background 0.4s', borderRadius: 0, border: 'none', padding: 0, cursor: 'pointer' }} />
         ))}
       </div>
@@ -698,16 +698,7 @@ function BrandStorySection() {
               'opacity 1s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 1s cubic-bezier(0.16,1,0.3,1) 0.1s',
           }}
         >
-          <img
-            src={storyGroveImg}
-            alt="Kerala farmland"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-            }}
-          />
+          <div style={{ width: '100%', height: '100%', background: '#2D6A4F' }} />
           {/* Subtle side gradients to blend into panels */}
           <div
             style={{
@@ -975,12 +966,30 @@ function ManifestoSection() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ─── MAIN LANDING PAGE ───────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
+const EMOJI_MAP = {
+  'Vegetables': '🥬', 'Fruits': '🍎', 'Milk': '🥛', 'Eggs': '🥚',
+  'Rice & Grains': '🌾', 'Fresh Herbs': '🌿', 'Spices': '🧂',
+  'Honey & Jams': '🍯', 'Dry Products': '🏝️', 'Snacks': '🥜',
+  'Drinks': '🧃', 'Meat': '🥩', 'Fish': '🐟', 'Others': '🌱'
+};
+
+function getCategoryEmoji(name) {
+  for (const [key, emoji] of Object.entries(EMOJI_MAP)) {
+    if (name.toLowerCase().includes(key.toLowerCase())) return emoji;
+  }
+  return '🌱';
+}
+
+function formatCategoryLabel(name) {
+  return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ');
+}
+
 export default function LandingPage() {
   const [topFarmers, setTopFarmers] = useState([]);
   const [stats, setStats] = useState(null);
   const [introPhase, setIntroPhase] = useState('visible');
-  const [videoReady, setVideoReady] = useState(false);
-  const videoRef = useRef(null);
+  const [storySectionsMobile, setStorySectionsMobile] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -997,6 +1006,12 @@ export default function LandingPage() {
       }
     };
     fetchData();
+    api.siteContent.getByKey('storySections')
+      .then(res => { if (res?.data) setStorySectionsMobile(res.data); })
+      .catch(() => {});
+    api.products.getCategories()
+      .then(setCategories)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -1007,31 +1022,9 @@ export default function LandingPage() {
       setIntroPhase('done');
       document.body.removeAttribute('data-intro');
       document.body.style.overflow = '';
-      setVideoReady(true);
     }, 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); document.body.removeAttribute('data-intro'); document.body.style.overflow = ''; };
   }, []);
-
-  useEffect(() => {
-    if (videoReady && videoRef.current) {
-      const playPromise = videoRef.current.play();
-      if (playPromise) playPromise.catch(() => {});
-    }
-  }, [videoReady]);
-
-  useEffect(() => {
-    const handleInteraction = () => {
-      if (videoRef.current && videoRef.current.paused && videoReady) {
-        videoRef.current.play().catch(() => {});
-      }
-    };
-    document.addEventListener('touchstart', handleInteraction, { once: true });
-    document.addEventListener('click', handleInteraction, { once: true });
-    return () => {
-      document.removeEventListener('touchstart', handleInteraction);
-      document.removeEventListener('click', handleInteraction);
-    };
-  }, [videoReady]);
 
   return (
     <div style={{ position: 'relative', width: '100%', overflowX: 'hidden', background: '#F5F3E7' }}>
@@ -1078,6 +1071,12 @@ export default function LandingPage() {
           .lp-section-manifesto{padding:2.5rem 1rem!important}
           .lp-section-cta{padding:3rem 1rem!important}
         }
+
+        .mobile-sections{display:none}
+        @media(max-width:768px){
+          .desktop-sections{display:none!important}
+          .mobile-sections{display:block!important}
+        }
       `}</style>
 
       {/* ── INTRO OVERLAY ── */}
@@ -1095,64 +1094,310 @@ export default function LandingPage() {
 
       <div style={{ opacity: introPhase === 'done' ? 1 : 0, transition: introPhase === 'done' ? 'opacity 0.6s ease 0.1s' : 'none' }}>
 
-        {/* ── HERO ── */}
-        <section className="lp-section-hero" style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden' }}>
-          <video ref={videoRef} src={farmVideo} loop muted playsInline preload="auto" poster={storyGroveImg} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(8,14,10,0.88) 0%, rgba(8,14,10,0.50) 50%, rgba(8,14,10,0.20) 100%)' }} />
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <HeroSection />
-          </div>
-        </section>
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* DESKTOP SECTIONS (hidden on mobile)                */}
+        {/* ═══════════════════════════════════════════════════ */}
+        <div className="desktop-sections">
 
-        {/* ── STATISTICS BAND ── */}
-        <section style={{ padding: '4rem 1.5rem', background: '#F5F3E7' }}>
-          <div className="stats-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem' }}>
-            {stats ? (
-              <>
-                <StatCard stat={{ value: stats.avgRating?.toString() || '5.0', suffix: '★', label: 'Customer Rating' }} index={0} />
-                <StatCard stat={{ value: (stats.totalCustomers + stats.totalFarmers).toString() + '+', suffix: '', label: 'Organic Deliveries' }} index={1} />
-                <StatCard stat={{ value: stats.totalFarmers?.toString() + '+', suffix: '', label: 'Verified Farmers' }} index={2} />
-                <StatCard stat={{ value: '24', suffix: ' min', label: 'Avg Delivery' }} index={3} />
-              </>
-            ) : (
-              <>
-                <StatCard stat={{ value: '5.0', suffix: '★', label: 'Customer Rating' }} index={0} />
-                <StatCard stat={{ value: '0', suffix: '', label: 'Organic Deliveries' }} index={1} />
-                <StatCard stat={{ value: '0', suffix: '', label: 'Verified Farmers' }} index={2} />
-                <StatCard stat={{ value: '24', suffix: ' min', label: 'Avg Delivery' }} index={3} />
-              </>
-            )}
-          </div>
-        </section>
+          {/* ── HERO ── */}
+          <section className="lp-section-hero" style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden', background: 'linear-gradient(135deg, #080E0A 0%, #1B4332 50%, #0F1E14 100%)' }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HeroSection />
+            </div>
+          </section>
 
-        <BrandStorySection />
+          {/* ── STATISTICS BAND ── */}
+          <section style={{ padding: '4rem 1.5rem', background: '#F5F3E7' }}>
+            <div className="stats-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem' }}>
+              {stats ? (
+                <>
+                  <StatCard stat={{ value: stats.avgRating?.toString() || '', suffix: stats.avgRating ? '★' : '', label: 'Customer Rating' }} index={0} />
+                  <StatCard stat={{ value: stats.totalFarmers || stats.totalCustomers ? `${(stats.totalCustomers || 0) + (stats.totalFarmers || 0)}` : '', suffix: '', label: 'Organic Deliveries' }} index={1} />
+                  <StatCard stat={{ value: stats.totalFarmers ? `${stats.totalFarmers}` : '', suffix: '', label: 'Verified Farmers' }} index={2} />
+                  <StatCard stat={{ value: '', suffix: '', label: 'Avg Delivery' }} index={3} />
+                </>
+              ) : null}
+            </div>
+          </section>
 
-        <HorizontalScrollStory />
+          <BrandStorySection />
 
-        <ManifestoSection />
+          <HorizontalScrollStory />
 
-        {/* ══════════════════════════════════════════════════ */}
-        {/* ── FARMER PROFILES with 3D depth reveal ── */}
-        {/* ══════════════════════════════════════════════════ */}
-        <section className="lp-section-farmers" style={{ padding: '8rem 1.5rem', background: '#F5F3E7', perspective: '1000px' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(2rem, 4vw, 4rem)', alignItems: 'start' }}>
+          <ManifestoSection />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {topFarmers.map((farmer, i) => <FarmerCard3D key={farmer.id || farmer._id} farmer={farmer} index={i} />)}
+          {/* ── FARMER PROFILES ── */}
+          <section className="lp-section-farmers" style={{ padding: '8rem 1.5rem', background: '#F5F3E7', perspective: '1000px' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(2rem, 4vw, 4rem)', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {topFarmers.map((farmer, i) => <FarmerCard3D key={farmer.id || farmer._id} farmer={farmer} index={i} />)}
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <HarvestSection />
+          <HarvestSection />
 
+          <CTASection3D />
 
+        </div>
 
-        {/* ══════════════════════════════════════════════════ */}
-        {/* ── CTA SECTION ── */}
-        {/* ══════════════════════════════════════════════════ */}
-        <CTASection3D />
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* MOBILE SECTIONS (hidden on desktop)               */}
+        {/* ═══════════════════════════════════════════════════ */}
+        <div className="mobile-sections">
+
+          {/* ── MOBILE HERO ── */}
+          <section style={{
+            position: 'relative', height: '100vh', width: '100%', overflow: 'hidden',
+            background: 'linear-gradient(135deg, #080E0A 0%, #1B4332 50%, #0F1E14 100%)'
+          }}>
+            {/* Subtle pattern overlay */}
+            <div style={{
+              position: 'absolute', inset: 0, opacity: 0.04,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23A3C87A' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              backgroundSize: '60px 60px',
+            }} />
+            {/* Gradient overlay */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(180deg, rgba(8,14,10,0.3) 0%, rgba(27,67,50,0.4) 50%, rgba(8,14,10,0.6) 100%)',
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              padding: '0 1.5rem',
+            }}>
+              <p style={{
+                fontFamily: '"Courier New", monospace', fontSize: '0.65rem', letterSpacing: '0.35em',
+                textTransform: 'uppercase', color: '#A3C87A', marginBottom: '1rem',
+              }}>
+                Kerala's Premium Organic Marketplace
+              </p>
+              <h1 style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: 'clamp(3.5rem, 15vw, 6rem)', fontWeight: 400,
+                lineHeight: 0.92, color: '#F5F3E7', letterSpacing: '-0.03em',
+                margin: '0 0 0.5rem 0', textAlign: 'center',
+              }}>
+                DHARA
+              </h1>
+              <p style={{
+                fontFamily: '"Courier New", monospace', fontSize: '0.75rem', letterSpacing: '0.5em',
+                textTransform: 'uppercase', color: '#D4A017', marginBottom: '1.5rem',
+              }}>
+                FARM • TABLE • TRUST
+              </p>
+              <p style={{
+                fontFamily: '-apple-system, sans-serif', fontSize: '0.85rem', fontWeight: 300,
+                color: 'rgba(245,243,231,0.75)', maxWidth: '320px', lineHeight: 1.7,
+                margin: '0 auto 2rem', textAlign: 'center',
+              }}>
+                From Kerala's oldest organic families to your table — harvest to home in under 24 hours.
+              </p>
+              <Link to="/login" style={{
+                fontFamily: '"Courier New", monospace', fontSize: '0.75rem', fontWeight: 700,
+                letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none',
+                color: '#F5F3E7', background: '#1B4332', padding: '0.9rem 2rem',
+                border: '1px solid rgba(245,243,231,0.15)', display: 'inline-flex',
+                alignItems: 'center', gap: '0.5rem', minHeight: '48px',
+              }}>
+                Sign in <ArrowRight size={14} />
+              </Link>
+            </div>
+          </section>
+
+          {/* ── MOBILE TRUST METRICS CARD ── */}
+          <section style={{ padding: '0 1rem', marginTop: '-1.5rem', position: 'relative', zIndex: 10 }}>
+            <div style={{
+              background: '#FFFFFF', borderRadius: '16px', padding: '1.25rem',
+              boxShadow: '0 8px 32px rgba(27,67,50,0.12)', border: '1px solid rgba(27,67,50,0.06)',
+            }}>
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem',
+              }}>
+                {[
+                  { value: stats?.avgRating ? `${stats.avgRating}★` : '—', label: 'Customer Rating', icon: Star, color: '#D4A017' },
+                  { value: stats?.totalFarmers || stats?.totalCustomers ? `${(stats.totalCustomers || 0) + (stats.totalFarmers || 0)}` : '—', label: 'Organic Deliveries', icon: ShieldCheck, color: '#2D6A4F' },
+                  { value: stats?.totalFarmers ? `${stats.totalFarmers}` : '—', label: 'Verified Farmers', icon: Users, color: '#1B4332' },
+                  { value: '—', label: 'Avg Delivery', icon: Timer, color: '#6A994E' },
+                ].map((item, i) => (
+                  <div key={i} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem',
+                    padding: '0.75rem 0.5rem', borderRadius: '12px',
+                    background: 'rgba(27,67,50,0.02)', border: '1px solid rgba(27,67,50,0.04)',
+                  }}>
+                    <div style={{
+                      width: '36px', height: '36px', borderRadius: '50%',
+                      background: `${item.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <item.icon size={16} color={item.color} />
+                    </div>
+                    <span style={{
+                      fontFamily: 'Georgia, "Times New Roman", serif',
+                      fontSize: '1.2rem', fontWeight: 700, color: '#1B4332', lineHeight: 1,
+                    }}>{item.value}</span>
+                    <span style={{
+                      fontFamily: '"Courier New", monospace', fontSize: '0.45rem',
+                      letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(27,67,50,0.5)',
+                    }}>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── MOBILE OUR BEGINNING ── */}
+          <section style={{ padding: '1.5rem 1rem' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #1B4332 0%, #0F1E14 100%)',
+              borderRadius: '16px', padding: '1.5rem', position: 'relative', overflow: 'hidden',
+            }}>
+              {/* Decorative */}
+              <div style={{
+                position: 'absolute', top: '-3rem', right: '-3rem', width: '10rem', height: '10rem',
+                borderRadius: '50%', border: '1px solid rgba(163,200,122,0.08)',
+              }} />
+              <div style={{
+                position: 'absolute', bottom: '-2rem', left: '-2rem', width: '8rem', height: '8rem',
+                borderRadius: '50%', border: '1px solid rgba(163,200,122,0.06)',
+              }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <p style={{
+                  fontFamily: '"Courier New", monospace', fontSize: '0.55rem', letterSpacing: '0.22em',
+                  color: '#A3C87A', textTransform: 'uppercase', margin: '0 0 0.75rem 0',
+                }}>
+                  OUR BEGINNING
+                </p>
+                <div style={{ width: '1.5rem', height: '1px', background: '#D4A017', marginBottom: '1rem' }} />
+                <h2 style={{
+                  fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4rem', fontWeight: 400,
+                  lineHeight: 1.05, letterSpacing: '-0.025em', textTransform: 'uppercase',
+                  color: '#F5F3E7', margin: '0 0 1rem 0',
+                }}>
+                  <span style={{ display: 'block' }}>Born from</span>
+                  <span style={{ display: 'block' }}>Kerala's oldest</span>
+                  <span style={{ display: 'block' }}>farming families.</span>
+                </h2>
+                <p style={{
+                  fontFamily: '-apple-system, sans-serif', fontSize: '0.78rem', fontWeight: 300,
+                  lineHeight: 1.7, color: 'rgba(245,243,231,0.65)', margin: '0 0 1.5rem 0',
+                }}>
+                  Dhara was founded after witnessing generational organic farmers in Wayanad and Idukki selling heirloom produce at throwaway prices to aggregators — while urban households paid a premium for imported substitutes.
+                </p>
+                <Link to="/about" style={{
+                  fontFamily: '"Courier New", monospace', fontSize: '0.6rem', fontWeight: 700,
+                  letterSpacing: '0.12em', textTransform: 'uppercase', color: '#A3C87A',
+                  textDecoration: 'none', borderBottom: '1px solid rgba(163,200,122,0.3)',
+                  paddingBottom: '0.25rem', display: 'inline-block',
+                }}>
+                  Read our full story →
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* ── MOBILE FEATURE STORY ── */}
+          {storySectionsMobile.length > 0 && (
+            <section style={{ padding: '1rem' }}>
+              <div style={{
+                display: 'flex', gap: '1rem', alignItems: 'center',
+                background: '#FFFFFF', borderRadius: '16px', padding: '1rem',
+                boxShadow: '0 4px 20px rgba(27,67,50,0.06)', border: '1px solid rgba(27,67,50,0.06)',
+              }}>
+                <div style={{
+                  width: '40%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', flexShrink: 0,
+                }}>
+                  <img src={storySectionsMobile[0]?.image} alt="" style={{
+                    width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+                  }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{
+                    fontFamily: '"Courier New", monospace', fontSize: '0.5rem', letterSpacing: '0.2em',
+                    color: 'rgba(27,67,50,0.45)', textTransform: 'uppercase', margin: '0 0 0.5rem 0',
+                  }}>
+                    {storySectionsMobile[0]?.label || ''}
+                  </p>
+                  <h3 style={{
+                    fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1rem', fontWeight: 400,
+                    lineHeight: 1.1, color: '#1B4332', margin: '0 0 0.5rem 0', whiteSpace: 'pre-line',
+                  }}>
+                    {storySectionsMobile[0]?.heading || ''}
+                  </h3>
+                  <p style={{
+                    fontFamily: '-apple-system, sans-serif', fontSize: '0.7rem', fontWeight: 300,
+                    lineHeight: 1.5, color: 'rgba(27,67,50,0.65)', margin: '0 0 0.75rem 0',
+                    display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
+                    {storySectionsMobile[0]?.body || ''}
+                  </p>
+                  <Link to={storySectionsMobile[0]?.ctaLink || '/about'} style={{
+                    fontFamily: '"Courier New", monospace', fontSize: '0.6rem', fontWeight: 700,
+                    letterSpacing: '0.14em', textTransform: 'uppercase', color: '#FFFFFF',
+                    textDecoration: 'none', background: '#1B4332', padding: '0.5rem 1rem',
+                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem', minHeight: '36px',
+                  }}>
+                    {storySectionsMobile[0]?.cta || 'Learn More'} <ChevronRight size={12} />
+                  </Link>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── MOBILE CATEGORIES ── */}
+          {categories.length > 0 && (
+            <section style={{ padding: '1rem' }}>
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                marginBottom: '0.75rem', padding: '0 0.25rem',
+              }}>
+                <h3 style={{
+                  fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1rem',
+                  fontWeight: 400, color: '#1B4332', margin: 0,
+                }}>
+                  Shop by Category
+                </h3>
+                <Link to="/products" style={{
+                  fontFamily: '"Courier New", monospace', fontSize: '0.55rem',
+                  letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6A994E',
+                  textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                }}>
+                  View All <ChevronRight size={12} />
+                </Link>
+              </div>
+              <div style={{
+                display: 'flex', gap: '0.75rem', overflowX: 'auto',
+                WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', paddingBottom: '0.5rem',
+              }}>
+                {categories.map((cat) => (
+                  <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
+                    textDecoration: 'none', minWidth: '72px', flexShrink: 0,
+                  }}>
+                    <div style={{
+                      width: '64px', height: '64px', borderRadius: '50%',
+                      background: 'rgba(27,67,50,0.04)', border: '1px solid rgba(27,67,50,0.08)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '1.5rem',
+                    }}>
+                      {getCategoryEmoji(cat)}
+                    </div>
+                    <span style={{
+                      fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem',
+                      fontWeight: 700, color: 'rgba(27,67,50,0.7)', textAlign: 'center',
+                      maxWidth: '72px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {formatCategoryLabel(cat)}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+        </div>
 
       </div>
     </div>

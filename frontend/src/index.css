@@ -8,6 +8,10 @@ html {
   width: 100%;
 }
 
+* {
+  font-weight: 700 !important;
+}
+
 @layer base {
   body {
     @apply bg-farmgreen-950 text-emerald-100 antialiased;

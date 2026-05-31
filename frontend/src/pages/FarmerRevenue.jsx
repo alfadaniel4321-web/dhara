@@ -44,10 +44,10 @@ export default function FarmerRevenue() {
   );
 
   const summaryCards = [
-    { icon: IndianRupee, label: t('farmerRevenue.totalEarnings'), value: `₹${(revenue.totalEarnings || 0).toLocaleString()}`, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-    { icon: TrendingUp, label: t('farmerRevenue.weeklyRevenue'), value: `₹${(revenue.weeklyRevenue || 0).toLocaleString()}`, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    { icon: Calendar, label: t('farmerRevenue.monthlyRevenue'), value: `₹${(revenue.monthlyRevenue || 0).toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    { icon: Wallet, label: t('farmerRevenue.pendingPayouts'), value: `₹${(revenue.pendingPayouts || 0).toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+    { icon: IndianRupee, label: t('farmerRevenue.totalEarnings'), value: `₹${(revenue.totalEarnings ?? 0).toLocaleString()}`, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    { icon: TrendingUp, label: t('farmerRevenue.weeklyRevenue'), value: `₹${(revenue.weeklyRevenue ?? 0).toLocaleString()}`, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    { icon: Calendar, label: t('farmerRevenue.monthlyRevenue'), value: `₹${(revenue.monthlyRevenue ?? 0).toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    { icon: Wallet, label: t('farmerRevenue.pendingPayouts'), value: `₹${(revenue.pendingPayouts ?? 0).toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
   ];
 
   const chartData = revenue.monthlyRevenueData?.length > 0 ? revenue.monthlyRevenueData : [];
@@ -63,7 +63,7 @@ export default function FarmerRevenue() {
       return (
         <div className="bg-[#1a1f1a] border border-emerald-800/30 rounded-xl px-4 py-3 shadow-2xl">
           <p className="text-xs text-emerald-400/70">{label}</p>
-          <p className="text-lg font-bold text-emerald-300">₹{payload[0].value?.toLocaleString() || 0}</p>
+          <p className="text-lg font-bold text-emerald-300">₹{payload[0].value?.toLocaleString() ?? 0}</p>
         </div>
       );
     }
@@ -105,7 +105,7 @@ export default function FarmerRevenue() {
             <div className="text-center py-12 text-xs text-emerald-400/40">{t('farmerRevenue.noRevenueData')}</div>
           ) : (
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <BarChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                   <XAxis dataKey="month" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -128,7 +128,7 @@ export default function FarmerRevenue() {
             <div className="text-center py-12 text-xs text-emerald-400/40">{t('farmerRevenue.noSalesData')}</div>
           ) : (
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                   <Pie data={pieData} cx="50%" cy="45%" innerRadius={55} outerRadius={85}
                     paddingAngle={3} dataKey="value"

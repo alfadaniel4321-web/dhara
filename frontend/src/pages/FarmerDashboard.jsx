@@ -62,13 +62,13 @@ export default function FarmerDashboard() {
 
   if (loading) return <LoadingSpinner />;
 
-  const totalEarnings = revenue?.totalEarnings || stats?.totalEarnings || 0;
-  const monthRev = revenue?.monthlyRevenue || 0;
-  const activeOrders = stats?.activeOrders || 0;
-  const totalProducts = stats?.totalProducts || products.length;
-  const rating = stats?.rating || user?.rating || 5.0;
-  const lowStock = stats?.lowStock || 0;
-  const warnings = user?.negativeFeedbacksCount || 0;
+  const totalEarnings = revenue?.totalEarnings ?? stats?.totalEarnings ?? 0;
+  const monthRev = revenue?.monthlyRevenue ?? 0;
+  const activeOrders = stats?.activeOrders ?? 0;
+  const totalProducts = stats?.totalProducts ?? products.length;
+  const rating = stats?.rating ?? user?.rating;
+  const lowStock = stats?.lowStock ?? 0;
+  const warnings = user?.negativeFeedbacksCount ?? 0;
   const blocked = user?.blocked || false;
 
   const recentOrders = orders.slice(0, 5);
@@ -85,10 +85,10 @@ export default function FarmerDashboard() {
     { icon: ShoppingBag, label: t('farmerDashboard.activeOrders'), value: activeOrders, color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
     { icon: IndianRupee, label: t('farmerDashboard.totalEarnings'), value: `₹${totalEarnings.toLocaleString()}`, color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
     { icon: TrendingUp, label: t('farmerDashboard.monthlyRevenue'), value: `₹${monthRev.toLocaleString()}`, color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
-    { icon: Eye, label: t('farmerDashboard.productViews'), value: stats?.productViews || 0, color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+    { icon: Eye, label: t('farmerDashboard.productViews'), value: stats?.productViews ?? 0, color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
     { icon: Star, label: t('farmerDashboard.rating'), value: `${rating} ★`, color: "#eab308", bg: "rgba(234,179,8,0.12)" },
     { icon: BarChart3, label: t('farmerDashboard.lowStockItems'), value: lowStock, color: lowStock > 0 ? "#ef4444" : "#22c55e", bg: lowStock > 0 ? "rgba(239,68,68,0.12)" : "rgba(34,197,94,0.12)" },
-    { icon: Truck, label: t('farmerDashboard.pendingDeliveries'), value: stats?.pendingDeliveries || 0, color: "#f97316", bg: "rgba(249,115,22,0.12)" },
+    { icon: Truck, label: t('farmerDashboard.pendingDeliveries'), value: stats?.pendingDeliveries ?? 0, color: "#f97316", bg: "rgba(249,115,22,0.12)" },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -96,7 +96,7 @@ export default function FarmerDashboard() {
       return (
         <div className="bg-[#1a1f1a] border border-emerald-800/30 rounded-xl px-4 py-3 shadow-2xl">
           <p className="text-xs text-emerald-400/70 font-medium">{label}</p>
-          <p className="text-lg font-bold text-emerald-300">₹{payload[0].value?.toLocaleString() || 0}</p>
+          <p className="text-lg font-bold text-emerald-300">₹{payload[0].value?.toLocaleString() ?? 0}</p>
         </div>
       );
     }
@@ -171,7 +171,7 @@ export default function FarmerDashboard() {
             </Link>
           </div>
           <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <BarChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                 <XAxis dataKey="month" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -207,10 +207,10 @@ export default function FarmerDashboard() {
                 >
                   <div>
                     <p className="text-xs font-semibold text-emerald-200">
-                      {t('farmerDashboard.orderHash')}{((order._id || order.id) || "").slice(-6)}
+                      {t('farmerDashboard.orderHash')}{((order._id || order.id) ?? "").slice(-6)}
                     </p>
                     <p className="text-[10px] text-emerald-400/40">
-                      {order.products?.length || 0} {t('farmerDashboard.items')} · ₹{order.farmerTotal || order.totalPrice || 0}
+                      {order.products?.length ?? 0} {t('farmerDashboard.items')} · ₹{order.farmerTotal ?? order.totalPrice ?? 0}
                     </p>
                   </div>
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${

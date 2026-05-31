@@ -85,7 +85,7 @@ export default function AdminAnalytics() {
           <h3 className="text-sm font-bold text-emerald-100 mb-6">Daily Orders</h3>
           {analytics.dailyOrderData?.length > 0 ? (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <BarChart data={analytics.dailyOrderData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                   <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
@@ -102,7 +102,7 @@ export default function AdminAnalytics() {
           <h3 className="text-sm font-bold text-emerald-100 mb-6">Revenue Growth</h3>
           {analytics.revenueData?.length > 0 ? (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <LineChart data={analytics.revenueData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                   <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
@@ -124,7 +124,7 @@ export default function AdminAnalytics() {
           </div>
           {pieData.length > 0 ? (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                   <Pie data={pieData} cx="50%" cy="45%" innerRadius={50} outerRadius={80}
                     paddingAngle={3} dataKey="value"

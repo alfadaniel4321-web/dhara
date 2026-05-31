@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import BottomNav from '../components/BottomNav';
 
 export default function MainLayout() {
   const location = useLocation();
@@ -16,6 +17,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <BottomNav />
     </div>
   );
 }

@@ -63,6 +63,12 @@ export const api = {
   },
 
   products: {
+    getCategories: async () => {
+      return await request('/products/categories');
+    },
+    getTrendingProducts: async () => {
+      return await request('/products/trending');
+    },
     searchProducts: async (query) => {
       return await request(`/products/search?q=${encodeURIComponent(query)}`);
     },
@@ -322,6 +328,39 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ reply })
       });
+    }
+  },
+
+  siteContent: {
+    getAll: async () => {
+      return await request('/site-content');
+    },
+    getByKey: async (key) => {
+      return await request(`/site-content/${key}`);
+    },
+    upsert: async (key, data) => {
+      return await request('/site-content', {
+        method: 'PUT',
+        body: JSON.stringify({ key, data })
+      });
+    },
+    delete: async (key) => {
+      return await request(`/site-content/${key}`, { method: 'DELETE' });
+    }
+  },
+
+  upload: {
+    image: async (file) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      const token = localStorage.getItem('dhara_token');
+      const res = await fetch(`${API_BASE_URL}/upload`, {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      return await res.json();
     }
   },
 

@@ -5,11 +5,10 @@ import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
 import { setAuthStart, setAuthSuccess, setAuthFailure } from "../redux/slices/authSlice";
 import { api } from "../services/api";
-import { Leaf, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Leaf, Eye, EyeOff, Sparkles, ArrowLeft } from "lucide-react";
 import ForgotPasswordModal from "../components/auth/ForgotPasswordModal";
 
-import bgImage from "../assets/image.jpeg";
-import leafCardImage from "../assets/story-grove.jpg";
+
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -52,12 +51,21 @@ export default function Login() {
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center"
       style={{ background: "#021a0e" }}
     >
+      {/* Back button */}
+      <button
+        onClick={() => window.history.length > 1 ? navigate(-1) : navigate("/")}
+        className="absolute top-4 left-4 z-20 flex items-center gap-2 text-xs font-semibold tracking-wider uppercase transition-all duration-300 hover:opacity-70"
+        style={{ color: "rgba(149,213,178,0.6)", fontFamily: '"Courier New", monospace' }}
+      >
+        <ArrowLeft size={16} />
+        Back
+      </button>
+
       {/* Background layers */}
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url(${bgImage})`,
             filter: "blur(6px) brightness(0.3)",
             transform: "scale(1.1)",
           }}
@@ -104,7 +112,7 @@ export default function Login() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-[400px] px-5"
+        className="relative z-10 w-full max-w-[440px] lg:max-w-[480px] px-5"
       >
         <div
           className="rounded-[32px] p-6"
@@ -160,8 +168,10 @@ export default function Login() {
             {/* Organic Leaves Visual */}
             <motion.div variants={fadeUp} className="relative rounded-2xl overflow-hidden mb-6 h-[110px] shadow-lg">
               <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${leafCardImage})` }}
+                className="absolute inset-0"
+                style={{
+                  background: "linear-gradient(135deg, rgba(4,47,26,0.8), rgba(2,26,14,0.9))",
+                }}
               />
               <div className="absolute inset-0"
                 style={{

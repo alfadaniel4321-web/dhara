@@ -143,9 +143,9 @@ export default function HarvestCountdown() {
       setPreOrderedIds(prev => ({ ...prev, [key]: true }));
       setPreOrderSuccess({
         productTitle: product.title,
-        farmerName: farmer.farmerId?.name || farmer.name || "Farmer",
+        farmerName: farmer.farmerId?.name || farmer.name,
         quantity,
-        confirmationTime: result.confirmationTime || new Date().toISOString(),
+        confirmationTime: result.confirmationTime,
       });
     } catch (err) {
       console.error("Pre-order failed:", err);
@@ -164,11 +164,11 @@ export default function HarvestCountdown() {
               farmersMap.set(fId, {
                 ...p,
                 farmerId: p.farmerId,
-                stock: p.stock || Math.floor(Math.random() * 80) + 20,
+                stock: p.stock,
               });
             } else {
               const existing = farmersMap.get(fId);
-              existing.stock = (existing.stock || 0) + (p.stock || Math.floor(Math.random() * 50) + 10);
+              existing.stock = (existing.stock ?? 0) + (p.stock ?? 0);
             }
           }
         });
@@ -262,9 +262,9 @@ export default function HarvestCountdown() {
               <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                 <Clock size={14} color="#7BE495" />
                 <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700 }}>
-                  {countdowns[selectedProduct._id || selectedProduct.id]?.h || "00"}:
-                  {countdowns[selectedProduct._id || selectedProduct.id]?.m || "00"}:
-                  {countdowns[selectedProduct._id || selectedProduct.id]?.s || "00"}
+                  {countdowns[selectedProduct._id || selectedProduct.id]?.h ?? "00"}:
+                  {countdowns[selectedProduct._id || selectedProduct.id]?.m ?? "00"}:
+                  {countdowns[selectedProduct._id || selectedProduct.id]?.s ?? "00"}
                 </span>
               </div>
             </div>
@@ -334,9 +334,9 @@ export default function HarvestCountdown() {
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {uniqueFarmers.map((item, idx) => {
               const farmerId = item.farmerId?._id || item.farmerId?.id || item.farmerId;
-              const farmerName = item.farmerId?.name || item.farmerName || "Farmer";
-              const farmerPhone = item.farmerId?.phone || "+91 98765 43210";
-              const farmerRating = item.farmerId?.rating || 4.5;
+              const farmerName = item.farmerId?.name || item.farmerName;
+              const farmerPhone = item.farmerId?.phone;
+              const farmerRating = item.farmerId?.rating;
               const productId = selectedProduct._id || selectedProduct.id;
               const preOrderKey = `${productId}_${farmerId}`;
               const isPreOrdered = preOrderedIds[preOrderKey];
@@ -415,7 +415,7 @@ export default function HarvestCountdown() {
                           Harvest Time
                         </div>
                         <div style={{ fontWeight: 700, color: "#013220", fontSize: "0.85rem" }}>
-                          {selectedProduct.availableTime || "06:00 AM - 10:00 AM"}
+                          {selectedProduct.availableTime}
                         </div>
                       </div>
                       <div>
@@ -438,7 +438,7 @@ export default function HarvestCountdown() {
                           <button
                             onClick={() => {
                               const key = `${productId}_${farmerId}`;
-                              const current = quantities[key] || 1;
+                              const current = quantities[key] ?? 1;
                               if (current > 1) setQuantities(prev => ({ ...prev, [key]: current - 1 }));
                             }}
                             style={{
@@ -456,7 +456,7 @@ export default function HarvestCountdown() {
                             type="number"
                             min="1"
                             max="99"
-                            value={quantities[`${productId}_${farmerId}`] || 1}
+                            value={quantities[`${productId}_${farmerId}`] ?? 1}
                             onChange={e => {
                               const key = `${productId}_${farmerId}`;
                               const val = parseInt(e.target.value, 10);
@@ -475,7 +475,7 @@ export default function HarvestCountdown() {
                           <button
                             onClick={() => {
                               const key = `${productId}_${farmerId}`;
-                              const current = quantities[key] || 1;
+                              const current = quantities[key] ?? 1;
                               if (current < 99) setQuantities(prev => ({ ...prev, [key]: current + 1 }));
                             }}
                             style={{
@@ -504,7 +504,7 @@ export default function HarvestCountdown() {
                   }}>
                     <button
                       onClick={() => {
-                        const qty = quantities[`${productId}_${farmerId}`] || 1;
+                        const qty = quantities[`${productId}_${farmerId}`] ?? 1;
                         handlePreOrder(selectedProduct, item, qty);
                       }}
                       disabled={isPreOrdered}
@@ -606,8 +606,8 @@ export default function HarvestCountdown() {
           {products.map((product) => {
             const pid = product._id || product.id;
             const harvestInfo = getHarvestStatus(product.harvestDate);
-            const cd = countdowns[pid] || { h: "00", m: "00", s: "00" };
-            const farmerName = product.farmerId?.name || "Farmer";
+              const cd = countdowns[pid] ?? { h: "00", m: "00", s: "00" };
+            const farmerName = product.farmerId?.name;
             const hasAnyPreOrder = Object.keys(preOrderedIds).some(k => k.startsWith(pid));
 
             return (
@@ -736,7 +736,7 @@ export default function HarvestCountdown() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#777" }}>
                       <Package size={13} />
-                      <span>{product.quantity} &middot; {product.stock || 50} available</span>
+                      <span>{product.quantity} &middot; {product.stock} available</span>
                     </div>
                   </div>
 

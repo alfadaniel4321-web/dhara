@@ -209,6 +209,37 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
+exports.getTrendingProducts = async (req, res) => {
+  try {
+    const products = await Product.find()
+      .populate('farmerId', 'name district village address')
+      .sort({ views: -1, harvestDate: -1, createdAt: -1 })
+      .limit(10);
+
+    const blockedFarmers = new Set();
+    const farmerIds = [...new Set(products.map(p => p.farmerId?._id?.toString()).filter(Boolean))];
+    for (const fId of farmerIds) {
+      const farmer = await Farmer.findById(fId);
+      if (farmer && farmer.blocked) blockedFarmers.add(fId);
+    }
+
+    const activeProducts = products.filter(p => p.farmerId && !blockedFarmers.has(p.farmerId._id?.toString()));
+    res.json(activeProducts);
+  } catch (err) {
+    console.error('Get trending products error:', err);
+    res.status(500).json({ message: 'Server error fetching trending products' });
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct('category');
+    res.json(categories.sort());
+  } catch (err) {
+    res.status(500).json({ message: 'Server error fetching categories' });
+  }
+};
+
 exports.getFarmerProducts = async (req, res) => {
   try {
     const products = await Product.find({ farmerId: req.params.farmerId });
