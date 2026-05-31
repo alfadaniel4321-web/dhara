@@ -2,9 +2,8 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import MainLayout from '../layouts/MainLayout';
-import MobileLayout from '../layouts/MobileLayout';
+import DashboardLayout from '../layouts/DashboardLayout';
 import FarmerLayout from '../layouts/FarmerLayout';
-import AdminLayout from '../layouts/AdminLayout';
 
 import LandingPage from '../pages/LandingPage';
 import About from '../pages/About';
@@ -51,6 +50,7 @@ import AdminAnalytics from '../pages/AdminAnalytics';
 import AdminNotifications from '../pages/AdminNotifications';
 import AdminSettings from '../pages/AdminSettings';
 import AdminPromotions from '../pages/AdminPromotions';
+import AdminLayout from '../layouts/AdminLayout';
 
 function ProtectedRoute() {
   const { user } = useSelector((state) => state.auth);
@@ -82,27 +82,6 @@ export default function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
       </Route>
 
-      {/* Customer Mobile Routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<MobileLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/my-orders" element={<MyOrders />} />
-          <Route path="/track/:id" element={<OrderTracking />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/order-success" element={<OrderSuccess />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/harvest-countdown" element={<HarvestCountdown />} />
-          <Route path="/daily-orders" element={<DailyOrders />} />
-          <Route path="/farmers" element={<Farmers />} />
-          <Route path="/offers" element={<Offers />} />
-        </Route>
-      </Route>
-
-      {/* Admin Routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
@@ -117,7 +96,25 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      {/* Farmer Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/harvest-countdown" element={<HarvestCountdown />} />
+          <Route path="/daily-orders" element={<DailyOrders />} />
+          <Route path="/farmers" element={<Farmers />} />
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/offers" element={<Offers />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/track/:id" element={<OrderTracking />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/profile" element={<UserProfile />} />
+        </Route>
+      </Route>
+
       <Route element={<ProtectedRoute />}>
         <Route element={<FarmerLayout />}>
           <Route path="/farmer" element={<FarmerDashboard />} />
