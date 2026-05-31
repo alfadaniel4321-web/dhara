@@ -622,9 +622,9 @@ export default function HomeDashboard() {
               View All
             </Link>
           </div>
-          <div className="cat-scroll" style={{
-            display: 'flex', gap: '0.65rem',
-            overflowX: 'auto', paddingBottom: '0.5rem',
+          <div style={{
+            display: 'flex', gap: '0.5rem',
+            flexWrap: 'wrap', justifyContent: 'center',
           }}>
             {categories.length > 0 ? categories.map((cat) => (
               <Link
