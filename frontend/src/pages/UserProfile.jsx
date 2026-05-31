@@ -6,11 +6,19 @@ import { clearCartLocal } from '../redux/slices/cartSlice';
 import { api } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { ChevronLeft, User, MapPin, ListOrdered, Heart, ShieldAlert, PackageCheck, IndianRupee, Leaf, Award, Clock, ChevronRight, ShoppingBag } from 'lucide-react';
+import MobileProfile from './MobileProfile';
 
 export default function UserProfile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [address, setAddress] = useState(user?.address || '');
   const [orders, setOrders] = useState([]);
@@ -76,6 +84,8 @@ export default function UserProfile() {
   };
 
   if (loading) return <LoadingSpinner />;
+
+  if (isMobile) return <MobileProfile />;
 
   return (
     <div className="space-y-8">
