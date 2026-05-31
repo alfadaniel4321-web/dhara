@@ -260,8 +260,26 @@ function HarvestSection() {
         </div>
       </div>
       <style>{`
-        @media(max-width:768px){.harvest-grid{grid-template-columns:repeat(2,1fr)!important}}
-        @media(max-width:480px){.harvest-grid{grid-template-columns:repeat(2,1fr)!important}}
+        @media(max-width:768px){
+          .harvest-grid{grid-template-columns:repeat(2,1fr)!important}
+          .harvest-grid>div{display:flex!important;flex-direction:row!important;align-items:stretch!important}
+          .harvest-grid>div>div:first-child{width:40%!important;flex-shrink:0!important;display:flex!important}
+          .harvest-grid>div>div:first-child img{height:100%!important;width:100%!important;object-fit:cover!important}
+          .harvest-grid>div>div:first-child span{position:absolute!important;top:0.5rem!important;left:0.5rem!important}
+          .harvest-grid>div>div:nth-child(2){display:none!important}
+          .harvest-grid>div>div:nth-child(3){width:60%!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:0.75rem!important}
+          .harvest-grid>div>div:nth-child(3)>div{flex-direction:column!important;gap:0.25rem!important}
+        }
+        @media(max-width:480px){
+          .harvest-grid{grid-template-columns:repeat(2,1fr)!important}
+          .harvest-grid>div{display:flex!important;flex-direction:row!important;align-items:stretch!important}
+          .harvest-grid>div>div:first-child{width:40%!important;flex-shrink:0!important;display:flex!important}
+          .harvest-grid>div>div:first-child img{height:100%!important;width:100%!important;object-fit:cover!important}
+          .harvest-grid>div>div:first-child span{position:absolute!important;top:0.5rem!important;left:0.5rem!important}
+          .harvest-grid>div>div:nth-child(2){display:none!important}
+          .harvest-grid>div>div:nth-child(3){width:60%!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:0.5rem!important}
+          .harvest-grid>div>div:nth-child(3)>div{flex-direction:column!important;gap:0.25rem!important}
+        }
         .harvest-grid > div:hover img { transform: scale(1.04); }
       `}</style>
     </section>
@@ -486,7 +504,7 @@ function HorizontalScrollStory() {
       <div ref={ref} style={{ minWidth: '100vw', scrollSnapAlign: 'start', opacity: visible ? 1 : 0, transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.1}s` }}>
         <div style={{ display: 'flex', minHeight: '70vh' }}>
           {isImageLeft && (
-            <div style={{ width: '50%', overflow: 'hidden', position: 'relative' }}>
+            <div style={{ width: '50%', overflow: 'hidden', position: 'relative', display: 'flex' }}>
               <img src={panel.image} alt={panel.heading} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             </div>
           )}
@@ -944,7 +962,11 @@ function ManifestoSection() {
       </AnimatedSection>
 
       <style>{`
-        @media(max-width:768px){.manifesto-grid{gap:2rem!important}}
+        @media(max-width:768px){
+          .manifesto-grid{gap:2rem!important}
+          .manifesto-grid h2{font-size:clamp(1.1rem,2.5vw,2.2rem)!important}
+          .manifesto-grid h2 span{font-size:clamp(1.1rem,2.5vw,2.2rem)!important}
+        }
       `}</style>
     </section>
   );
@@ -1039,8 +1061,8 @@ export default function LandingPage() {
         /* ── Large Mobile / Small Tablet (481px–768px) ── */
         @media(max-width:768px){
           .stats-grid{grid-template-columns:repeat(4,1fr)!important;gap:0.5rem!important}
-          .lp-section-hero{height:50vh!important}
-          .lp-section-hero video{object-fit:contain!important}
+          .lp-section-hero{height:calc(100vh - 96px)!important}
+          .lp-section-hero video{object-fit:cover!important}
           .lp-section-farmers{padding:3.5rem 1.25rem!important}
           .lp-section-manifesto{padding:3.5rem 1.25rem!important}
           .lp-section-cta{padding:4rem 1.25rem!important}
@@ -1050,8 +1072,8 @@ export default function LandingPage() {
         /* ── Small Mobile (≤480px) ── */
         @media(max-width:480px){
           .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:0.5rem!important}
-          .lp-section-hero{height:40vh!important}
-          .lp-section-hero video{object-fit:contain!important}
+          .lp-section-hero{height:calc(100vh - 96px)!important}
+          .lp-section-hero video{object-fit:cover!important}
           .lp-section-farmers{padding:2.5rem 1rem!important}
           .lp-section-manifesto{padding:2.5rem 1rem!important}
           .lp-section-cta{padding:3rem 1rem!important}

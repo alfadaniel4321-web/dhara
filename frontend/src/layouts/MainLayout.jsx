@@ -10,8 +10,8 @@ export default function MainLayout() {
     <div className="min-h-screen bg-farmgreen-950 text-emerald-100 flex flex-col font-sans">
       <Navbar />
       <main
-        className="flex-grow flex flex-col relative z-10"
-        style={isLanding ? {} : { paddingTop: '96px' }}
+        className={`flex-grow flex flex-col relative z-10${isLanding ? ' lp-main' : ''}`}
+        style={!isLanding ? { paddingTop: '96px' } : {}}
       >
         <Outlet />
       </main>

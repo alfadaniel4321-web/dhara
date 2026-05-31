@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://dhara-5rgb.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'https://dhara-5rgb.onrender.com/api');
+
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('dhara_token');

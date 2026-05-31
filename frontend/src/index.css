@@ -67,6 +67,15 @@ input, textarea, select, button {
   overflow-x: hidden;
 }
 
+.lp-main {
+  padding-top: 96px;
+}
+@media (min-width: 769px) {
+  .lp-main {
+    padding-top: 0;
+  }
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
