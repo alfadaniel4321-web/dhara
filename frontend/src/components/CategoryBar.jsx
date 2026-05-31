@@ -114,10 +114,6 @@ export default function CategoryBar({ selectedCat, onSelect }) {
         </button>
       )}
 
-      {/* Gradient fade edges */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-[#F4F6F3] to-transparent z-[1]" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#F4F6F3] to-transparent z-[1]" />
-
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
