@@ -7,6 +7,7 @@ import {
   ShoppingBag, Package, Clock, CheckCircle, XCircle,
   Truck, MapPin, CreditCard, ChevronDown, ChevronUp,
   RefreshCw, Leaf, User, Search, Menu, Home,
+  Heart,
 } from 'lucide-react';
 
 const STATUS_META = {
@@ -242,28 +243,65 @@ export default function MobileOrders() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0.75rem 1.25rem', maxWidth: '480px', margin: '0 auto',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <Link to="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
               width: '32px', height: '32px',
               background: 'linear-gradient(135deg, #1B4332, #2D6A4F)',
               borderRadius: '10px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Package size={16} color="#A3C87A" strokeWidth={2} />
+              <Leaf size={16} color="#A3C87A" strokeWidth={2} />
             </div>
             <div>
               <span style={{
                 fontFamily: '"Playfair Display", Georgia, serif',
-                fontSize: '1.05rem', fontWeight: 700, color: '#1B4332',
-                letterSpacing: '-0.02em', lineHeight: 1, display: 'block',
-              }}>My Orders</span>
+                fontSize: '1.2rem', fontWeight: 700, color: '#1B4332',
+                letterSpacing: '-0.02em', lineHeight: 1,
+              }}>DHARA</span>
               <span style={{
                 fontFamily: '"Courier New", monospace', fontSize: '0.4rem',
-                letterSpacing: '0.25em', color: '#6A994E', textTransform: 'uppercase',
-              }}>Track & Manage</span>
+                letterSpacing: '0.3em', color: '#6A994E',
+                display: 'block', textTransform: 'uppercase',
+              }}>Organic Kerala</span>
             </div>
+          </Link>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link to="/wishlist" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none', position: 'relative',
+            }}>
+              <Heart size={18} strokeWidth={1.5} />
+            </Link>
+            <Link to="/cart" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none', position: 'relative',
+            }}>
+              <ShoppingBag size={18} strokeWidth={1.5} />
+              {totalCartCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: '2px', right: '2px',
+                  width: '16px', height: '16px', borderRadius: '50%',
+                  background: '#D4A017', color: '#FFFFFF',
+                  fontSize: '9px', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: '"DM Sans", sans-serif',
+                }}>{totalCartCount}</span>
+              )}
+            </Link>
+            <Link to="/profile" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none',
+            }}>
+              <Menu size={18} strokeWidth={1.5} />
+            </Link>
           </div>
-          {/* empty */}
         </div>
       </header>
 

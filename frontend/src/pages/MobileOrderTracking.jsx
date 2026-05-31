@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { api } from '../services/api';
 import {
   ChevronLeft, Bell, MapPin, Package, Clock, Truck, Home,
   CheckCircle, Phone, MessageSquare, Share2, HelpCircle,
-  Navigation, Star, Leaf, User,
+  Navigation, Star, Leaf, User, ShoppingBag, Heart, Menu,
 } from 'lucide-react';
 
 const STAGES_DATA = [
@@ -177,8 +178,10 @@ function ProgressBar({ percent }) {
 }
 
 export default function MobileOrderTracking() {
-  const { id } = useParams();
+  const { oid } = useParams();
   const navigate = useNavigate();
+  const { cartItems } = useSelector((state) => state.cart);
+  const totalCartCount = cartItems.reduce((acc, curr) => acc + curr.count, 0);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [farmer, setFarmer] = useState(null);
@@ -187,7 +190,7 @@ export default function MobileOrderTracking() {
     const load = async () => {
       setLoading(true);
       try {
-        const ord = await api.orders.trackOrder(id);
+        const ord = await api.orders.trackOrder(oid);
         setOrder(ord);
         const fItem = ord.products?.[0];
         if (fItem?.farmerId) {
@@ -204,7 +207,7 @@ export default function MobileOrderTracking() {
       }
     };
     load();
-  }, [id]);
+  }, [oid]);
 
   if (loading) {
     return (
@@ -247,7 +250,7 @@ export default function MobileOrderTracking() {
   const orderStatus = order.orderStatus || 'Pending';
   const currentStage = getStageIndex(orderStatus);
   const progressPct = Math.round((currentStage / (STAGES_DATA.length - 1)) * 100);
-  const oid = order._id || order.id;
+  const displayOid = order._id || order.id;
 
   // Mock delivery partner data (since real data isn't available from API)
   const partner = {
@@ -291,36 +294,67 @@ export default function MobileOrderTracking() {
       }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0.75rem 1.2rem', maxWidth: '480px', margin: '0 auto',
+          padding: '0.75rem 1.25rem', maxWidth: '480px', margin: '0 auto',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <button onClick={() => navigate(-1)} style={{
-              width: '36px', height: '36px', borderRadius: '12px',
-              background: 'rgba(27,67,50,0.04)', border: 'none', cursor: 'pointer',
+          <Link to="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{
+              width: '32px', height: '32px',
+              background: 'linear-gradient(135deg, #1B4332, #2D6A4F)',
+              borderRadius: '10px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#1B4332',
             }}>
-              <ChevronLeft size={18} strokeWidth={2} />
-            </button>
+              <Leaf size={16} color="#A3C87A" strokeWidth={2} />
+            </div>
             <div>
               <span style={{
-                fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1rem',
-                fontWeight: 700, color: '#1B4332', lineHeight: 1, display: 'block',
-              }}>Track Delivery</span>
+                fontFamily: '"Playfair Display", Georgia, serif',
+                fontSize: '1.2rem', fontWeight: 700, color: '#1B4332',
+                letterSpacing: '-0.02em', lineHeight: 1,
+              }}>DHARA</span>
               <span style={{
-                fontFamily: '"Courier New", monospace', fontSize: '0.45rem',
-                letterSpacing: '0.12em', color: 'rgba(27,67,50,0.35)',
-              }}>Order #{oid ? oid.toString().slice(-8).toUpperCase() : ''}</span>
+                fontFamily: '"Courier New", monospace', fontSize: '0.4rem',
+                letterSpacing: '0.3em', color: '#6A994E',
+                display: 'block', textTransform: 'uppercase',
+              }}>Organic Kerala</span>
             </div>
+          </Link>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link to="/wishlist" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none', position: 'relative',
+            }}>
+              <Heart size={18} strokeWidth={1.5} />
+            </Link>
+            <Link to="/cart" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none', position: 'relative',
+            }}>
+              <ShoppingBag size={18} strokeWidth={1.5} />
+              {totalCartCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: '2px', right: '2px',
+                  width: '16px', height: '16px', borderRadius: '50%',
+                  background: '#D4A017', color: '#FFFFFF',
+                  fontSize: '9px', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: '"DM Sans", sans-serif',
+                }}>{totalCartCount}</span>
+              )}
+            </Link>
+            <Link to="/profile" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none',
+            }}>
+              <Menu size={18} strokeWidth={1.5} />
+            </Link>
           </div>
-          <button style={{
-            width: '36px', height: '36px', borderRadius: '12px',
-            background: 'rgba(27,67,50,0.04)', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#1B4332',
-          }}>
-            <Bell size={18} strokeWidth={1.5} />
-          </button>
         </div>
       </div>
 

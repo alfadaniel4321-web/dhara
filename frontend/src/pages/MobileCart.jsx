@@ -6,6 +6,7 @@ import { api } from '../services/api';
 import {
   ShoppingBag, ChevronLeft, Minus, Plus, Trash2,
   Tag, ShieldCheck, Leaf, Search, Package, User, Home,
+  Heart, Menu,
 } from 'lucide-react';
 
 function HomeIcon({ size, strokeWidth }) {
@@ -145,30 +146,67 @@ export default function MobileCart() {
       <header className="cart-header">
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0.75rem 1.2rem', maxWidth: '480px', margin: '0 auto',
+          padding: '0.75rem 1.25rem', maxWidth: '480px', margin: '0 auto',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <button onClick={() => navigate(-1)} style={{
-              width: '36px', height: '36px', borderRadius: '12px',
-              background: 'rgba(27,67,50,0.04)', border: 'none', cursor: 'pointer',
+          <Link to="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{
+              width: '32px', height: '32px',
+              background: 'linear-gradient(135deg, #1B4332, #2D6A4F)',
+              borderRadius: '10px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#1B4332',
             }}>
-              <ChevronLeft size={18} strokeWidth={2} />
-            </button>
+              <Leaf size={16} color="#A3C87A" strokeWidth={2} />
+            </div>
             <div>
               <span style={{
-                fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1rem',
-                fontWeight: 700, color: '#1B4332', lineHeight: 1, display: 'block',
-              }}>My Cart</span>
+                fontFamily: '"Playfair Display", Georgia, serif',
+                fontSize: '1.2rem', fontWeight: 700, color: '#1B4332',
+                letterSpacing: '-0.02em', lineHeight: 1,
+              }}>DHARA</span>
+              <span style={{
+                fontFamily: '"Courier New", monospace', fontSize: '0.4rem',
+                letterSpacing: '0.3em', color: '#6A994E',
+                display: 'block', textTransform: 'uppercase',
+              }}>Organic Kerala</span>
             </div>
+          </Link>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link to="/wishlist" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none', position: 'relative',
+            }}>
+              <Heart size={18} strokeWidth={1.5} />
+            </Link>
+            <Link to="/cart" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none', position: 'relative',
+            }}>
+              <ShoppingBag size={18} strokeWidth={1.5} />
+              {itemCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: '2px', right: '2px',
+                  width: '16px', height: '16px', borderRadius: '50%',
+                  background: '#D4A017', color: '#FFFFFF',
+                  fontSize: '9px', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: '"DM Sans", sans-serif',
+                }}>{itemCount}</span>
+              )}
+            </Link>
+            <Link to="/profile" style={{
+              width: '38px', height: '38px', borderRadius: '12px',
+              background: 'rgba(27,67,50,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1B4332', textDecoration: 'none',
+            }}>
+              <Menu size={18} strokeWidth={1.5} />
+            </Link>
           </div>
-          {cartItems.length > 0 && (
-            <span style={{
-              fontFamily: '"Courier New", monospace', fontSize: '0.65rem',
-              color: 'rgba(27,67,50,0.4)',
-            }}>{itemCount} Item{itemCount !== 1 ? 's' : ''}</span>
-          )}
         </div>
       </header>
 
