@@ -63,10 +63,10 @@ export default function HomeDashboard() {
           api.public.getStats(),
           api.products.getCategories().catch(() => []),
         ]);
-        if (productsData) setProducts(productsData);
-        if (farmersData) setFarmers(farmersData);
+        if (productsData) setProducts([...productsData].sort((a, b) => (a.title || '').localeCompare(b.title || '')));
+        if (farmersData) setFarmers([...farmersData].sort((a, b) => (a.name || '').localeCompare(b.name || '')));
         if (statsData) setStats(statsData);
-        if (catsData) setCategories(catsData);
+        if (catsData) setCategories([...catsData].sort());
       } catch {}
     };
     fetchData();
@@ -898,59 +898,51 @@ export default function HomeDashboard() {
           </section>
         )}
 
-        {/* ═══ TRUST SECTION ═══ */}
+        {/* ═══ PROMOTION BANNER ═══ */}
         <section style={{ marginTop: '1.25rem', marginBottom: '1rem' }}>
-          <h3 style={{
-            fontFamily: '"Playfair Display", Georgia, serif',
-            fontSize: '1.1rem', fontWeight: 700, color: '#1B4332', margin: '0 0 0.75rem 0',
-          }}>
-            Why Choose Us
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '0.65rem',
-          }}>
-            <div className="trust-card animate-fade-up" style={{ animationDelay: '0.05s' }}>
+          <Link to="/offers" style={{ textDecoration: 'none', display: 'block' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #D4A017 0%, #B8860B 50%, #8B6914 100%)',
+              borderRadius: '24px', padding: '1.25rem 1.5rem',
+              position: 'relative', overflow: 'hidden',
+            }}>
               <div style={{
-                width: '40px', height: '40px', borderRadius: '14px',
-                background: 'rgba(106,153,78,0.1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Leaf size={20} color="#6A994E" />
-              </div>
-              <span style={{
-                fontFamily: '"DM Sans", sans-serif',
-                fontSize: '0.6rem', fontWeight: 600, color: '#1B4332',
-              }}>100% Organic</span>
-            </div>
-            <div className="trust-card animate-fade-up" style={{ animationDelay: '0.1s' }}>
+                position: 'absolute', top: '-1.5rem', right: '-1.5rem',
+                width: '8rem', height: '8rem', borderRadius: '50%',
+                background: 'rgba(255,255,255,0.06)',
+              }} />
               <div style={{
-                width: '40px', height: '40px', borderRadius: '14px',
-                background: 'rgba(27,67,50,0.08)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Truck size={20} color="#1B4332" />
+                position: 'absolute', bottom: '-1rem', left: '-1rem',
+                width: '6rem', height: '6rem', borderRadius: '50%',
+                background: 'rgba(255,255,255,0.04)',
+              }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <span style={{
+                  fontFamily: '"Courier New", monospace', fontSize: '0.5rem',
+                  letterSpacing: '0.25em', color: 'rgba(255,255,255,0.7)',
+                  textTransform: 'uppercase',
+                }}>Limited Time Offer</span>
+                <h3 style={{
+                  fontFamily: '"Playfair Display", Georgia, serif',
+                  fontSize: '1.15rem', fontWeight: 700,
+                  color: '#FFFFFF', margin: '0.35rem 0 0.25rem',
+                  lineHeight: 1.15,
+                }}>Get 20% Off<br/>Your First Order!</h3>
+                <p style={{
+                  fontFamily: '"DM Sans", sans-serif', fontSize: '0.7rem',
+                  color: 'rgba(255,255,255,0.8)', margin: '0 0 0.75rem',
+                }}>Use code <strong style={{ color: '#FFFFFF', letterSpacing: '0.1em' }}>DHARA20</strong></p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{
+                    fontFamily: '"Courier New", monospace', fontSize: '0.6rem',
+                    fontWeight: 700, color: '#FFFFFF', textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}>Shop Now</span>
+                  <ChevronRight size={14} color="#FFFFFF" />
+                </div>
               </div>
-              <span style={{
-                fontFamily: '"DM Sans", sans-serif',
-                fontSize: '0.6rem', fontWeight: 600, color: '#1B4332',
-              }}>Fast Delivery</span>
             </div>
-            <div className="trust-card animate-fade-up" style={{ animationDelay: '0.15s' }}>
-              <div style={{
-                width: '40px', height: '40px', borderRadius: '14px',
-                background: 'rgba(212,160,23,0.08)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Store size={20} color="#D4A017" />
-              </div>
-              <span style={{
-                fontFamily: '"DM Sans", sans-serif',
-                fontSize: '0.6rem', fontWeight: 600, color: '#1B4332',
-              }}>Direct From Farmers</span>
-            </div>
-          </div>
+          </Link>
         </section>
 
       </div>
