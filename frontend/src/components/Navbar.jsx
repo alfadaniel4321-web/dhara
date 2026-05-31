@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
-import { Heart, ShoppingBag, User, LogOut, Leaf } from 'lucide-react';
+import { Heart, ShoppingBag, User, LogOut, Leaf, Menu } from 'lucide-react';
 import { logoutUser } from '../redux/slices/authSlice';
 import { clearCartLocal } from '../redux/slices/cartSlice';
 
