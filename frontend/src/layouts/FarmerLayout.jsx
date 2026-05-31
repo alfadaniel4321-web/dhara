@@ -48,7 +48,7 @@ export default function FarmerLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto pb-20 lg:pb-8">
           <Outlet />
         </main>
 
