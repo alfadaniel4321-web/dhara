@@ -116,6 +116,7 @@ export default function Wishlist() {
 
   const wishlistIds = new Set(productsList.map(p => p.id || p._id));
   const recommended = allProducts.filter(p => !wishlistIds.has(p.id || p._id)).slice(0, 10);
+  const recentlyAdded = productsList.slice(0, 3);
 
   // ─── DESKTOP ───
   if (!isMobile) {
@@ -298,12 +299,12 @@ export default function Wishlist() {
             <p style={{
               fontFamily: '"DM Sans", sans-serif', fontSize: '1.05rem',
               fontWeight: 600, color: '#1B4332', margin: '0 0 0.35rem',
-            }}>Your wishlist is empty</p>
+            }}>Your wishlist is waiting</p>
             <p style={{
               fontFamily: '"DM Sans", sans-serif', fontSize: '0.72rem',
               color: 'rgba(27,67,50,0.4)', margin: '0 0 1.5rem', lineHeight: 1.5,
-              maxWidth: '260px', marginLeft: 'auto', marginRight: 'auto',
-            }}>Save your favorite farm-fresh products and come back to them anytime.</p>
+              maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto',
+            }}>for fresh favorites.</p>
             <Link to="/products" style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
               fontFamily: '"DM Sans", sans-serif', fontSize: '0.8rem',
@@ -339,7 +340,7 @@ export default function Wishlist() {
                   <p style={{
                     fontFamily: '"DM Sans", sans-serif', fontSize: '0.58rem',
                     color: 'rgba(27,67,50,0.35)', margin: '0.05rem 0 0 0',
-                  }}>Ready to order whenever you are</p>
+                  }}>{recentlyAdded.length} recently added</p>
                 </div>
               </div>
               <span style={{
