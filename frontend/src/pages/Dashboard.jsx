@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCartSuccess } from "../redux/slices/cartSlice";
 import { api } from '../services/api';
+import HomeDashboard from "./HomeDashboard";
 import {
   Home,
   MapPin,
@@ -42,6 +43,13 @@ const FEATURES = [
 export default function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleAddToCart = useCallback(async (product) => {
     try {
@@ -158,6 +166,10 @@ export default function Dashboard() {
   const filteredProducts = search.trim()
     ? searchResults
     : displayProducts;
+
+  if (isMobile) {
+    return <HomeDashboard />;
+  }
 
   return (
     <div style={{ background: "#F4F6F3" }}>

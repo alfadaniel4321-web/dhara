@@ -1,5 +1,5 @@
-import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -8,9 +8,22 @@ import MobileBottomNav from '../components/MobileBottomNav';
 
 export default function DashboardLayout() {
   const { user } = useSelector((state) => state.auth);
+  const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard';
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (isMobile && isDashboard) {
+    return <Outlet />;
   }
 
   return (
@@ -20,12 +33,12 @@ export default function DashboardLayout() {
       <div style={{ height: '96px' }} />
       <div className="flex-grow flex flex-col md:flex-row">
         <Sidebar role="customer" />
-        <main className="flex-grow p-3 sm:p-4 md:p-6 xl:p-8 max-w-screen-2xl mx-auto w-full min-w-0">
+        <main className={`flex-grow max-w-screen-2xl mx-auto w-full min-w-0 ${isDashboard ? 'p-0' : 'p-3 sm:p-4 md:p-6 xl:p-8'}`}>
           <Outlet />
         </main>
       </div>
       <Footer />
-      <MobileBottomNav role="customer" />
+      {!isDashboard && <MobileBottomNav role="customer" />}
     </div>
   );
 }

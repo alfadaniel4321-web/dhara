@@ -103,6 +103,10 @@ export const api = {
       });
     },
 
+    getCategories: async () => {
+      return await request('/products/categories');
+    },
+
     getFarmerProducts: async (farmerId) => {
       return await request(`/products/farmer/${farmerId}`);
     }
