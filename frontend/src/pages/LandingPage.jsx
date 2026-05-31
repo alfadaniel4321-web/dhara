@@ -1061,7 +1061,7 @@ export default function LandingPage() {
         /* ── Large Mobile / Small Tablet (481px–768px) ── */
         @media(max-width:768px){
           .stats-grid{grid-template-columns:repeat(4,1fr)!important;gap:0.5rem!important}
-          .lp-section-hero{height:calc(100vh - 96px)!important}
+          .lp-section-hero{height:50vh!important}
           .lp-section-hero video{object-fit:cover!important}
           .lp-section-farmers{padding:3.5rem 1.25rem!important}
           .lp-section-manifesto{padding:3.5rem 1.25rem!important}
@@ -1072,7 +1072,7 @@ export default function LandingPage() {
         /* ── Small Mobile (≤480px) ── */
         @media(max-width:480px){
           .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:0.5rem!important}
-          .lp-section-hero{height:calc(100vh - 96px)!important}
+          .lp-section-hero{height:40vh!important}
           .lp-section-hero video{object-fit:cover!important}
           .lp-section-farmers{padding:2.5rem 1rem!important}
           .lp-section-manifesto{padding:2.5rem 1rem!important}
