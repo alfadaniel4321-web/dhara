@@ -53,7 +53,7 @@ export default function Login() {
     >
       {/* Back button */}
       <button
-        onClick={() => window.history.length > 1 ? navigate(-1) : navigate("/")}
+        onClick={() => navigate("/")}
         className="absolute top-4 left-4 z-20 flex items-center gap-2 text-xs font-semibold tracking-wider uppercase transition-all duration-300 hover:opacity-70"
         style={{ color: "rgba(149,213,178,0.6)", fontFamily: '"Courier New", monospace' }}
       >
