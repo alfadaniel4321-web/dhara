@@ -10,6 +10,7 @@ import About from '../pages/About';
 import Contact from '../pages/Contact';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+import AdminLogin from '../pages/AdminLogin';
 
 import Dashboard from '../pages/Dashboard';
 import ProductDetails from '../pages/ProductDetails';
@@ -75,6 +76,7 @@ export default function AppRoutes() {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
       </Route>
 
       <Route element={<MainLayout />}>
