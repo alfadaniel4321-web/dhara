@@ -428,7 +428,7 @@ export default function MobileCart() {
       <div className="bottom-bar">
         {cartItems.length > 0 && (
           <div className="summary-sheet">
-            <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0.85rem 1rem 0.6rem' }}>
+            <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0.5rem 1rem 0.4rem' }}>
               {/* Summary rows */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
                 <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.68rem', color: 'rgba(27,67,50,0.5)' }}>Subtotal</span>
