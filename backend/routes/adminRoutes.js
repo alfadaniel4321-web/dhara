@@ -20,6 +20,7 @@ router.put('/farmers/:id/reset-strikes', adminController.resetStrikes);
 router.get('/products', adminController.getProducts);
 router.delete('/products/:id', adminController.deleteProduct);
 router.put('/products/:id/feature', adminController.toggleFeatureProduct);
+router.put('/products/:id/offer', adminController.setOfferDetails);
 router.get('/orders', adminController.getOrders);
 router.put('/orders/:id/status', adminController.updateOrderStatus);
 router.get('/reports', adminController.getReports);

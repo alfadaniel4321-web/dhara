@@ -7,7 +7,7 @@ import {
   ShoppingBag, Heart, MapPin, Star, ChevronRight, Leaf,
   Users, ShieldCheck, Truck, Clock, TrendingUp, Eye,
   Menu, Package, Search, X, Timer, Award,
-  CheckCircle, Sprout, Store, User, ArrowRight,
+  CheckCircle, Sprout, Store, User, ArrowRight, Tag,
 } from 'lucide-react';
 import farmVideo from "../assets/farm-video.mp4";
 import heroImg from "../assets/hero.png";
@@ -98,7 +98,7 @@ export default function HomeDashboard() {
     } catch {}
   }, []);
 
-  const featuredProducts = products.slice(0, 6);
+  const offerProducts = products.filter(p => p.offerDetails);
   const topFarmers = farmers.slice(0, 3);
 
   return (
@@ -661,19 +661,28 @@ export default function HomeDashboard() {
           </div>
         </section>
 
-        {/* ═══ FEATURED PRODUCTS ═══ */}
+        {/* ═══ OFFER PRODUCTS ═══ */}
+        {offerProducts.length > 0 && (
         <section style={{ marginTop: '1.25rem' }}>
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             marginBottom: '0.75rem',
           }}>
-            <h3 style={{
-              fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: '1.1rem', fontWeight: 700, color: '#1B4332', margin: 0,
-            }}>
-              Featured Products
-            </h3>
-            <Link to="/products" style={{
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #D4A017, #B8860B)',
+                borderRadius: '8px', padding: '0.3rem', display: 'flex',
+              }}>
+                <Tag size={14} color="#FFF" />
+              </div>
+              <h3 style={{
+                fontFamily: '"Playfair Display", Georgia, serif',
+                fontSize: '1.1rem', fontWeight: 700, color: '#1B4332', margin: 0,
+              }}>
+                Today's Offers
+              </h3>
+            </div>
+            <Link to="/offers" style={{
               fontFamily: '"Courier New", monospace',
               fontSize: '0.55rem', letterSpacing: '0.1em',
               color: '#6A994E', textDecoration: 'none',
@@ -687,7 +696,7 @@ export default function HomeDashboard() {
             gridTemplateColumns: '1fr 1fr',
             gap: '0.65rem',
           }}>
-            {featuredProducts.map((product, i) => {
+            {offerProducts.slice(0, 6).map((product, i) => {
               const pid = product.id || product._id;
               const wislisted = isWishlisted(pid);
               return (
@@ -705,20 +714,20 @@ export default function HomeDashboard() {
                         }}
                       />
                     </Link>
-                    {/* Organic badge */}
+                    {/* Offer badge */}
                     <span style={{
                       position: 'absolute', top: '0.5rem', left: '0.5rem',
-                      background: 'rgba(27,67,50,0.75)',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)',
+                      background: 'linear-gradient(135deg, #D4A017, #B8860B)',
                       fontFamily: '"Courier New", monospace',
                       fontSize: '0.4rem', letterSpacing: '0.05em',
-                      color: '#A3C87A',
+                      color: '#FFF',
                       padding: '0.2rem 0.5rem',
                       borderRadius: '8px',
-                      display: 'flex', alignItems: 'center', gap: '0.25rem',
+                      maxWidth: 'calc(100% - 1rem)',
+                      overflow: 'hidden', textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}>
-                      <Leaf size={8} /> Organic
+                      🏷️ {product.offerDetails}
                     </span>
                     {/* Wishlist button */}
                     <button
@@ -788,6 +797,7 @@ export default function HomeDashboard() {
             })}
           </div>
         </section>
+        )}
 
         {/* ═══ FARMER SPOTLIGHT ═══ */}
         {topFarmers.length > 0 && (

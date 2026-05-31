@@ -255,6 +255,7 @@ export default function Products() {
       </button>
 
       <div className="max-w-screen-2xl mx-auto px-4 py-6 products-page-wrap">
+        <div className="products-sticky-header">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 products-header-wrap">
           <div className="flex items-center gap-3">
@@ -314,6 +315,7 @@ export default function Products() {
               <X size={16} /> Clear
             </button>
           )}
+        </div>
         </div>
 
         <div className="flex gap-6">
@@ -472,7 +474,7 @@ export default function Products() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-8 flex items-center justify-center gap-2 flex-wrap">
+                  <div className="mt-8 flex items-center justify-center gap-2 flex-wrap products-pagination-wrap">
                     <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                       <ChevronLeft size={18} />
                     </button>
@@ -502,126 +504,219 @@ export default function Products() {
         /* ═══ MOBILE: Premium Product Page ═══ */
         @media (max-width: 767px) {
           .products-page-wrap {
-            padding: 0.5rem 0.75rem 1.25rem !important;
+            padding: 0 0 2rem !important;
+            background: #F4F6F3 !important;
           }
+
+          /* ── Sticky Header ── */
+          .products-sticky-header {
+            padding: 0.75rem 0.85rem 0.5rem !important;
+            background: #F4F6F3 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 20 !important;
+          }
+
           .products-header-wrap {
             margin-bottom: 0.5rem !important;
           }
           .products-header-wrap h1 {
-            font-size: 1.15rem !important;
+            font-size: 1.25rem !important;
+            letter-spacing: -0.02em !important;
           }
           .products-header-wrap p {
-            font-size: 0.65rem !important;
+            font-size: 0.62rem !important;
+            opacity: 0.65 !important;
           }
-          .products-search-wrap {
-            margin-bottom: 0.75rem !important;
-          }
-          .products-search-wrap input {
-            padding: 0.6rem 0.75rem 0.6rem 2.5rem !important;
-            font-size: 0.78rem !important;
-            border-radius: 14px !important;
-          }
-          .products-search-wrap svg {
-            left: 0.75rem !important;
-          }
-          .products-sort-btn {
-            padding: 0.5rem 0.75rem !important;
-            font-size: 0.75rem !important;
-            border-radius: 12px !important;
-          }
-          .products-filter-btn {
-            padding: 0.5rem 0.75rem !important;
-            font-size: 0.75rem !important;
+          .products-header-wrap > div:first-child > div:first-child {
+            padding: 0.4rem !important;
             border-radius: 12px !important;
           }
 
-          /* ── Product Cards ── */
-          .product-grid-mobile {
-            gap: 0.65rem !important;
+          .products-search-wrap {
+            margin-bottom: 0 !important;
+            gap: 0.5rem !important;
+            flex-direction: row !important;
           }
+          .products-search-wrap > .relative {
+            flex: 1 !important;
+          }
+          .products-search-wrap input {
+            padding: 0.68rem 0.8rem 0.68rem 2.5rem !important;
+            font-size: 0.8rem !important;
+            border-radius: 16px !important;
+            background: #ffffff !important;
+            border: 1.5px solid #e8ebe6 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+          }
+          .products-search-wrap input:focus {
+            border-color: #013220 !important;
+            box-shadow: 0 0 0 3px rgba(1,50,32,0.08) !important;
+          }
+          .products-search-wrap > .relative > svg:first-child {
+            left: 0.8rem !important;
+          }
+
+          .products-sort-btn {
+            padding: 0.5rem 0.7rem !important;
+            font-size: 0.72rem !important;
+            border-radius: 14px !important;
+            background: #ffffff !important;
+            border: 1.5px solid #e8ebe6 !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03) !important;
+          }
+          .products-filter-btn {
+            padding: 0.5rem 0.7rem !important;
+            font-size: 0.72rem !important;
+            border-radius: 14px !important;
+            background: #ffffff !important;
+            border: 1.5px solid #e8ebe6 !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03) !important;
+          }
+
+          .products-header-wrap .flex.items-center.gap-2 button {
+            padding: 0.5rem 0.7rem !important;
+            font-size: 0.72rem !important;
+            border-radius: 14px !important;
+            background: #ffffff !important;
+            border: 1.5px solid #e8ebe6 !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03) !important;
+          }
+
+          /* ── Category Bar ── */
+          .category-bar-mobile {
+            margin-bottom: 0.5rem !important;
+          }
+          .category-bar-mobile > div > div {
+            gap: 0.45rem !important;
+            padding-top: 0.4rem !important;
+            padding-bottom: 0.4rem !important;
+          }
+          .category-bar-mobile button {
+            padding: 0.5rem 0.7rem !important;
+            font-size: 0.68rem !important;
+            border-radius: 16px !important;
+            min-height: 44px !important;
+          }
+          .category-bar-mobile button span.text-xl {
+            font-size: 1.1rem !important;
+          }
+
+          /* ── Product Grid ── */
+          .product-grid-mobile {
+            gap: 0.75rem !important;
+            padding: 0 0.75rem !important;
+          }
+
           .product-card-mobile {
-            border-radius: 18px !important;
+            border-radius: 20px !important;
             border: none !important;
             box-shadow: 0 2px 16px rgba(27,67,50,0.06) !important;
-            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+            background: #ffffff !important;
+            overflow: hidden !important;
+            transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s ease !important;
           }
           .product-card-mobile:active {
             transform: scale(0.97) !important;
           }
           .product-card-mobile .card-image-wrap {
-            border-radius: 18px 18px 0 0 !important;
+            border-radius: 20px 20px 0 0 !important;
+            background: #f0f2ee !important;
           }
           .product-card-mobile .card-info-wrap {
-            padding: 0.6rem 0.65rem 0.7rem !important;
+            padding: 0.65rem 0.7rem 0.75rem !important;
           }
           .product-card-mobile .card-category {
-            font-size: 0.45rem !important;
-            margin-bottom: 0.2rem !important;
+            font-size: 0.48rem !important;
+            margin-bottom: 0.22rem !important;
+            letter-spacing: 0.06em !important;
+            font-weight: 600 !important;
           }
           .product-card-mobile .card-title {
-            font-size: 0.78rem !important;
-            margin-bottom: 0.15rem !important;
+            font-size: 0.82rem !important;
+            margin-bottom: 0.18rem !important;
+            line-height: 1.25 !important;
+            font-weight: 700 !important;
           }
           .product-card-mobile .card-farmer {
-            font-size: 0.55rem !important;
-            margin-bottom: 0.4rem !important;
+            font-size: 0.58rem !important;
+            margin-bottom: 0.35rem !important;
           }
           .product-card-mobile .card-price {
-            font-size: 0.9rem !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
           }
           .product-card-mobile .card-unit {
-            font-size: 0.6rem !important;
+            font-size: 0.62rem !important;
           }
           .product-card-mobile .card-price-row {
-            margin-bottom: 0.5rem !important;
+            margin-bottom: 0.45rem !important;
           }
           .product-card-mobile .card-add-btn {
-            padding: 0.55rem !important;
-            font-size: 0.68rem !important;
-            border-radius: 12px !important;
+            padding: 0.58rem !important;
+            font-size: 0.7rem !important;
+            border-radius: 14px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.02em !important;
           }
           .product-card-mobile .card-add-btn svg {
             width: 14px !important;
             height: 14px !important;
           }
+
           .product-card-mobile .wishlist-btn {
             opacity: 1 !important;
             top: 0.4rem !important;
             right: 0.4rem !important;
-            padding: 0.35rem !important;
+            padding: 0.38rem !important;
+            background: rgba(255,255,255,0.92) !important;
+            backdrop-filter: blur(4px) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
           }
           .product-card-mobile .freshness-badge {
             top: 0.4rem !important;
             left: 0.4rem !important;
-            font-size: 0.45rem !important;
-            padding: 0.15rem 0.45rem !important;
-            border-radius: 6px !important;
+            font-size: 0.48rem !important;
+            padding: 0.18rem 0.5rem !important;
+            border-radius: 8px !important;
+            background: linear-gradient(135deg, #013220, #1a4a3a) !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.03em !important;
           }
           .product-card-mobile .quick-view-btn {
             display: none !important;
           }
 
-          /* ── Category Bar Mobile ── */
-          .category-bar-mobile {
-            margin-bottom: 0.65rem !important;
-          }
-          .category-bar-mobile button {
-            padding: 0.55rem 0.85rem !important;
-            font-size: 0.7rem !important;
-            border-radius: 14px !important;
-            min-height: 44px !important;
-          }
-
           /* ── Mobile Filter Drawer ── */
           .mobile-filter-drawer {
-            max-width: 80vw !important;
-            padding: 1.25rem !important;
+            max-width: 82vw !important;
+            padding: 1.5rem !important;
           }
           .mobile-filter-drawer h4 {
-            font-size: 0.78rem !important;
+            font-size: 0.8rem !important;
           }
           .mobile-filter-drawer label {
-            font-size: 0.75rem !important;
+            font-size: 0.78rem !important;
+            padding: 0.2rem 0 !important;
+          }
+
+          /* ── Pagination ── */
+          .products-pagination-wrap {
+            gap: 0.4rem !important;
+            padding: 0 0.75rem !important;
+          }
+          .products-pagination-wrap button {
+            min-width: 40px !important;
+            height: 40px !important;
+            font-size: 0.82rem !important;
+            border-radius: 14px !important;
+            font-weight: 600 !important;
+          }
+
+          /* ── Empty State ── */
+          .flex-1 > .flex.flex-col.items-center.justify-center.py-20 {
+            padding: 3rem 1.5rem !important;
           }
         }
       `}</style>

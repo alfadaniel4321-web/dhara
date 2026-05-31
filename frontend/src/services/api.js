@@ -208,6 +208,9 @@ export const api = {
     deleteProduct: async (id) => {
       return await request(`/admin/products/${id}`, { method: 'DELETE' });
     },
+    setOffer: async (id, offerDetails) => {
+      return await request(`/admin/products/${id}/offer`, { method: 'PUT', body: JSON.stringify({ offerDetails }) });
+    },
     getOrders: async () => {
       return await request('/admin/orders');
     },

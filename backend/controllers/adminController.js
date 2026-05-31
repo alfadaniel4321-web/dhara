@@ -152,6 +152,21 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
+exports.setOfferDetails = async (req, res) => {
+  try {
+    const { offerDetails } = req.body;
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { offerDetails: offerDetails || '' },
+      { new: true }
+    );
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json({ message: `Offer ${offerDetails ? 'added' : 'removed'}`, product });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 exports.toggleFeatureProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

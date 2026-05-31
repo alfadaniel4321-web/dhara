@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Package, Search, Trash2, Star, Filter, Image
+  Package, Search, Trash2, Star, Filter, Image, Tag, X, Check
 } from "lucide-react";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -12,6 +12,8 @@ export default function AdminProducts() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [success, setSuccess] = useState("");
+  const [editingOffer, setEditingOffer] = useState(null);
+  const [offerText, setOfferText] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -31,6 +33,21 @@ export default function AdminProducts() {
       setSuccess("Product removed");
       load();
     } catch (err) { alert(err.message); }
+  };
+
+  const handleSetOffer = async (id) => {
+    try {
+      await api.admin.setOffer(id, offerText);
+      setSuccess(offerText ? "Offer added" : "Offer removed");
+      setEditingOffer(null);
+      setOfferText("");
+      load();
+    } catch (err) { alert(err.message); }
+  };
+
+  const startEditOffer = (product) => {
+    setEditingOffer(product._id || product.id);
+    setOfferText(product.offerDetails || "");
   };
 
   const categories = ["All", ...new Set(products.map(p => p.category).filter(Boolean))];
@@ -53,7 +70,10 @@ export default function AdminProducts() {
       </div>
 
       {success && (
-        <div className="px-4 py-3 rounded-xl bg-emerald-900/20 border border-emerald-700/30 text-emerald-400 text-sm font-medium">{success}</div>
+        <div className="px-4 py-3 rounded-xl bg-emerald-900/20 border border-emerald-700/30 text-emerald-400 text-sm font-medium flex items-center justify-between">
+          <span>{success}</span>
+          <button onClick={() => setSuccess("")} className="text-emerald-400/60 hover:text-emerald-400"><X size={14} /></button>
+        </div>
       )}
 
       <div className="flex items-center gap-3 flex-wrap">
@@ -88,33 +108,61 @@ export default function AdminProducts() {
                 <th className="p-4 font-semibold">Category</th>
                 <th className="p-4 font-semibold">Price</th>
                 <th className="p-4 font-semibold hidden sm:table-cell">Stock</th>
+                <th className="p-4 font-semibold">Offer</th>
                 <th className="p-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-emerald-900/10">
-              {filtered.map((p) => (
-                <tr key={p._id || p.id} className="hover:bg-emerald-900/5 transition-colors">
-                  <td className="p-4" data-label="Product">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-emerald-900/20 overflow-hidden flex-shrink-0">
-                        {p.image ? <img src={p.image} className="w-full h-full object-cover" /> : <Image size={16} className="m-auto mt-2.5 text-emerald-700/40" />}
+              {filtered.map((p) => {
+                const pid = p._id || p.id;
+                const isEditing = editingOffer === pid;
+                return (
+                  <tr key={pid} className="hover:bg-emerald-900/5 transition-colors">
+                    <td className="p-4" data-label="Product">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-emerald-900/20 overflow-hidden flex-shrink-0">
+                          {p.image ? <img src={p.image} className="w-full h-full object-cover" /> : <Image size={16} className="m-auto mt-2.5 text-emerald-700/40" />}
+                        </div>
+                        <span className="font-semibold text-emerald-200 truncate max-w-[180px]">{p.title}</span>
                       </div>
-                      <span className="font-semibold text-emerald-200 truncate max-w-[180px]">{p.title}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-emerald-400/70 hidden md:table-cell" data-label="Farmer">{p.farmerName || "Unknown"}</td>
-                  <td className="p-4" data-label="Category"><span className="text-[10px] font-medium px-2 py-0.5 bg-emerald-900/20 text-emerald-400 rounded-lg">{p.category}</span></td>
-                  <td className="p-4 font-mono text-emerald-300 font-bold" data-label="Price">₹{p.price}</td>
-                  <td className="p-4 hidden sm:table-cell" data-label="Stock">
-                    <span className={`font-bold ${(p.stock ?? 0) <= 0 ? "text-red-400" : (p.stock ?? 0) <= 5 ? "text-yellow-400" : "text-emerald-400"}`}>{p.stock ?? 0}</span>
-                  </td>
-                  <td className="p-4 text-right" data-label="">
-                    <button onClick={() => handleDelete(p._id || p.id)}
-                      className="p-1.5 text-red-400 hover:text-red-300 rounded-lg hover:bg-red-900/20"
-                    ><Trash2 size={14} /></button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="p-4 text-emerald-400/70 hidden md:table-cell" data-label="Farmer">{p.farmerName || "Unknown"}</td>
+                    <td className="p-4" data-label="Category"><span className="text-[10px] font-medium px-2 py-0.5 bg-emerald-900/20 text-emerald-400 rounded-lg">{p.category}</span></td>
+                    <td className="p-4 font-mono text-emerald-300 font-bold" data-label="Price">₹{p.price}</td>
+                    <td className="p-4 hidden sm:table-cell" data-label="Stock">
+                      <span className={`font-bold ${(p.stock ?? 0) <= 0 ? "text-red-400" : (p.stock ?? 0) <= 5 ? "text-yellow-400" : "text-emerald-400"}`}>{p.stock ?? 0}</span>
+                    </td>
+                    <td className="p-4" data-label="Offer">
+                      {isEditing ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            value={offerText}
+                            onChange={e => setOfferText(e.target.value)}
+                            placeholder="e.g. Buy 1 Get 1 Free"
+                            className="w-28 bg-emerald-900/20 border border-emerald-600/30 rounded px-2 py-1 text-[10px] text-emerald-200 placeholder-emerald-600/40 outline-none focus:border-emerald-500/50"
+                            autoFocus
+                          />
+                          <button onClick={() => handleSetOffer(pid)} className="p-1 text-emerald-400 hover:text-emerald-300"><Check size={12} /></button>
+                          <button onClick={() => setEditingOffer(null)} className="p-1 text-red-400 hover:text-red-300"><X size={12} /></button>
+                        </div>
+                      ) : (
+                        <button onClick={() => startEditOffer(p)}
+                          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold transition-all ${p.offerDetails ? "bg-amber-900/20 text-amber-400 border border-amber-600/20" : "bg-emerald-900/10 text-emerald-400/40 hover:text-emerald-400 hover:bg-emerald-900/20"}`}
+                        >
+                          <Tag size={10} />
+                          {p.offerDetails ? p.offerDetails : "Set Offer"}
+                        </button>
+                      )}
+                    </td>
+                    <td className="p-4 text-right" data-label="">
+                      <button onClick={() => handleDelete(pid)}
+                        className="p-1.5 text-red-400 hover:text-red-300 rounded-lg hover:bg-red-900/20"
+                      ><Trash2 size={14} /></button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
