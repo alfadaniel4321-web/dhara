@@ -92,7 +92,7 @@ export default function OrderTracking() {
         <div className="lg:col-span-2 bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-8">
           
           <div className="flex justify-between items-center bg-emerald-950/40 p-4 rounded-xl border border-emerald-900/60 text-xs">
-            <span className="text-emerald-350">Status: <strong className="text-white uppercase">{order.orderStatus}</strong></span>
+            <span className="text-emerald-350">Status: <strong className="text-white uppercase">{order.orderStatus || 'Pending'}</strong></span>
             <span className="text-emerald-350">Expected Slot: <strong className="text-emerald-400">{order.deliveryTime} Slot</strong></span>
           </div>
 
@@ -143,7 +143,7 @@ export default function OrderTracking() {
                 <div>
                   <h4 className="text-xs font-bold text-white">{farmer.name}</h4>
                   <div className="flex items-center space-x-1.5 text-[10px] text-emerald-400/80 font-medium">
-                    <span>{farmer.rating}★ Rating</span>
+                    <span>{farmer.rating || 5.0}★ Rating</span>
                   </div>
                 </div>
               </div>
@@ -161,8 +161,8 @@ export default function OrderTracking() {
             <div className="space-y-3">
               {order.products.map((p, index) => (
                 <div key={index} className="flex justify-between items-center text-xs text-emerald-300">
-                  <span>{p.title} <strong className="text-[10px] text-white">x{p.count ?? 1}</strong></span>
-                  <span className="font-mono text-emerald-250">₹{(p.price ?? 0) * (p.count ?? 1)}</span>
+                  <span>{p.title} <strong className="text-[10px] text-white">x{p.count || 1}</strong></span>
+                  <span className="font-mono text-emerald-250">₹{(p.price || 50) * (p.count || 1)}</span>
                 </div>
               ))}
               <div className="border-t border-emerald-900/60 pt-3 flex justify-between font-extrabold text-sm text-white">

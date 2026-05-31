@@ -24,12 +24,12 @@ export default function FarmerSettings() {
   useEffect(() => {
     if (user) {
       setForm({
-        name: user.name ?? "",
-        phone: user.phone ?? "",
-        address: user.address ?? "",
-        village: user.village ?? "",
-        district: user.district ?? "",
-        description: user.description ?? "",
+        name: user.name || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        village: user.village || "",
+        district: user.district || "",
+        description: user.description || "",
       });
       setLoading(false);
     }
@@ -137,7 +137,7 @@ export default function FarmerSettings() {
           </div>
           <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-900/5">
             <span className="text-emerald-400/60">{t('farmerSettings.rating')}</span>
-            <span className="text-yellow-400 font-bold">{user?.rating} ★</span>
+            <span className="text-yellow-400 font-bold">{user?.rating || 5.0} ★</span>
           </div>
         </div>
       </div>

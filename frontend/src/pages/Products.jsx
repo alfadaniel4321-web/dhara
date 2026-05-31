@@ -61,8 +61,8 @@ function QuickViewModal({ product, onClose, onAddToCart }) {
                   <span className="text-sm text-gray-500 dark:text-gray-400">Freshness Score</span>
                 </div>
               )}
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{product.nutrition}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Farmer: <span className="font-medium">{product.farmerId?.name}</span></p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{product.nutrition || ''}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Farmer: <span className="font-medium">{product.farmerId?.name || ''}</span></p>
               <div className="flex items-baseline gap-2 mb-6">
                 <span className="text-2xl font-bold text-gray-900 dark:text-white">₹{product.price}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">/ {product.quantity}</span>
@@ -207,13 +207,13 @@ export default function Products() {
     }
     if (selectedRatings.length > 0) {
       const minRating = Math.min(...selectedRatings);
-      result = result.filter(p => (p.freshnessScore ?? p.rating ?? 0) >= minRating);
+      result = result.filter(p => (p.freshnessScore || p.rating || 0) >= minRating);
     }
     if (sortBy === "price-low") result.sort((a, b) => a.price - b.price);
     else if (sortBy === "price-high") result.sort((a, b) => b.price - a.price);
-    else if (sortBy === "rating") result.sort((a, b) => (b.freshnessScore ?? 0) - (a.freshnessScore ?? 0));
-    else if (sortBy === "newest") result.sort((a, b) => new Date(b.createdAt ?? 0) - new Date(a.createdAt ?? 0));
-    else result.sort((a, b) => (b.freshnessScore ?? 0) - (a.freshnessScore ?? 0));
+    else if (sortBy === "rating") result.sort((a, b) => (b.freshnessScore || 0) - (a.freshnessScore || 0));
+    else if (sortBy === "newest") result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    else result.sort((a, b) => (b.freshnessScore || 0) - (a.freshnessScore || 0));
 
     return result;
   }, [selectedCategory, search, priceRange, selectedBrands, selectedRatings, sortBy, allProducts]);
@@ -455,7 +455,7 @@ export default function Products() {
                         <p className="text-[10px] font-medium text-green-700 dark:text-green-400 uppercase tracking-wider mb-1">{product.category}</p>
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">{product.title}</h3>
                         {/* Farmer name */}
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mb-1.5">{product.farmerId?.name}</p>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mb-1.5">{product.farmerId?.name || ''}</p>
                         {/* Price */}
                         <div className="flex items-baseline gap-1.5 mb-3">
                           <span className="text-base font-bold text-gray-900 dark:text-white">₹{product.price}</span>

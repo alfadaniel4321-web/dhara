@@ -12,7 +12,7 @@ export default function UserProfile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  const [address, setAddress] = useState(user?.address ?? '');
+  const [address, setAddress] = useState(user?.address || '');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState('');
@@ -50,7 +50,7 @@ export default function UserProfile() {
     navigate('/login');
   };
 
-  const totalSpent = orders.reduce((sum, o) => sum + (o.totalPrice ?? 0), 0);
+  const totalSpent = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
   const orderCount = orders.length;
 
   const getStatusColor = (status) => {
@@ -196,7 +196,7 @@ export default function UserProfile() {
                 {user?.role === 'farmer' && (
                   <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                     <span className="text-emerald-400/60 font-medium">Rating</span>
-                    <span className="text-amber-400 font-bold">{user?.rating} ★</span>
+                    <span className="text-amber-400 font-bold">{user?.rating || 5.0} ★</span>
                   </div>
                 )}
               </div>
@@ -280,9 +280,9 @@ export default function UserProfile() {
           ) : (
             <div className="space-y-3.5">
               {orders.map(order => {
-                const StatusIcon = getStatusIcon(order.orderStatus);
+                const StatusIcon = getStatusIcon(order.orderStatus || 'Pending');
                 const isPaid = order.paymentStatus === 'Paid';
-                const status = order.orderStatus;
+                const status = order.orderStatus || 'Pending';
                 const isHovered = hoveredOrder === (order.id || order._id);
 
                 return (
@@ -339,17 +339,17 @@ export default function UserProfile() {
                           <div className="flex -space-x-2">
                             {order.products?.slice(0, 3).map((p, i) => (
                               <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-700/40 to-emerald-800/30 border-2 border-emerald-900/50 flex items-center justify-center">
-                                <span className="text-[8px] font-bold text-emerald-400">{p.title?.charAt(0)}</span>
+                                <span className="text-[8px] font-bold text-emerald-400">{p.title?.charAt(0) || '?'}</span>
                               </div>
                             ))}
-                            {(order.products?.length ?? 0) > 3 && (
+                            {(order.products?.length || 0) > 3 && (
                               <div className="w-7 h-7 rounded-full bg-emerald-800/40 border-2 border-emerald-900/50 flex items-center justify-center">
                                 <span className="text-[8px] font-bold text-emerald-400">+{order.products.length - 3}</span>
                               </div>
                             )}
                           </div>
                           <span className="text-[11px] text-emerald-400/60 font-medium truncate">
-                            {order.products?.map(p => `${p.title} x${p.count}`).join(', ')}
+                            {order.products?.map(p => `${p.title} x${p.count}`).join(', ') || 'No items'}
                           </span>
                         </div>
 

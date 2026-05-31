@@ -32,8 +32,8 @@ export default function Feedback() {
   if (loading) return <LoadingSpinner />;
 
   const negativeFeedbacks = feedbacks.filter(f => f.negative);
-  const rating = user?.rating;
-  const strikes = user?.negativeFeedbacksCount ?? 0;
+  const rating = user?.rating || 5.0;
+  const strikes = user?.negativeFeedbacksCount || 0;
 
   return (
     <div className="space-y-6">
@@ -112,7 +112,7 @@ export default function Feedback() {
                 }`}
               >
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-white">{fb.customerId?.name}</span>
+                  <span className="font-bold text-white">{fb.customerId?.name || 'Customer Partner'}</span>
                   <span className="text-yellow-500 font-bold flex items-center">
                     {fb.rating}★
                     {fb.negative && (

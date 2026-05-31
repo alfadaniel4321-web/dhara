@@ -48,7 +48,7 @@ export default function FarmerReviews() {
   const negativeCount = feedbacks.filter(f => f.negative).length;
   const avgRating = feedbacks.length > 0
     ? (feedbacks.reduce((s, f) => s + f.rating, 0) / feedbacks.length).toFixed(1)
-    : user?.rating;
+    : user?.rating || 5.0;
   const blocked = user?.blocked || false;
 
   return (
@@ -112,8 +112,8 @@ export default function FarmerReviews() {
         <div className="space-y-3">
           {feedbacks.map((fb) => {
             const isReplying = replyingId === (fb._id || fb.id);
-            const customerName = fb.customerId?.name;
-            const productName = fb.productId?.title;
+            const customerName = fb.customerId?.name || "Customer";
+            const productName = fb.productId?.title || "";
             return (
               <motion.div key={fb._id || fb.id} layout
                 className={`bg-[#111811] border rounded-2xl p-5 ${fb.negative ? "border-red-900/20" : "border-emerald-900/20"}`}
@@ -158,7 +158,7 @@ export default function FarmerReviews() {
                       {/* Reply Form */}
                       {isReplying ? (
                         <div className="mt-3 flex gap-2">
-                          <input value={replyText[fb._id || fb.id] ?? ""}
+                          <input value={replyText[fb._id || fb.id] || ""}
                             onChange={e => setReplyText(p => ({ ...p, [fb._id || fb.id]: e.target.value }))}
                             placeholder={t('farmerReviews.writeReply')}
                             className="flex-1 px-3 py-2 bg-emerald-900/20 border border-emerald-700/30 rounded-xl text-xs text-emerald-100 outline-none placeholder-emerald-600/40"

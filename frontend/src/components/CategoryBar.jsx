@@ -1,36 +1,23 @@
 import React, { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { api } from '../services/api';
 
-const EMOJI_MAP = {
-  'Vegetables': '🥬', 'Fruits': '🍎', 'Milk': '🥛', 'Eggs': '🥚',
-  'Rice & Grains': '🌾', 'Fresh Herbs': '🌿', 'Spices': '🧂',
-  'Honey & Jams': '🍯', 'Dry Products': '🏝️', 'Snacks': '🥜',
-  'Drinks': '🧃', 'Meat': '🥩', 'Fish': '🐟', 'Others': '🌱'
-};
-
-function getCategoryEmoji(name) {
-  for (const [key, emoji] of Object.entries(EMOJI_MAP)) {
-    if (name.toLowerCase().includes(key.toLowerCase())) return emoji;
-  }
-  return '🌱';
-}
-
-function formatCategoryLabel(name) {
-  return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ');
-}
+const CATEGORIES = [
+  { emoji: "🥬", label: "Fresh Vegetables", id: "Vegetables" },
+  { emoji: "🍎", label: "Organic Fruits", id: "Fruits" },
+  { emoji: "🥛", label: "Farm Dairy", id: "Milk" },
+  { emoji: "🌾", label: "Rice & Grains", id: "Rice & Grains" },
+  { emoji: "🌿", label: "Fresh Herbs", id: "Fresh Herbs" },
+  { emoji: "🧂", label: "Natural Spices", id: "Natural Spices" },
+  { emoji: "🍯", label: "Honey & Jams", id: "Honey & Jams" },
+  { emoji: "🏝️", label: "Dry Products", id: "Dry Products" },
+  { emoji: "🥜", label: "Healthy Snacks", id: "Healthy Snacks" },
+  { emoji: "🧃", label: "Farm Drinks", id: "Farm Drinks" },
+];
 
 export default function CategoryBar({ selectedCat, onSelect }) {
   const scrollRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    api.products.getCategories()
-      .then(setCategories)
-      .catch(() => setCategories([]));
-  }, []);
 
   const checkArrows = () => {
     const el = scrollRef.current;
@@ -93,22 +80,22 @@ export default function CategoryBar({ selectedCat, onSelect }) {
           <span>All</span>
         </button>
 
-        {categories.map((cat) => (
+        {CATEGORIES.map((cat) => (
           <button
-            key={cat}
-            onClick={() => onSelect(cat)}
+            key={cat.id}
+            onClick={() => onSelect(cat.id)}
             className={`
               relative flex flex-col items-center justify-center gap-1.5 px-5 py-3 rounded-2xl
               font-medium text-sm shrink-0 transition-all duration-300 ease-out
-              ${selectedCat === cat
+              ${selectedCat === cat.id
                 ? "bg-[#013220] text-white shadow-lg shadow-[#013220]/20 scale-105"
                 : "bg-white text-gray-600 border border-gray-100 hover:border-[#A3C87A]/40 hover:shadow-lg hover:shadow-[#A3C87A]/10 hover:-translate-y-0.5"
               }
             `}
           >
-            <span className="text-xl leading-none">{getCategoryEmoji(cat)}</span>
-            <span className="whitespace-nowrap">{formatCategoryLabel(cat)}</span>
-            {selectedCat === cat && (
+            <span className="text-xl leading-none">{cat.emoji}</span>
+            <span className="whitespace-nowrap">{cat.label}</span>
+            {selectedCat === cat.id && (
               <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#A3C87A]" />
             )}
           </button>

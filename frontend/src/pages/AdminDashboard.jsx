@@ -118,7 +118,7 @@ export default function AdminDashboard() {
             <div className="text-center py-12 text-xs text-emerald-400/40">No order data yet</div>
           ) : (
             <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                   <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
             <div className="text-center py-12 text-xs text-emerald-400/40">No revenue data yet</div>
           ) : (
             <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={revenueData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                   <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />

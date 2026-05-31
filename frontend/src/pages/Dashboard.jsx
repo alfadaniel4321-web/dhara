@@ -17,7 +17,6 @@ import {
   Zap,
 } from "lucide-react";
 import SearchBar from "../components/SearchBar";
-import HomeDashboard from "./HomeDashboard";
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", id: "home" },
@@ -59,7 +58,6 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [bannerIndex, setBannerIndex] = useState(0);
   const [countdown, setCountdown] = useState("");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -98,12 +96,6 @@ export default function Dashboard() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const activeSlides = banners.length > 0
@@ -166,10 +158,6 @@ export default function Dashboard() {
   const filteredProducts = search.trim()
     ? searchResults
     : displayProducts;
-
-  if (isMobile) {
-    return <HomeDashboard />;
-  }
 
   return (
     <div style={{ background: "#F4F6F3" }}>
