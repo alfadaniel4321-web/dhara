@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser, updateUser } from '../redux/slices/authSlice';
@@ -8,7 +8,7 @@ import {
   ShoppingBag, Heart, MapPin, Star, Gift, Package,
   CreditCard, Bell, Globe, HelpCircle, Info, Shield,
   FileText, LogOut, ChevronRight, User, Moon, Sun,
-  Navigation, Search, Menu, Edit2, Leaf, Check, X,
+  Navigation, Search, Menu, Edit2, Leaf, Check, X, Camera,
 } from 'lucide-react';
 
 const MENU_SECTIONS = [
@@ -66,6 +66,8 @@ export default function MobileProfile() {
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
   const [editPhone, setEditPhone] = useState(user?.phone || '');
+  const [profileImage, setProfileImage] = useState(null);
+  const fileInputRef = useRef(null);
 
   const totalCartCount = cartItems.reduce((acc, curr) => acc + curr.count, 0);
 
@@ -89,8 +91,17 @@ export default function MobileProfile() {
     navigate('/login');
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setProfileImage(ev.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleEditSave = () => {
-    dispatch(updateUser({ name: editName, email: editEmail, phone: editPhone }));
+    dispatch(updateUser({ name: editName, email: editEmail, phone: editPhone, profileImage }));
     setIsEditing(false);
   };
 
@@ -98,6 +109,7 @@ export default function MobileProfile() {
     setEditName(user?.name || '');
     setEditEmail(user?.email || '');
     setEditPhone(user?.phone || '');
+    setProfileImage(null);
     setIsEditing(false);
   };
 
@@ -274,22 +286,52 @@ export default function MobileProfile() {
             }} />
 
             <div style={{ position: 'relative', zIndex: 1 }}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+              />
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 {/* Avatar */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{
-                    width: '64px', height: '64px', borderRadius: '20px',
-                    background: 'linear-gradient(135deg, rgba(163,200,122,0.15), rgba(27,67,50,0.3))',
-                    border: '2px solid rgba(163,200,122,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    position: 'relative',
-                  }}>
-                    <span style={{
-                      fontFamily: '"Playfair Display", Georgia, serif',
-                      fontSize: '1.4rem', fontWeight: 700, color: '#A3C87A',
-                    }}>
-                      {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
-                    </span>
+                  <div
+                    onClick={() => isEditing && fileInputRef.current?.click()}
+                    style={{
+                      width: '64px', height: '64px', borderRadius: '20px',
+                      background: profileImage ? 'none' : 'linear-gradient(135deg, rgba(163,200,122,0.15), rgba(27,67,50,0.3))',
+                      border: isEditing ? '2px dashed rgba(163,200,122,0.4)' : '2px solid rgba(163,200,122,0.2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      position: 'relative', overflow: 'hidden',
+                      cursor: isEditing ? 'pointer' : 'default',
+                      transition: 'border 0.2s ease',
+                    }}
+                  >
+                    {profileImage ? (
+                      <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '18px' }} />
+                    ) : (
+                      <span style={{
+                        fontFamily: '"Playfair Display", Georgia, serif',
+                        fontSize: '1.4rem', fontWeight: 700, color: '#A3C87A',
+                      }}>
+                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
+                      </span>
+                    )}
+                    {isEditing && (
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'rgba(0,0,0,0.4)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        borderRadius: '18px',
+                        opacity: 0, transition: 'opacity 0.2s ease',
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '0'}
+                      >
+                        <Camera size={20} color="#FFFFFF" strokeWidth={2} />
+                      </div>
+                    )}
                     {/* Verified leaf badge */}
                     <div style={{
                       position: 'absolute', bottom: '-2px', right: '-2px',
