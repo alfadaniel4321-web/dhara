@@ -402,59 +402,33 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* ─── MOBILE: Hamburger ─── */}
-          <div className="flex lg:hidden items-center gap-3">
-            <Link
-              to="/cart"
-              onClick={closeMenu}
-              className="relative flex items-center justify-center"
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                transition: 'background-color 0.3s ease',
-                color: textColor,
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(106,153,78,0.12)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-              aria-label="Cart"
-            >
-              <ShoppingBag size={19} style={{ strokeWidth: 1.5 }} />
-              {totalCartCount > 0 && (
-                <span
-                  className="absolute flex items-center justify-center"
-                  style={{
-                    top: '2px',
-                    right: '2px',
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '50%',
-                    background: '#C9963F',
-                    color: '#FFFFFF',
-                    fontFamily: '"DM Sans", sans-serif',
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    lineHeight: 1,
-                  }}
-                >
-                  {totalCartCount}
-                </span>
-              )}
-            </Link>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center justify-center"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '0.5rem',
-                color: textColor,
-              }}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            >
-              <AnimatedHamburger open={menuOpen} dark={true} />
-            </button>
+          {/* ─── MOBILE: Actions ─── */}
+          <div className="flex lg:hidden items-center gap-2">
+            {user ? (
+              <>
+                <Link to="/wishlist" onClick={closeMenu} className="flex items-center justify-center" style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(27,67,50,0.04)', color: textColor, textDecoration: 'none' }} aria-label="Wishlist">
+                  <Heart size={18} strokeWidth={1.5} />
+                </Link>
+                <Link to="/cart" onClick={closeMenu} className="relative flex items-center justify-center" style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(27,67,50,0.04)', color: textColor, textDecoration: 'none' }} aria-label="Cart">
+                  <ShoppingBag size={18} strokeWidth={1.5} />
+                  {totalCartCount > 0 && (
+                    <span className="absolute flex items-center justify-center" style={{ top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#C9963F', color: '#FFFFFF', fontSize: '9px', fontWeight: 700, lineHeight: 1, fontFamily: '"DM Sans", sans-serif' }}>{totalCartCount}</span>
+                  )}
+                </Link>
+                <Link to={user.role === 'farmer' ? '/farmer' : '/profile'} onClick={closeMenu} className="flex items-center justify-center" style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(27,67,50,0.04)', color: textColor, textDecoration: 'none' }} aria-label="Profile">
+                  <Menu size={18} strokeWidth={1.5} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/cart" onClick={closeMenu} className="relative flex items-center justify-center" style={{ width: '38px', height: '38px', borderRadius: '50%', color: textColor }} aria-label="Cart">
+                  <ShoppingBag size={19} style={{ strokeWidth: 1.5 }} />
+                </Link>
+                <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center justify-center" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', color: textColor }} aria-label={menuOpen ? 'Close menu' : 'Open menu'}>
+                  <AnimatedHamburger open={menuOpen} dark={true} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </motion.nav>
