@@ -254,9 +254,9 @@ export default function Products() {
         {darkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-gray-700" />}
       </button>
 
-      <div className="max-w-screen-2xl mx-auto px-4 py-6">
+      <div className="max-w-screen-2xl mx-auto px-4 py-6 products-page-wrap">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 products-header-wrap">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-green-800 dark:bg-green-700">
               <Grid3X3 size={22} className="text-white" />
@@ -266,9 +266,9 @@ export default function Products() {
               <p className="text-sm text-gray-500 dark:text-gray-400">{allProducts.length} products from local farms</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="relative">
-              <button onClick={() => setShowSortMenu(!showSortMenu)} onBlur={() => setTimeout(() => setShowSortMenu(false), 200)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-green-600 transition-colors">
+              <button onClick={() => setShowSortMenu(!showSortMenu)} onBlur={() => setTimeout(() => setShowSortMenu(false), 200)} className="products-sort-btn flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-green-600 transition-colors">
                 <ArrowUpDown size={15} />
                 <span className="hidden sm:inline">Sort</span>
               </button>
@@ -288,7 +288,7 @@ export default function Products() {
                 </div>
               )}
             </div>
-            <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-green-600 transition-colors">
+            <button onClick={() => setShowFilters(!showFilters)} className="products-filter-btn lg:hidden flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-green-600 transition-colors">
               <Filter size={15} />
               Filters
             </button>
@@ -296,7 +296,7 @@ export default function Products() {
         </div>
 
         {/* Category Bar */}
-        <div className="mb-6">
+        <div className="mb-6 category-bar-mobile">
           <CategoryBar
             selectedCat={selectedCategory || "All"}
             onSelect={(cat) => setSelectedCategory(cat === "All" ? null : cat)}
@@ -304,7 +304,7 @@ export default function Products() {
         </div>
 
         {/* Search + Active Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 products-search-wrap">
           <div className="relative flex-1">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products, brands, categories..." className="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600 transition-all" />
@@ -369,7 +369,7 @@ export default function Products() {
           {showFilters && (
             <div className="fixed inset-0 z-50 lg:hidden">
               <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
-              <div className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto p-6">
+              <div className="mobile-filter-drawer absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2"><SlidersHorizontal size={16} /> Filters</h3>
                   <button onClick={() => setShowFilters(false)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -429,40 +429,40 @@ export default function Products() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 product-grid-mobile">
                   {paginatedProducts.map(product => (
-                    <div key={product.id || product._id} className="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-green-400 dark:hover:border-green-600 transition-all duration-300 hover:-translate-y-0.5 max-w-full">
+                    <div key={product.id || product._id} className="product-card-mobile group bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-green-400 dark:hover:border-green-600 transition-all duration-300 hover:-translate-y-0.5 max-w-full">
                       {/* Image */}
-                      <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700" style={{ paddingBottom: "100%" }}>
+                      <div className="card-image-wrap relative overflow-hidden bg-gray-100 dark:bg-gray-700" style={{ paddingBottom: "100%" }}>
                         <img src={product.image} alt={product.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         {/* Wishlist */}
-                        <button onClick={() => toggleWishlist(product.id || product._id)} className="absolute top-2 right-2 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-sm transition-all opacity-0 group-hover:opacity-100">
+                        <button onClick={() => toggleWishlist(product.id || product._id)} className="wishlist-btn absolute top-2 right-2 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-sm transition-all opacity-0 group-hover:opacity-100">
                           <Heart size={16} className={wishlist.includes(product.id || product._id) ? "fill-red-500 text-red-500" : "text-gray-600 dark:text-gray-400"} />
                         </button>
                         {/* Freshness Badge */}
                         {product.freshnessScore && (
-                          <div className="absolute top-2 left-2 bg-green-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                          <div className="freshness-badge absolute top-2 left-2 bg-green-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">
                             {product.freshnessScore}% Fresh
                           </div>
                         )}
                         {/* Quick View */}
-                        <button onClick={() => setQuickViewProduct(product)} className="absolute bottom-2 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg text-xs font-semibold text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-all hover:bg-white dark:hover:bg-gray-800 shadow-sm flex items-center gap-1.5">
+                        <button onClick={() => setQuickViewProduct(product)} className="quick-view-btn absolute bottom-2 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg text-xs font-semibold text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-all hover:bg-white dark:hover:bg-gray-800 shadow-sm flex items-center gap-1.5">
                           <Eye size={14} /> Quick View
                         </button>
                       </div>
                       {/* Info */}
-                      <div className="p-3">
-                        <p className="text-[10px] font-medium text-green-700 dark:text-green-400 uppercase tracking-wider mb-1">{product.category}</p>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">{product.title}</h3>
+                      <div className="card-info-wrap p-3">
+                        <p className="card-category text-[10px] font-medium text-green-700 dark:text-green-400 uppercase tracking-wider mb-1">{product.category}</p>
+                        <h3 className="card-title text-sm font-semibold text-gray-900 dark:text-white truncate mb-1 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">{product.title}</h3>
                         {/* Farmer name */}
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mb-1.5">{product.farmerId?.name || ''}</p>
+                        <p className="card-farmer text-[10px] text-gray-500 dark:text-gray-400 truncate mb-1.5">{product.farmerId?.name || ''}</p>
                         {/* Price */}
-                        <div className="flex items-baseline gap-1.5 mb-3">
-                          <span className="text-base font-bold text-gray-900 dark:text-white">₹{product.price}</span>
-                          <span className="text-xs text-gray-500">/ {product.quantity}</span>
+                        <div className="card-price-row flex items-baseline gap-1.5 mb-3">
+                          <span className="card-price text-base font-bold text-gray-900 dark:text-white">₹{product.price}</span>
+                          <span className="card-unit text-xs text-gray-500">/ {product.quantity}</span>
                         </div>
                         {/* Add to Cart */}
-                        <button onClick={() => handleAddToCart(product)} className="w-full py-2.5 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-colors active:scale-[0.97]">
+                        <button onClick={() => handleAddToCart(product)} className="card-add-btn w-full py-2.5 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-colors active:scale-[0.97]">
                           <ShoppingCart size={15} /> Add to Cart
                         </button>
                       </div>
@@ -498,8 +498,131 @@ export default function Products() {
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @media (max-width: 480px) {
-          .product-card-grid { gap: 0.75rem; }
+
+        /* ═══ MOBILE: Premium Product Page ═══ */
+        @media (max-width: 767px) {
+          .products-page-wrap {
+            padding: 0.5rem 0.75rem 1.25rem !important;
+          }
+          .products-header-wrap {
+            margin-bottom: 0.5rem !important;
+          }
+          .products-header-wrap h1 {
+            font-size: 1.15rem !important;
+          }
+          .products-header-wrap p {
+            font-size: 0.65rem !important;
+          }
+          .products-search-wrap {
+            margin-bottom: 0.75rem !important;
+          }
+          .products-search-wrap input {
+            padding: 0.6rem 0.75rem 0.6rem 2.5rem !important;
+            font-size: 0.78rem !important;
+            border-radius: 14px !important;
+          }
+          .products-search-wrap svg {
+            left: 0.75rem !important;
+          }
+          .products-sort-btn {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 12px !important;
+          }
+          .products-filter-btn {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 12px !important;
+          }
+
+          /* ── Product Cards ── */
+          .product-grid-mobile {
+            gap: 0.65rem !important;
+          }
+          .product-card-mobile {
+            border-radius: 18px !important;
+            border: none !important;
+            box-shadow: 0 2px 16px rgba(27,67,50,0.06) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+          }
+          .product-card-mobile:active {
+            transform: scale(0.97) !important;
+          }
+          .product-card-mobile .card-image-wrap {
+            border-radius: 18px 18px 0 0 !important;
+          }
+          .product-card-mobile .card-info-wrap {
+            padding: 0.6rem 0.65rem 0.7rem !important;
+          }
+          .product-card-mobile .card-category {
+            font-size: 0.45rem !important;
+            margin-bottom: 0.2rem !important;
+          }
+          .product-card-mobile .card-title {
+            font-size: 0.78rem !important;
+            margin-bottom: 0.15rem !important;
+          }
+          .product-card-mobile .card-farmer {
+            font-size: 0.55rem !important;
+            margin-bottom: 0.4rem !important;
+          }
+          .product-card-mobile .card-price {
+            font-size: 0.9rem !important;
+          }
+          .product-card-mobile .card-unit {
+            font-size: 0.6rem !important;
+          }
+          .product-card-mobile .card-price-row {
+            margin-bottom: 0.5rem !important;
+          }
+          .product-card-mobile .card-add-btn {
+            padding: 0.55rem !important;
+            font-size: 0.68rem !important;
+            border-radius: 12px !important;
+          }
+          .product-card-mobile .card-add-btn svg {
+            width: 14px !important;
+            height: 14px !important;
+          }
+          .product-card-mobile .wishlist-btn {
+            opacity: 1 !important;
+            top: 0.4rem !important;
+            right: 0.4rem !important;
+            padding: 0.35rem !important;
+          }
+          .product-card-mobile .freshness-badge {
+            top: 0.4rem !important;
+            left: 0.4rem !important;
+            font-size: 0.45rem !important;
+            padding: 0.15rem 0.45rem !important;
+            border-radius: 6px !important;
+          }
+          .product-card-mobile .quick-view-btn {
+            display: none !important;
+          }
+
+          /* ── Category Bar Mobile ── */
+          .category-bar-mobile {
+            margin-bottom: 0.65rem !important;
+          }
+          .category-bar-mobile button {
+            padding: 0.55rem 0.85rem !important;
+            font-size: 0.7rem !important;
+            border-radius: 14px !important;
+            min-height: 44px !important;
+          }
+
+          /* ── Mobile Filter Drawer ── */
+          .mobile-filter-drawer {
+            max-width: 80vw !important;
+            padding: 1.25rem !important;
+          }
+          .mobile-filter-drawer h4 {
+            font-size: 0.78rem !important;
+          }
+          .mobile-filter-drawer label {
+            font-size: 0.75rem !important;
+          }
         }
       `}</style>
     </div>
