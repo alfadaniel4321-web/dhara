@@ -92,7 +92,7 @@ export default function MobileCart() {
     <div style={{
       background: '#F5F3E7',
       minHeight: '100vh',
-      paddingBottom: cartItems.length > 0 ? '220px' : '0',
+      paddingBottom: cartItems.length > 0 ? '190px' : '68px',
     }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -110,13 +110,11 @@ export default function MobileCart() {
           background: #FFFFFF; border-radius: 20px; overflow: hidden;
           box-shadow: 0 2px 16px rgba(27,67,50,0.06);
         }
-        .bottom-nav {
+        .bottom-bar {
           position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
           background: rgba(255,255,255,0.95);
           backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-          border-top: 1px solid rgba(27,67,50,0.06);
-          padding: 0.5rem 0;
-          padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+          padding-bottom: env(safe-area-inset-bottom, 0px);
         }
         .nav-item {
           display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
@@ -141,14 +139,6 @@ export default function MobileCart() {
           transition: all 0.15s ease;
         }
         .qty-btn:active { transform: scale(0.85); }
-        .checkout-bar {
-          position: fixed; bottom: 64px; left: 0; right: 0; z-index: 99;
-          background: rgba(255,255,255,0.95);
-          backdrop-filter: blur(20px);
-          border-top: 1px solid rgba(27,67,50,0.06);
-          padding: 0.85rem 1rem;
-          padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
-        }
       `}</style>
 
       {/* ─── HEADER ─── */}
@@ -345,99 +335,86 @@ export default function MobileCart() {
 
       </div>
 
-      {/* ─── ORDER SUMMARY + CHECKOUT (fixed at bottom) ─── */}
-      {cartItems.length > 0 && (
-        <div>
-          {/* Spacer to prevent content from being hidden behind fixed bar */}
-          <div style={{ height: '200px' }} />
-
-          <div className="checkout-bar">
-            <div style={{ maxWidth: '480px', margin: '0 auto' }}>
-              {/* Summary */}
-              <div style={{ marginBottom: '0.65rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem', color: 'rgba(27,67,50,0.5)' }}>Subtotal</span>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem', fontWeight: 600, color: '#1B4332' }}>₹{subtotal}</span>
-                </div>
-                {discountAmount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                    <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem', color: '#D4A017' }}>Discount ({discountPercent}%)</span>
-                    <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem', fontWeight: 600, color: '#D4A017' }}>-₹{discountAmount}</span>
-                  </div>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem', color: 'rgba(27,67,50,0.5)' }}>Delivery</span>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem', fontWeight: 600, color: '#1B4332' }}>₹{deliveryCost}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.35rem', borderTop: '1px solid rgba(27,67,50,0.06)' }}>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.82rem', fontWeight: 700, color: '#1B4332' }}>Total</span>
-                  <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1.05rem', fontWeight: 700, color: '#1B4332' }}>₹{finalTotal}</span>
-                </div>
+      {/* ─── BOTTOM BAR (summary + nav combined) ─── */}
+      <div className="bottom-bar">
+        {cartItems.length > 0 && (
+          <div style={{ borderBottom: '1px solid rgba(27,67,50,0.06)' }}>
+            <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0.7rem 1rem 0.65rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
+                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem', color: 'rgba(27,67,50,0.5)' }}>Subtotal</span>
+                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem', fontWeight: 600, color: '#1B4332' }}>₹{subtotal}</span>
               </div>
-
-              {/* Checkout Button */}
+              {discountAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
+                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem', color: '#D4A017' }}>Discount ({discountPercent}%)</span>
+                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem', fontWeight: 600, color: '#D4A017' }}>-₹{discountAmount}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem', color: 'rgba(27,67,50,0.5)' }}>Delivery</span>
+                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '0.6rem', fontWeight: 600, color: '#1B4332' }}>₹{deliveryCost}</span>
+              </div>
               <button
                 onClick={handleCheckout}
                 style={{
-                  width: '100%', padding: '0.9rem', borderRadius: '16px',
+                  width: '100%', padding: '0.75rem', borderRadius: '14px',
                   border: 'none', cursor: 'pointer',
                   background: 'linear-gradient(135deg, #1B4332, #0F1E14)',
                   color: '#F5F3E7', fontFamily: '"DM Sans", sans-serif',
-                  fontSize: '0.82rem', fontWeight: 700,
+                  fontSize: '0.78rem', fontWeight: 700,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  gap: '0.5rem',
+                  gap: '0.4rem',
                   boxShadow: '0 4px 20px rgba(27,67,50,0.25)',
-                  transition: 'transform 0.2s ease',
                 }}
               >
-                Proceed to Checkout <ChevronLeft size={16} style={{ transform: 'rotate(180deg)' }} strokeWidth={2} />
+                Proceed to Checkout <ChevronLeft size={14} style={{ transform: 'rotate(180deg)' }} strokeWidth={2} />
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ─── BOTTOM NAV ─── */}
-      <nav className="bottom-nav" style={{ display: cartItems.length > 0 ? 'block' : 'block' }}>
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-around',
-          maxWidth: '480px', margin: '0 auto', padding: '0 0.5rem',
-        }}>
-          <Link to="/dashboard" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
-            <HomeIcon size={20} strokeWidth={1.5} />
-            <span style={{
-              fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.05em',
-            }}>Home</span>
-          </Link>
-          <Link to="/products" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
-            <Search size={20} strokeWidth={1.5} />
-            <span style={{
-              fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.05em',
-            }}>Shop</span>
-          </Link>
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '60px' }}>
-            <div className="center-btn" style={{ background: '#D4A017' }}>
-              <ShoppingBag size={22} color="#FFFFFF" strokeWidth={2} />
+        {/* Bottom Nav */}
+        <nav style={{ padding: '0.35rem 0 0.5rem' }}>
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'space-around',
+            maxWidth: '480px', margin: '0 auto', padding: '0 0.5rem',
+          }}>
+            <Link to="/dashboard" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
+              <HomeIcon size={20} strokeWidth={1.5} />
+              <span style={{
+                fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>Home</span>
+            </Link>
+            <Link to="/products" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
+              <Search size={20} strokeWidth={1.5} />
+              <span style={{
+                fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>Shop</span>
+            </Link>
+            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '60px' }}>
+              <div className="center-btn" style={{ background: '#D4A017' }}>
+                <ShoppingBag size={22} color="#FFFFFF" strokeWidth={2} />
+              </div>
             </div>
+            <Link to="/my-orders" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
+              <Package size={20} strokeWidth={1.5} />
+              <span style={{
+                fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>Orders</span>
+            </Link>
+            <Link to="/profile" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
+              <User size={20} strokeWidth={1.5} />
+              <span style={{
+                fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>Profile</span>
+            </Link>
           </div>
-          <Link to="/my-orders" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
-            <Package size={20} strokeWidth={1.5} />
-            <span style={{
-              fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.05em',
-            }}>Orders</span>
-          </Link>
-          <Link to="/profile" className="nav-item" style={{ color: 'rgba(27,67,50,0.4)' }}>
-            <User size={20} strokeWidth={1.5} />
-            <span style={{
-              fontFamily: '"DM Sans", sans-serif', fontSize: '0.45rem', fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.05em',
-            }}>Profile</span>
-          </Link>
-        </div>
-      </nav>
+        </nav>
+      </div>
     </div>
   );
 }

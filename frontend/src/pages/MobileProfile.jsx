@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../redux/slices/authSlice';
+import { logoutUser, updateUser } from '../redux/slices/authSlice';
 import { clearCartLocal } from '../redux/slices/cartSlice';
 import { api } from '../services/api';
 import {
   ShoppingBag, Heart, MapPin, Star, Gift, Package,
   CreditCard, Bell, Globe, HelpCircle, Info, Shield,
   FileText, LogOut, ChevronRight, User, Moon, Sun,
-  Navigation, Search, Menu, Edit2, Leaf,
+  Navigation, Search, Menu, Edit2, Leaf, Check, X,
 } from 'lucide-react';
 
 const MENU_SECTIONS = [
@@ -62,6 +62,10 @@ export default function MobileProfile() {
   const [notificationsOn, setNotificationsOn] = useState(true);
   const [locationOn, setLocationOn] = useState(true);
   const [selectedLang, setSelectedLang] = useState('English');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editEmail, setEditEmail] = useState(user?.email || '');
+  const [editPhone, setEditPhone] = useState(user?.phone || '');
 
   const totalCartCount = cartItems.reduce((acc, curr) => acc + curr.count, 0);
 
@@ -83,6 +87,18 @@ export default function MobileProfile() {
     dispatch(logoutUser());
     dispatch(clearCartLocal());
     navigate('/login');
+  };
+
+  const handleEditSave = () => {
+    dispatch(updateUser({ name: editName, email: editEmail, phone: editPhone }));
+    setIsEditing(false);
+  };
+
+  const handleEditCancel = () => {
+    setEditName(user?.name || '');
+    setEditEmail(user?.email || '');
+    setEditPhone(user?.phone || '');
+    setIsEditing(false);
   };
 
   const orderCount = orders.length;
@@ -247,34 +263,105 @@ export default function MobileProfile() {
                       <Leaf size={10} color="#A3C87A" strokeWidth={2} />
                     </div>
                   </div>
-                  <div>
-                    <h1 style={{
-                      fontFamily: '"Playfair Display", Georgia, serif',
-                      fontSize: '1.25rem', fontWeight: 700, color: '#F5F3E7',
-                      margin: 0, lineHeight: 1.2,
-                    }}>{user?.name || 'User'}</h1>
-                    <p style={{
-                      fontFamily: '"DM Sans", sans-serif', fontSize: '0.72rem',
-                      color: 'rgba(245,243,231,0.5)', margin: '0.15rem 0 0 0',
-                    }}>{user?.phone || ''}</p>
-                    <p style={{
-                      fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem',
-                      color: 'rgba(245,243,231,0.35)', margin: '0.1rem 0 0 0',
-                    }}>{user?.email || ''}</p>
+                  <div style={{ flex: 1 }}>
+                    {isEditing ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <input
+                          value={editName}
+                          onChange={e => setEditName(e.target.value)}
+                          placeholder="Name"
+                          style={{
+                            fontFamily: '"DM Sans", sans-serif', fontSize: '0.85rem',
+                            fontWeight: 600, color: '#F5F3E7',
+                            background: 'rgba(245,243,231,0.08)',
+                            border: '1px solid rgba(163,200,122,0.2)',
+                            borderRadius: '10px', padding: '0.4rem 0.65rem',
+                            outline: 'none', width: '100%', boxSizing: 'border-box',
+                          }}
+                        />
+                        <input
+                          value={editPhone}
+                          onChange={e => setEditPhone(e.target.value)}
+                          placeholder="Phone"
+                          style={{
+                            fontFamily: '"DM Sans", sans-serif', fontSize: '0.72rem',
+                            color: 'rgba(245,243,231,0.7)',
+                            background: 'rgba(245,243,231,0.08)',
+                            border: '1px solid rgba(163,200,122,0.2)',
+                            borderRadius: '10px', padding: '0.35rem 0.65rem',
+                            outline: 'none', width: '100%', boxSizing: 'border-box',
+                          }}
+                        />
+                        <input
+                          value={editEmail}
+                          onChange={e => setEditEmail(e.target.value)}
+                          placeholder="Email"
+                          style={{
+                            fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem',
+                            color: 'rgba(245,243,231,0.5)',
+                            background: 'rgba(245,243,231,0.08)',
+                            border: '1px solid rgba(163,200,122,0.2)',
+                            borderRadius: '10px', padding: '0.3rem 0.65rem',
+                            outline: 'none', width: '100%', boxSizing: 'border-box',
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <h1 style={{
+                          fontFamily: '"Playfair Display", Georgia, serif',
+                          fontSize: '1.25rem', fontWeight: 700, color: '#F5F3E7',
+                          margin: 0, lineHeight: 1.2,
+                        }}>{user?.name || 'User'}</h1>
+                        <p style={{
+                          fontFamily: '"DM Sans", sans-serif', fontSize: '0.72rem',
+                          color: 'rgba(245,243,231,0.5)', margin: '0.15rem 0 0 0',
+                        }}>{user?.phone || ''}</p>
+                        <p style={{
+                          fontFamily: '"DM Sans", sans-serif', fontSize: '0.65rem',
+                          color: 'rgba(245,243,231,0.35)', margin: '0.1rem 0 0 0',
+                        }}>{user?.email || ''}</p>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                {/* Edit button */}
-                <button style={{
-                  width: '36px', height: '36px', borderRadius: '12px',
-                  background: 'rgba(163,200,122,0.1)',
-                  border: '1px solid rgba(163,200,122,0.15)',
-                  cursor: 'pointer', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  color: '#A3C87A', flexShrink: 0,
-                }}>
-                  <Edit2 size={16} strokeWidth={1.5} />
-                </button>
+                {/* Edit / Cancel buttons */}
+                {isEditing ? (
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={handleEditCancel} style={{
+                      width: '36px', height: '36px', borderRadius: '12px',
+                      background: 'rgba(220,38,38,0.1)',
+                      border: '1px solid rgba(220,38,38,0.15)',
+                      cursor: 'pointer', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center',
+                      color: '#DC2626', flexShrink: 0,
+                    }}>
+                      <X size={16} strokeWidth={1.5} />
+                    </button>
+                    <button onClick={handleEditSave} style={{
+                      width: '36px', height: '36px', borderRadius: '12px',
+                      background: 'rgba(163,200,122,0.15)',
+                      border: '1px solid rgba(163,200,122,0.2)',
+                      cursor: 'pointer', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center',
+                      color: '#A3C87A', flexShrink: 0,
+                    }}>
+                      <Check size={16} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => { setEditName(user?.name || ''); setEditEmail(user?.email || ''); setEditPhone(user?.phone || ''); setIsEditing(true); }} style={{
+                    width: '36px', height: '36px', borderRadius: '12px',
+                    background: 'rgba(163,200,122,0.1)',
+                    border: '1px solid rgba(163,200,122,0.15)',
+                    cursor: 'pointer', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    color: '#A3C87A', flexShrink: 0,
+                  }}>
+                    <Edit2 size={16} strokeWidth={1.5} />
+                  </button>
+                )}
               </div>
             </div>
           </div>
