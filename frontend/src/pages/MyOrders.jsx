@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setCartSuccess } from "../redux/slices/cartSlice";
 import { api } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import MobileOrders from "./MobileOrders";
 
 const STATUS_STYLES = {
   "Delivered": { bg: "bg-green-900/30", color: "text-green-400", icon: CheckCircle },
@@ -20,6 +21,14 @@ export default function MyOrders() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [showSuccess, setShowSuccess] = useState(location.state?.orderSuccess || false);
   const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
@@ -102,6 +111,8 @@ export default function MyOrders() {
     const matchSearch = !search || orderId.toLowerCase().includes(search.toLowerCase()) || productNames.toLowerCase().includes(search.toLowerCase());
     return matchTab && matchSearch;
   });
+
+  if (isMobile) return <MobileOrders />;
 
   if (loading) return <LoadingSpinner />;
 

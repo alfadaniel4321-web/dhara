@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import MobileOrders from "./MobileOrders";
 import { useDispatch } from "react-redux";
 import { setCartSuccess } from "../redux/slices/cartSlice";
 import {
@@ -18,6 +19,14 @@ const STATUS_STYLES = {
 export default function DailyOrders() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
@@ -57,6 +66,8 @@ export default function DailyOrders() {
   const totalItems = orders.filter(o => o.orderStatus !== "Delivered").reduce((sum, o) => sum + (o.products?.length || 0), 0);
 
   if (loading) return <LoadingSpinner />;
+
+  if (isMobile) return <MobileOrders />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
