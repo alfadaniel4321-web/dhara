@@ -6,13 +6,14 @@ html {
   font-size: clamp(14px, 1.1vw, 17px);
   overflow-x: hidden;
   width: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer base {
   body {
-    @apply bg-farmgreen-950 text-emerald-100 antialiased;
-    font-family: 'DM Sans', 'Noto Sans Malayalam', system-ui, sans-serif;
-    background-color: #042f1a;
+    @apply bg-cream text-text-dark antialiased;
+    font-family: 'Inter', 'DM Sans', 'Noto Sans Malayalam', system-ui, sans-serif;
+    background-color: #F8F6F0;
     overflow-x: hidden;
     width: 100%;
   }
@@ -23,17 +24,8 @@ input, textarea, select, button {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #021a0e;
-}
-::-webkit-scrollbar-thumb {
-  background: #2D6A4F;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #95D5B2;
+  width: 0;
+  height: 0;
 }
 
 .glass {
@@ -81,6 +73,16 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #95D5B2;
+  outline: 2px solid #0F5132;
   outline-offset: 2px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }

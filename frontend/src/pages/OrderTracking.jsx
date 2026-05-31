@@ -1,179 +1,201 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { 
-  ChevronLeft, 
-  MapPin, 
-  Clock, 
-  Smartphone, 
-  CheckCircle2, 
-  Package, 
-  Truck, 
-  Home,
-  MessageSquare
-} from 'lucide-react';
+import { ChevronLeft, MapPin, CheckCircle, Circle, Truck, Package, Sun, Leaf } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const STAGES = [
+  { key: 'placed', label: 'Order Placed', icon: Package },
+  { key: 'confirmed', label: 'Confirmed', icon: CheckCircle },
+  { key: 'picked', label: 'Picked from Farm', icon: Leaf },
+  { key: 'out_for_delivery', label: 'Out for Delivery', icon: Truck },
+  { key: 'delivered', label: 'Delivered', icon: Sun },
+];
 
 export default function OrderTracking() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [farmer, setFarmer] = useState(null);
-
-  const loadOrder = async () => {
-    setLoading(true);
-    try {
-      const ord = await api.orders.trackOrder(id);
-      setOrder(ord);
-
-      const fItem = ord.products[0];
-      if (fItem && fItem.farmerId) {
-        try {
-          const farmers = await api.auth.getFarmers();
-          const foundFarmer = farmers.find(u => u.id === fItem.farmerId || u._id === fItem.farmerId);
-          setFarmer(foundFarmer || null);
-        } catch {
-          setFarmer(null);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    loadOrder();
+    const fetchOrder = async () => {
+      try {
+        const data = await api.orders.getOrderById(id);
+        if (data) setOrder(data);
+      } catch {
+        try {
+          const all = await api.orders.getOrders();
+          const found = all.find((o) => (o._id || o.id) === id);
+          if (found) setOrder(found);
+        } catch {}
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrder();
   }, [id]);
 
-  if (loading) return <LoadingSpinner />;
-  if (!order) {
-    return (
-      <div className="py-12 text-center">
-        <p className="text-xs text-emerald-300">Order tracking details not found.</p>
-        <Link to="/dashboard" className="text-xs text-emerald-500 underline mt-2 inline-block">Back to Dashboard</Link>
-      </div>
-    );
-  }
-
-  // Map orderStatus string to timeline stage index
-  const stages = [
-    { title: 'Order Placed', desc: 'Received by farmer', icon: Package },
-    { title: 'Preparing', desc: 'Harvesting & sorting', icon: Clock },
-    { title: 'Out for Delivery', desc: 'In transit to door', icon: Truck },
-    { title: 'Delivered', desc: 'Completed handover', icon: Home },
-  ];
-
-  let currentStageIdx = 0;
-  if (order.orderStatus === 'Processing') currentStageIdx = 1;
-  else if (order.orderStatus === 'In Transit') currentStageIdx = 2;
-  else if (order.orderStatus === 'Delivered') currentStageIdx = 3;
+  const getStageIndex = (status) => {
+    const map = { placed: 0, confirmed: 1, picked: 2, out_for_delivery: 3, delivered: 4 };
+    return map[status?.toLowerCase().replace(/\s+/g, '_')] ?? -1;
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header back */}
-      <button 
-        onClick={() => navigate('/dashboard')}
-        className="flex items-center space-x-2 text-xs text-emerald-400 hover:text-white transition-colors"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="px-5"
+    >
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-1.5 mb-5 transition-all active:scale-95"
+        style={{ color: "rgba(29,43,31,0.4)" }}
       >
-        <ChevronLeft className="w-4 h-4" />
-        <span>Back to Dashboard</span>
+        <ChevronLeft size={16} />
+        <span className="text-xs font-medium">Back</span>
       </button>
 
-      <div className="border-b border-emerald-900/60 pb-4">
-        <h2 className="text-2xl font-bold text-white">Track Delivery Route</h2>
-        <p className="text-sm text-emerald-300/70">Real-time timeline monitor for order #{order.id || order._id}</p>
-      </div>
+      <h1 className="text-xl font-bold mb-1"
+        style={{ color: "#0A3B2A", fontFamily: "'Playfair Display', Georgia, serif" }}
+      >
+        Order Tracking
+      </h1>
+      {order && (
+        <p className="text-xs mb-6" style={{ color: "rgba(29,43,31,0.35)" }}>
+          #{order.orderNumber || order._id?.slice(-6) || "000000"}
+        </p>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Timeline tracker */}
-        <div className="lg:col-span-2 bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-8">
-          
-          <div className="flex justify-between items-center bg-emerald-950/40 p-4 rounded-xl border border-emerald-900/60 text-xs">
-            <span className="text-emerald-350">Status: <strong className="text-white uppercase">{order.orderStatus || 'Pending'}</strong></span>
-            <span className="text-emerald-350">Expected Slot: <strong className="text-emerald-400">{order.deliveryTime} Slot</strong></span>
-          </div>
-
-          {/* Graphical timeline */}
-          <div className="relative pl-8 space-y-10 border-l border-emerald-900/80">
-            {stages.map((stage, idx) => {
-              const StageIcon = stage.icon;
-              const isPast = idx <= currentStageIdx;
-              const isCurrent = idx === currentStageIdx;
-
-              return (
-                <div key={idx} className="relative">
-                  {/* Circle indicator */}
-                  <div className={`absolute -left-12.5 top-0 w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all ${
-                    isPast 
-                      ? 'bg-emerald-500 border-emerald-400 text-farmgreen-950 shadow-md shadow-emerald-500/20' 
-                      : 'bg-farmgreen-950 border-emerald-900 text-emerald-800'
-                  }`}>
-                    <StageIcon className="w-4.5 h-4.5" />
-                  </div>
-
-                  <div className="space-y-0.5 pl-4">
-                    <h4 className={`text-sm font-bold flex items-center ${isPast ? 'text-white' : 'text-emerald-305/40'}`}>
-                      <span>{stage.title}</span>
-                      {isCurrent && (
-                        <span className="ml-2 w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                      )}
-                    </h4>
-                    <p className={`text-xs ${isPast ? 'text-emerald-300/80' : 'text-emerald-305/20'}`}>{stage.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: "rgba(15,81,50,0.2)", borderTopColor: "#0F5132" }}
+          />
         </div>
+      ) : !order ? (
+        <div className="text-center py-16">
+          <p className="text-sm" style={{ color: "rgba(29,43,31,0.4)" }}>
+            Order not found
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Timeline */}
+          <div className="rounded-3xl p-5 mb-5"
+            style={{ background: "#fff", boxShadow: "0 2px 12px rgba(0,0,0,0.03)" }}
+          >
+            <div className="relative">
+              {STAGES.map((stage, i) => {
+                const currentIndex = getStageIndex(order.status);
+                const isCompleted = i <= currentIndex;
+                const isCurrent = i === currentIndex;
+                const Icon = stage.icon;
+                const isLast = i === STAGES.length - 1;
 
-        {/* Farmer and items overview sidebar */}
-        <div className="space-y-6">
-          {/* Farmer Contact card */}
-          {farmer && (
-            <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">Assigned Farmer</h3>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500 flex items-center justify-center font-bold text-emerald-400">
-                  {farmer.name.substring(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white">{farmer.name}</h4>
-                  <div className="flex items-center space-x-1.5 text-[10px] text-emerald-400/80 font-medium">
-                    <span>{farmer.rating || 5.0}★ Rating</span>
+                return (
+                  <div key={stage.key} className="flex gap-3 relative">
+                    {/* Timeline line */}
+                    {!isLast && (
+                      <div
+                        className="absolute left-[15px] top-[36px] w-[2px]"
+                        style={{
+                          height: "calc(100% + 4px)",
+                          background: isCompleted ? "#0F5132" : "rgba(29,43,31,0.06)",
+                        }}
+                      />
+                    )}
+
+                    {/* Icon */}
+                    <div className="relative z-10 flex-shrink-0">
+                      <div
+                        className="w-[30px] h-[30px] rounded-full flex items-center justify-center transition-all"
+                        style={{
+                          background: isCompleted ? (isCurrent ? "rgba(15,81,50,0.12)" : "#0F5132") : "rgba(29,43,31,0.04)",
+                          border: isCompleted ? "none" : "1px solid rgba(29,43,31,0.06)",
+                        }}
+                      >
+                        <Icon
+                          size={14}
+                          color={isCompleted ? (isCurrent ? "#0F5132" : "#fff") : "rgba(29,43,31,0.15)"}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className={`pb-6 ${isLast ? 'pb-0' : ''}`}>
+                      <p className="text-xs font-semibold"
+                        style={{
+                          color: isCompleted ? "#0A3B2A" : "rgba(29,43,31,0.25)",
+                          marginTop: "5px",
+                        }}
+                      >
+                        {stage.label}
+                      </p>
+                      {isCurrent && (
+                        <p className="text-[10px] mt-0.5 font-medium"
+                          style={{ color: "#0F5132" }}
+                        >
+                          {order.status === 'delivered' ? 'Delivered successfully' : 'In progress'}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
+                );
+              })}
+            </div>
+          </div>
 
-              <div className="flex items-center space-x-2 text-xs bg-emerald-950/50 p-2.5 rounded-xl border border-emerald-900/60 text-emerald-200">
-                <Smartphone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="font-mono font-semibold select-all">{farmer.phone}</span>
+          {/* Delivery Address */}
+          <div className="rounded-3xl p-4 mb-5"
+            style={{
+              background: "rgba(15,81,50,0.04)",
+              border: "1px solid rgba(15,81,50,0.06)",
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <MapPin size={15} color="#0F5132" className="mt-0.5" />
+              <div>
+                <p className="text-[11px] font-semibold mb-0.5" style={{ color: "#1D2B1F" }}>
+                  Delivery Address
+                </p>
+                <p className="text-[10px] leading-relaxed" style={{ color: "rgba(29,43,31,0.5)" }}>
+                  {order.address || order.deliveryAddress || "Home delivery address"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Order Items Summary */}
+          {order.items && order.items.length > 0 && (
+            <div className="rounded-3xl p-4 mb-8"
+              style={{ background: "#fff", boxShadow: "0 2px 12px rgba(0,0,0,0.03)" }}
+            >
+              <p className="text-xs font-semibold mb-3" style={{ color: "#0A3B2A" }}>
+                Items ({order.items.length})
+              </p>
+              <div className="space-y-2">
+                {order.items.map((item, i) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span style={{ color: "#1D2B1F" }}>
+                      {item.title || item.name || "Product"} × {item.quantity || 1}
+                    </span>
+                    <span style={{ color: "rgba(29,43,31,0.5)" }}>
+                      ₹{(item.price || 0) * (item.quantity || 1)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between text-sm font-bold mt-3 pt-2"
+                style={{ borderTop: "1px solid rgba(0,0,0,0.04)" }}
+              >
+                <span style={{ color: "#0A3B2A" }}>Total</span>
+                <span style={{ color: "#0F5132" }}>₹{order.totalAmount || order.total || 0}</span>
               </div>
             </div>
           )}
-
-          {/* Ordered Products summary */}
-          <div className="bg-emerald-950/20 border border-emerald-900 rounded-3xl p-6 space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">Ordered Produce</h3>
-            <div className="space-y-3">
-              {order.products.map((p, index) => (
-                <div key={index} className="flex justify-between items-center text-xs text-emerald-300">
-                  <span>{p.title} <strong className="text-[10px] text-white">x{p.count || 1}</strong></span>
-                  <span className="font-mono text-emerald-250">₹{(p.price || 50) * (p.count || 1)}</span>
-                </div>
-              ))}
-              <div className="border-t border-emerald-900/60 pt-3 flex justify-between font-extrabold text-sm text-white">
-                <span>Total Amount paid:</span>
-                <span className="font-mono text-emerald-400">₹{order.totalPrice}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
+        </>
+      )}
+    </motion.div>
   );
 }
