@@ -37,7 +37,7 @@ export default function Login() {
       try {
         const data = await api.auth.login(email, password);
         dispatch(setAuthSuccess({ user: data.user, token: data.token }));
-        if (data.user.role === "admin") navigate("/admin");
+        if (data.user.role === "admin") navigate("/admin/dashboard");
         else if (data.user.role === "farmer") navigate("/farmer");
         else navigate("/dashboard");
       } catch (err) {

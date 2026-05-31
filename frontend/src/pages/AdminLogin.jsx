@@ -23,7 +23,7 @@ export default function AdminLogin() {
         return;
       }
       dispatch(setAuthSuccess({ user: data.user, token: data.token }));
-      navigate("/admin");
+      navigate("/admin/dashboard");
     } catch (err) {
       dispatch(setAuthFailure(err.message || "Login failed"));
     }

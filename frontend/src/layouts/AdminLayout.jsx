@@ -9,7 +9,7 @@ export default function AdminLayout() {
   const { user } = useSelector((state) => state.auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/admin" replace />;
   if (user.role !== "admin") return <Navigate to="/dashboard" replace />;
 
   return (

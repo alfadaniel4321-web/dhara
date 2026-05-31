@@ -7,7 +7,7 @@ import {
 import { logoutUser } from "../redux/slices/authSlice";
 
 const NAV_ITEMS = [
-  { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
+  { to: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard", end: true },
   { to: "/admin/farmers", icon: Users, label: "Farmers" },
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/orders", icon: ShoppingBag, label: "Orders" },

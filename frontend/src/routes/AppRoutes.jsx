@@ -62,7 +62,7 @@ function ProtectedRoute() {
 function PublicOnlyRoute() {
   const { user } = useSelector((state) => state.auth);
   if (user) {
-    return <Navigate to={user.role === 'farmer' ? '/farmer' : user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+    return <Navigate to={user.role === 'farmer' ? '/farmer' : user.role === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />;
   }
   return <Outlet />;
 }
@@ -76,7 +76,7 @@ export default function AppRoutes() {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminLogin />} />
       </Route>
 
       <Route element={<MainLayout />}>
@@ -86,7 +86,7 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/farmers" element={<AdminFarmers />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
