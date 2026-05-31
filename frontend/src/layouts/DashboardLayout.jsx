@@ -37,7 +37,7 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
       </div>
-      <Footer />
+      {!isMobile && <Footer />}
       {!isDashboard && <MobileBottomNav role="customer" />}
     </div>
   );
