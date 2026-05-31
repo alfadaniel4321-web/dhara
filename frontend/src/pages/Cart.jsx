@@ -5,11 +5,19 @@ import { setCartSuccess, clearCartLocal } from '../redux/slices/cartSlice';
 import { api } from '../services/api';
 import CartItem from '../components/CartItem';
 import { ShoppingBag, ChevronRight, Tag, ShieldCheck } from 'lucide-react';
+import MobileCart from './MobileCart';
 
 export default function Cart() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cartItems, totalPrice, loading } = useSelector((state) => state.cart);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [coupon, setCoupon] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -103,6 +111,8 @@ export default function Cart() {
       </div>
     );
   }
+
+  if (isMobile) return <MobileCart />;
 
   return (
     <div className="space-y-6">
