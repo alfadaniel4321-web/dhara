@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import MobileBottomNav from '../components/MobileBottomNav';
 
 const SELF_CONTAINED_MOBILE = ['/dashboard', '/daily-orders', '/my-orders', '/profile', '/cart', '/track/'];
 
@@ -42,6 +43,7 @@ export default function DashboardLayout() {
         </main>
       </div>
       {!isMobile && <Footer />}
+      {isMobile && !isSelfContainedMobile && <MobileBottomNav role="customer" />}
     </div>
   );
 }
